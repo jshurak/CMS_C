@@ -20,6 +20,7 @@ namespace CMS_C
             {
                 Console.WriteLine("Connection to " + instance.instanceName + " was false.");
             }
+            instance.GatherInstance();
 
             Console.ReadLine();
 
