@@ -15,11 +15,6 @@ namespace CMS_C
             serverName = Name;
         }
 
-
-   
-
-
-
         public string serverName { get; set; }
         public long totalMemory { get; set; }
         public string manufacturer { get; set; }
