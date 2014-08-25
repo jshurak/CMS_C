@@ -22,17 +22,21 @@ namespace CMS_C
         private string SSRSService;
         private string AgentService;
         private List<string> services;
-        private string serviceStatus;
+        
 
         public Instance(string InstanceName)
         {
            instanceName = InstanceName;
-           serverName = instanceName;
-           SQLService = "MSSQLSERVER";
-           SSASService = "MSSQLServerOLAPService";
-           SSRSService = "ReportServer";
-           AgentService = "SQLSERVERAGENT";
-            if(instanceName.Contains("\\"))
+        }
+        public Instance(string InstanceName,bool SSAS,bool SSRS)
+        {
+            instanceName = InstanceName;
+            serverName = instanceName;
+            SQLService = "MSSQLSERVER";
+            SSASService = "MSSQLServerOLAPService";
+            SSRSService = "ReportServer";
+            AgentService = "SQLSERVERAGENT";
+            if (instanceName.Contains("\\"))
             {
                 string stub = instanceName.Substring(instanceName.IndexOf("\\") + 1);
                 serverName = instanceName.Substring(0, instanceName.Length - (stub.Length + 1));
@@ -43,9 +47,17 @@ namespace CMS_C
             }
             services = new List<string>();
             services.Add(SQLService);
-            services.Add(SSASService);
-            services.Add(SSRSService);
             services.Add(AgentService);
+            if (SSAS)
+            {
+                services.Add(SSASService);
+            }
+            if(SSRS)
+            {
+                services.Add(SSRSService);
+            }
+            
+            
         }
 
         public bool TestConnection()
@@ -131,8 +143,16 @@ namespace CMS_C
         {
             foreach(string service in services)
             {
+                try
+                {
                 ServiceController sc = new ServiceController(service,serverName);
-                Console.WriteLine(service + " status is " + sc.Status);
+                Console.WriteLine(service + " on " + serverName + " status is " + sc.Status);
+                }
+                catch (Exception e)
+                {
+                    
+                    Console.WriteLine(e.ToString());
+                }
             }
         }
     }
