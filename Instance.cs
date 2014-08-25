@@ -27,6 +27,25 @@ namespace CMS_C
         public Instance(string InstanceName)
         {
            instanceName = InstanceName;
+           serverName = instanceName;
+           SQLService = "MSSQLSERVER";
+           SSASService = "MSSQLServerOLAPService";
+           SSRSService = "ReportServer";
+           AgentService = "SQLSERVERAGENT";
+           if (instanceName.Contains("\\"))
+           {
+               string stub = instanceName.Substring(instanceName.IndexOf("\\") + 1);
+               serverName = instanceName.Substring(0, instanceName.Length - (stub.Length + 1));
+               SQLService = "MSSQL$" + stub;
+               SSASService = "MSOLAP$" + stub;
+               SSRSService = "ReportServer$" + stub;
+               AgentService = "SQLAgent$" + stub;
+           }
+           services = new List<string>();
+           services.Add(SQLService);
+           services.Add(AgentService);
+           services.Add(SSASService);
+           services.Add(SSRSService);
         }
         public Instance(string InstanceName,bool SSAS,bool SSRS)
         {
