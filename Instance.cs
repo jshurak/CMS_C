@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
 using System.ServiceProcess;
@@ -25,6 +22,7 @@ namespace CMS_C
         private string SSRSService;
         private string AgentService;
         private List<string> services;
+        private string serviceStatus;
 
         public Instance(string InstanceName)
         {
@@ -131,10 +129,10 @@ namespace CMS_C
         }
         public void CheckServices()
         {
-           
             foreach(string service in services)
             {
-                Console.WriteLine(service);
+                ServiceController sc = new ServiceController(service,serverName);
+                Console.WriteLine(service + " status is " + sc.Status);
             }
         }
     }
