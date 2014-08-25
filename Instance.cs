@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
+using System.ServiceProcess;
 
 namespace CMS_C
 {
@@ -23,6 +24,17 @@ namespace CMS_C
         public Instance(string InstanceName)
         {
             instanceName = InstanceName;
+            string serverName = instanceName;
+            string SSASService = "MSSQLServerOLAPService";
+            string SSRSService = "ReportServer";
+            if(instanceName.Contains("\\"))
+            {
+                string stub = instanceName.Substring(instanceName.IndexOf("\\") + 1);
+                serverName = instanceName.Substring(0, instanceName.Length - (stub.Length + 1));
+                SSASService = "MSOLAP$" + stub;
+                SSRSService = "ReportServer$" + stub;
+            }
+            
         }
 
         public bool TestConnection()
@@ -65,7 +77,6 @@ namespace CMS_C
             SqlConnection conn = new SqlConnection(connectionstring.ConnectionString);
             try
             {
-
                 SqlDataReader myReader = null;
                 SqlCommand myCommand = new SqlCommand(@"select @@SERVERNAME AS InstanceName,SERVERPROPERTY('Edition') AS Edition,SERVERPROPERTY('ProductVersion') AS Version,CAST(SERVERPROPERTY('isClustered') as BIT) AS isClustered ,SERVERPROPERTY('ProductLevel') AS ProductLevel
                                                         ,[Min] as minMemory,CAST([Max] AS BIGINT) as maxMemory
@@ -103,6 +114,10 @@ namespace CMS_C
                 Console.WriteLine(e.ToString());
             }
 
+
+        }
+        public void CheckServices()
+        {
 
         }
     }
