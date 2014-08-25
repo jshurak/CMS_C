@@ -19,22 +19,35 @@ namespace CMS_C
         public int minMemory { get; set; }
         public string productLevel { get; set; }
         public bool pingStatus { get; set; }
-
+        private string serverName;
+        private string SQLService;
+        private string SSASService;
+        private string SSRSService;
+        private string AgentService;
+        private List<string> services;
 
         public Instance(string InstanceName)
         {
-            instanceName = InstanceName;
-            string serverName = instanceName;
-            string SSASService = "MSSQLServerOLAPService";
-            string SSRSService = "ReportServer";
+           instanceName = InstanceName;
+           serverName = instanceName;
+           SQLService = "MSSQLSERVER";
+           SSASService = "MSSQLServerOLAPService";
+           SSRSService = "ReportServer";
+           AgentService = "SQLSERVERAGENT";
             if(instanceName.Contains("\\"))
             {
                 string stub = instanceName.Substring(instanceName.IndexOf("\\") + 1);
                 serverName = instanceName.Substring(0, instanceName.Length - (stub.Length + 1));
+                SQLService = "MSSQL$" + stub;
                 SSASService = "MSOLAP$" + stub;
                 SSRSService = "ReportServer$" + stub;
+                AgentService = "SQLAgent$" + stub;
             }
-            
+            services = new List<string>();
+            services.Add(SQLService);
+            services.Add(SSASService);
+            services.Add(SSRSService);
+            services.Add(AgentService);
         }
 
         public bool TestConnection()
@@ -118,7 +131,11 @@ namespace CMS_C
         }
         public void CheckServices()
         {
-
+           
+            foreach(string service in services)
+            {
+                Console.WriteLine(service);
+            }
         }
     }
 }
