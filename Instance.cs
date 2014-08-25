@@ -67,7 +67,17 @@ namespace CMS_C
             {
 
                 SqlDataReader myReader = null;
-                SqlCommand myCommand = new SqlCommand("select @@SERVERNAME AS InstanceName,SERVERPROPERTY('Edition') AS Edition,SERVERPROPERTY('ProductVersion') AS Version,CAST(SERVERPROPERTY('isClustered') as BIT) AS isClustered ,SERVERPROPERTY('ProductLevel') AS ProductLevel",conn);
+                SqlCommand myCommand = new SqlCommand(@"select @@SERVERNAME AS InstanceName,SERVERPROPERTY('Edition') AS Edition,SERVERPROPERTY('ProductVersion') AS Version,CAST(SERVERPROPERTY('isClustered') as BIT) AS isClustered ,SERVERPROPERTY('ProductLevel') AS ProductLevel
+                                                        ,[Min] as minMemory,CAST([Max] AS BIGINT) as maxMemory
+                                                        FROM
+                                                        (SELECT left(name,3) as name, value_in_use
+                                                        FROM sys.configurations
+                                                        where name like '%server memory%') as s
+                                                        PIVOT
+                                                        (
+	                                                        max(value_in_use)
+	                                                        FOR name in ([min],[max])
+                                                        ) as output",conn);
                 conn.Open();
                 myReader = myCommand.ExecuteReader();
                 while (myReader.Read())
@@ -76,6 +86,8 @@ namespace CMS_C
                     version = myReader["Version"].ToString();
                     isClustered = (bool)myReader["isClustered"];
                     productLevel = myReader["ProductLevel"].ToString();
+                    minMemory = (int)myReader["minMemory"];
+                    maxMemory = (long)myReader["maxMemory"];
                 }
                 conn.Close();
                 Console.WriteLine(instanceName);
@@ -83,6 +95,8 @@ namespace CMS_C
                 Console.WriteLine(version);
                 Console.WriteLine(isClustered);
                 Console.WriteLine(productLevel);
+                Console.WriteLine(minMemory);
+                Console.WriteLine(maxMemory);
             }
             catch (Exception e)
             {
