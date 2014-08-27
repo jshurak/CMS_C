@@ -23,30 +23,28 @@ namespace CMS_C
         private string _SSRSService;
         private string _AgentService;
         private List<string> _services;
-        
+        private Dictionary<string, string> _serviceNameDictionary;
+        private Dictionary<string, int> _serviceResultDictionary;
 
         public Instance(string InstanceName)
         {
            instanceName = InstanceName;
            _serverName = instanceName;
-           _SQLService = "MSSQLSERVER";
            _SSASService = "MSSQLServerOLAPService";
            _SSRSService = "ReportServer";
-           _AgentService = "SQLSERVERAGENT";
            if (instanceName.Contains("\\"))
            {
                string stub = instanceName.Substring(instanceName.IndexOf("\\") + 1);
                _serverName = instanceName.Substring(0, instanceName.Length - (stub.Length + 1));
-               _SQLService = "MSSQL$" + stub;
                _SSASService = "MSOLAP$" + stub;
                _SSRSService = "ReportServer$" + stub;
-               _AgentService = "SQLAgent$" + stub;
            }
-           _services = new List<string>();
-           _services.Add(_SQLService);
-           _services.Add(_AgentService);
-           _services.Add(_SSASService);
-           _services.Add(_SSRSService);
+           _serviceNameDictionary = new Dictionary<string,string>();
+           _serviceNameDictionary.Add("SSAS", _SSASService);
+           _serviceNameDictionary.Add("SSRS", _SSRSService);
+           _serviceResultDictionary = new Dictionary<string, int>();
+           _serviceResultDictionary.Add("SSAS", 0);
+           _serviceResultDictionary.Add("SSRS", 0);
         }
         public Instance(string InstanceName,bool SSAS,bool SSRS)
         {
@@ -177,11 +175,14 @@ namespace CMS_C
         }
         public void GatherServices()
         {
-            foreach(string service in _services)
+            foreach(KeyValuePair<string, string> service in _serviceNameDictionary)
             {
                 try
                 {
-                    DoesServiceExist(service, _serverName);
+                    if(DoesServiceExist(service.Value, _serverName))
+                    {
+                        _serviceResultDictionary[service.Key] = 1;
+                    }
                 }
                 catch (Exception e)
                 {

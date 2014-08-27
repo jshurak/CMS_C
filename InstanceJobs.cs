@@ -35,7 +35,7 @@ namespace CMS_C
             foreach (DataRow pRow in instances.Tables[0].Rows)
             {
                 string Name = (string)pRow["InstanceName"];
-                if(pRow.IsNull("SSAS")  || pRow.IsNull("SSRS"))
+                if(pRow.IsNull("SSAS") || pRow.IsNull("SSRS"))
                 {
                     instance = new Instance(Name);
                     instance.GatherServices();
