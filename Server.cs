@@ -29,6 +29,5 @@ namespace CMS_C
         public bool pingStatus { get; set; }
         public bool isVirtualServerName { get; set; }
         
-
     }
 }

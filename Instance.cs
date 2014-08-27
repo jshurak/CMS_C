@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data;
 using System.ServiceProcess;
+using System.Linq;
 
 namespace CMS_C
 {
@@ -16,64 +17,64 @@ namespace CMS_C
         public int minMemory { get; set; }
         public string productLevel { get; set; }
         public bool pingStatus { get; set; }
-        private string serverName;
-        private string SQLService;
-        private string SSASService;
-        private string SSRSService;
-        private string AgentService;
-        private List<string> services;
+        private string _serverName;
+        private string _SQLService;
+        private string _SSASService;
+        private string _SSRSService;
+        private string _AgentService;
+        private List<string> _services;
         
 
         public Instance(string InstanceName)
         {
            instanceName = InstanceName;
-           serverName = instanceName;
-           SQLService = "MSSQLSERVER";
-           SSASService = "MSSQLServerOLAPService";
-           SSRSService = "ReportServer";
-           AgentService = "SQLSERVERAGENT";
+           _serverName = instanceName;
+           _SQLService = "MSSQLSERVER";
+           _SSASService = "MSSQLServerOLAPService";
+           _SSRSService = "ReportServer";
+           _AgentService = "SQLSERVERAGENT";
            if (instanceName.Contains("\\"))
            {
                string stub = instanceName.Substring(instanceName.IndexOf("\\") + 1);
-               serverName = instanceName.Substring(0, instanceName.Length - (stub.Length + 1));
-               SQLService = "MSSQL$" + stub;
-               SSASService = "MSOLAP$" + stub;
-               SSRSService = "ReportServer$" + stub;
-               AgentService = "SQLAgent$" + stub;
+               _serverName = instanceName.Substring(0, instanceName.Length - (stub.Length + 1));
+               _SQLService = "MSSQL$" + stub;
+               _SSASService = "MSOLAP$" + stub;
+               _SSRSService = "ReportServer$" + stub;
+               _AgentService = "SQLAgent$" + stub;
            }
-           services = new List<string>();
-           services.Add(SQLService);
-           services.Add(AgentService);
-           services.Add(SSASService);
-           services.Add(SSRSService);
+           _services = new List<string>();
+           _services.Add(_SQLService);
+           _services.Add(_AgentService);
+           _services.Add(_SSASService);
+           _services.Add(_SSRSService);
         }
         public Instance(string InstanceName,bool SSAS,bool SSRS)
         {
             instanceName = InstanceName;
-            serverName = instanceName;
-            SQLService = "MSSQLSERVER";
-            SSASService = "MSSQLServerOLAPService";
-            SSRSService = "ReportServer";
-            AgentService = "SQLSERVERAGENT";
+            _serverName = instanceName;
+            _SQLService = "MSSQLSERVER";
+            _SSASService = "MSSQLServerOLAPService";
+            _SSRSService = "ReportServer";
+            _AgentService = "SQLSERVERAGENT";
             if (instanceName.Contains("\\"))
             {
                 string stub = instanceName.Substring(instanceName.IndexOf("\\") + 1);
-                serverName = instanceName.Substring(0, instanceName.Length - (stub.Length + 1));
-                SQLService = "MSSQL$" + stub;
-                SSASService = "MSOLAP$" + stub;
-                SSRSService = "ReportServer$" + stub;
-                AgentService = "SQLAgent$" + stub;
+                _serverName = instanceName.Substring(0, instanceName.Length - (stub.Length + 1));
+                _SQLService = "MSSQL$" + stub;
+                _SSASService = "MSOLAP$" + stub;
+                _SSRSService = "ReportServer$" + stub;
+                _AgentService = "SQLAgent$" + stub;
             }
-            services = new List<string>();
-            services.Add(SQLService);
-            services.Add(AgentService);
+            _services = new List<string>();
+            _services.Add(_SQLService);
+            _services.Add(_AgentService);
             if (SSAS)
             {
-                services.Add(SSASService);
+                _services.Add(_SSASService);
             }
             if(SSRS)
             {
-                services.Add(SSRSService);
+                _services.Add(_SSRSService);
             }
             
             
@@ -160,12 +161,12 @@ namespace CMS_C
         }
         public void CheckServices()
         {
-            foreach(string service in services)
+            foreach(string service in _services)
             {
                 try
                 {
-                ServiceController sc = new ServiceController(service,serverName);
-                Console.WriteLine(service + " on " + serverName + " status is " + sc.Status);
+                ServiceController sc = new ServiceController(service,_serverName);
+                Console.WriteLine(service + " on " + _serverName + " status is " + sc.Status);
                 }
                 catch (Exception e)
                 {
@@ -173,6 +174,28 @@ namespace CMS_C
                     Console.WriteLine(e.ToString());
                 }
             }
+        }
+        public void GatherServices()
+        {
+            foreach(string service in _services)
+            {
+                try
+                {
+                    DoesServiceExist(service, _serverName);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                }
+
+            }
+        }
+        
+        bool DoesServiceExist(string serviceName, string machineName)
+        {
+            ServiceController[] services = ServiceController.GetServices(machineName);
+            var service = services.FirstOrDefault(s => s.ServiceName == serviceName);
+            return service != null;
         }
     }
 }
