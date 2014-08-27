@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
+using System.Configuration;
+
 
 namespace CMS_C
 {
@@ -12,12 +14,15 @@ namespace CMS_C
     {
         public static void ProcessInstances()
         {
-            SqlConnectionStringBuilder connectionstring = new SqlConnectionStringBuilder();
-            connectionstring["Data Source"] = "PHLDVWSSQL002\\DVS1201";
-            connectionstring["Database"] = "CMS_Dev";
-            connectionstring["Integrated Security"] = true;
-            connectionstring["Connect Timeout"] = 3;
-            SqlConnection conn = new SqlConnection(connectionstring.ConnectionString);
+            //string connectionString = ConfigurationManager.ConnectionStrings("Repository");
+            SqlConnectionStringBuilder connectionString = new SqlConnectionStringBuilder();
+            connectionString["Data Source"] = "PHLDVWSSQL002\\DVS1201";
+            connectionString["Initial Catalog"] = "CMS";
+            connectionString["Timeout"] = 3;
+            connectionString["Integrated Security"] = true;
+          
+            SqlConnection conn = new SqlConnection(connectionString.ConnectionString);
+            
             conn.Open();
             SqlCommand listInstances = new SqlCommand("exec MonitoredInstances_GetInstances @Module = 'CheckServers'", conn);
             SqlDataAdapter adapter = new SqlDataAdapter(listInstances);
