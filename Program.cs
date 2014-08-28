@@ -11,7 +11,10 @@ namespace CMS_C
     {
         static void Main(string[] args)
         {
-            InstanceJobs.ProcessInstances();
+            //InstanceJobs.ProcessInstances();
+
+            Instance instance = new Instance("PHLSTWSSQL001");
+            instance.GatherServices();
         }
         
     }

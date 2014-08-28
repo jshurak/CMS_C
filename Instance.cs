@@ -22,61 +22,64 @@ namespace CMS_C
         private string _SSASService;
         private string _SSRSService;
         private string _AgentService;
+        private ServiceValue ssasservice;
+        private ServiceValue ssrsservice;
+        private ServiceValue agentservice;
+        private ServiceValue sqlservice;
         private List<string> _services;
-        private Dictionary<string, string> _serviceNameDictionary;
+        private Dictionary<string, ServiceValue> _serviceDictionary;
         private Dictionary<string, int> _serviceResultDictionary;
+        //private Dictionary<string, List<string>> _serviceDictionary;
 
         public Instance(string InstanceName)
         {
-           instanceName = InstanceName;
-           _serverName = instanceName;
-           _SSASService = "MSSQLServerOLAPService";
-           _SSRSService = "ReportServer";
-           if (instanceName.Contains("\\"))
-           {
-               string stub = instanceName.Substring(instanceName.IndexOf("\\") + 1);
-               _serverName = instanceName.Substring(0, instanceName.Length - (stub.Length + 1));
-               _SSASService = "MSOLAP$" + stub;
-               _SSRSService = "ReportServer$" + stub;
-           }
-           _serviceNameDictionary = new Dictionary<string,string>();
-           _serviceNameDictionary.Add("SSAS", _SSASService);
-           _serviceNameDictionary.Add("SSRS", _SSRSService);
-           _serviceResultDictionary = new Dictionary<string, int>();
-           _serviceResultDictionary.Add("SSAS", 0);
-           _serviceResultDictionary.Add("SSRS", 0);
+            BuildServices(InstanceName);
         }
-        public Instance(string InstanceName,bool SSAS,bool SSRS)
+
+        private void BuildServices(string InstanceName)
         {
             instanceName = InstanceName;
             _serverName = instanceName;
-            _SQLService = "MSSQLSERVER";
             _SSASService = "MSSQLServerOLAPService";
             _SSRSService = "ReportServer";
             _AgentService = "SQLSERVERAGENT";
+            _SQLService = "MSSQLSERVER";
             if (instanceName.Contains("\\"))
             {
                 string stub = instanceName.Substring(instanceName.IndexOf("\\") + 1);
                 _serverName = instanceName.Substring(0, instanceName.Length - (stub.Length + 1));
-                _SQLService = "MSSQL$" + stub;
                 _SSASService = "MSOLAP$" + stub;
                 _SSRSService = "ReportServer$" + stub;
                 _AgentService = "SQLAgent$" + stub;
+                _SQLService = "MSSQL$" + stub;
             }
-            _services = new List<string>();
-            _services.Add(_SQLService);
-            _services.Add(_AgentService);
-            if (SSAS)
-            {
-                _services.Add(_SSASService);
-            }
-            if(SSRS)
-            {
-                _services.Add(_SSRSService);
-            }
-            
+            ssasservice = new ServiceValue(_SSASService, 0);
+            ssrsservice = new ServiceValue(_SSRSService, 0);
+            agentservice = new ServiceValue(_SSASService, 1);
+            sqlservice = new ServiceValue(_SQLService, 1);
+
+            _serviceDictionary = new Dictionary<string, ServiceValue>{};
+            _serviceDictionary.Add("SSAS", ssasservice);
+            _serviceDictionary.Add("SSRS", ssrsservice);
+            _serviceDictionary.Add("Agent",agentservice);
+            _serviceDictionary.Add("MSSQL",sqlservice);
             
         }
+        //public Instance(string InstanceName,bool SSAS,bool SSRS)
+        //{
+        //    instanceName = InstanceName;
+        //    BuildServices(instanceName);
+        //    if (SSAS)
+        //    {
+        //        _serviceDictionary.Key["SSAS"] = 1;
+        //    }
+        //    if(SSRS)
+        //    {
+        //        _services.Add(_SSRSService);
+        //    }
+            
+            
+        //}
 
         public bool TestConnection()
         {
@@ -157,38 +160,41 @@ namespace CMS_C
 
 
         }
-        public void CheckServices()
-        {
-            foreach(string service in _services)
-            {
-                try
-                {
-                ServiceController sc = new ServiceController(service,_serverName);
-                Console.WriteLine(service + " on " + _serverName + " status is " + sc.Status);
-                }
-                catch (Exception e)
-                {
+        //public void CheckServices()
+        //{
+        //    foreach(KeyValuePair<string, string> service in _serviceNameDictionary)
+        //    {
+        //        try
+        //        {
+        //        ServiceController sc = new ServiceController(service.Value,_serverName);
+        //        Console.WriteLine(service + " on " + _serverName + " status is " + sc.Status);
+        //        }
+        //        catch (Exception e)
+        //        {
                     
-                    Console.WriteLine(e.ToString());
-                }
-            }
-        }
+        //            Console.WriteLine(e.ToString());
+        //        }
+        //    }
+        //}
         public void GatherServices()
         {
-            foreach(KeyValuePair<string, string> service in _serviceNameDictionary)
+            foreach(KeyValuePair<string, ServiceValue> service in _serviceDictionary)
             {
-                try
+                if(service.Key =="SSAS" || service.Key == "SSRS")
                 {
-                    if(DoesServiceExist(service.Value, _serverName))
+                    string _servicename= service.Value.serviceName;
+                    try
                     {
-                        _serviceResultDictionary[service.Key] = 1;
+                        if(DoesServiceExist(_servicename, _serverName))
+                        {
+                            service.Value.exists = 1;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.ToString());
                     }
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.ToString());
-                }
-
             }
         }
         
