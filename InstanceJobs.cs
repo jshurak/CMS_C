@@ -41,12 +41,8 @@ namespace CMS_C
                 if(instance.TestConnection())
                 {
                     instance.GatherInstance();
-                }
-                
-                
+                }                
             }
-
-            Console.ReadLine();
         }
     }
 }
