@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Data;
 using System.ServiceProcess;
 using System.Linq;
+using System.Configuration;
 
 namespace CMS_C
 {
@@ -27,10 +28,14 @@ namespace CMS_C
         private ServiceValue agentservice;
         private ServiceValue sqlservice;
         private Dictionary<string, ServiceValue> _serviceDictionary;
+        private int _serverID;
+        private int _instanceID;
         
-        public Instance(string InstanceName)
+        public Instance(string InstanceName,int ServerID,int InstanceID)
         {
             // This constructor is called only when the SSAS SSRS values are unknown.
+            _serverID = ServerID;
+            _instanceID = InstanceID;
             BuildServices(InstanceName);
             GatherServices();
         }
@@ -52,10 +57,10 @@ namespace CMS_C
                 _AgentService = "SQLAgent$" + stub;
                 _SQLService = "MSSQL$" + stub;
             }
-            ssasservice = new ServiceValue(_SSASService, 0,"Stopped");
-            ssrsservice = new ServiceValue(_SSRSService, 0,"Stopped");
-            agentservice = new ServiceValue(_AgentService, 1,"Running");
-            sqlservice = new ServiceValue(_SQLService, 1,"Running");
+            ssasservice = new ServiceValue(_SSASService, 0,"Stopped","");
+            ssrsservice = new ServiceValue(_SSRSService, 0,"Stopped","");
+            agentservice = new ServiceValue(_AgentService, 1,"Running","");
+            sqlservice = new ServiceValue(_SQLService, 1,"Running","");
 
             _serviceDictionary = new Dictionary<string, ServiceValue>{};
             _serviceDictionary.Add("SSAS", ssasservice);
@@ -65,8 +70,10 @@ namespace CMS_C
             
         }
         
-        public Instance(string InstanceName,bool SSAS,bool SSRS)
+        public Instance(string InstanceName,int ServerID,int InstanceID,bool SSAS,bool SSRS)
         {
+            _serverID = ServerID;
+            _instanceID = InstanceID;
             instanceName = InstanceName;
             BuildServices(instanceName);
             
@@ -146,13 +153,31 @@ namespace CMS_C
                     maxMemory = (long)myReader["maxMemory"];
                 }
                 conn.Close();
-                Console.WriteLine(instanceName);
-                Console.WriteLine(edition);
-                Console.WriteLine(version);
-                Console.WriteLine(isClustered);
-                Console.WriteLine(productLevel);
-                Console.WriteLine(minMemory);
-                Console.WriteLine(maxMemory);
+                string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
+                using (SqlConnection repConn = new SqlConnection(repository))
+                {
+                    using (SqlCommand cmd = new SqlCommand("dbo.MonitoredInstances_SetInstance", repConn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
+                        cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
+                        cmd.Parameters.Add("@InstanceName", SqlDbType.VarChar).Value = instanceName;
+                        cmd.Parameters.Add("@Edition", SqlDbType.VarChar).Value = edition;
+                        cmd.Parameters.Add("@Version", SqlDbType.VarChar).Value = version;
+                        cmd.Parameters.Add("@IsClustered", SqlDbType.Bit).Value = isClustered;
+                        cmd.Parameters.Add("@MaxMemory", SqlDbType.BigInt).Value = maxMemory;
+                        cmd.Parameters.Add("@MinMemory", SqlDbType.BigInt).Value = minMemory;
+                        cmd.Parameters.Add("@ServiceAccount", SqlDbType.VarChar).Value = "TestServiceAccount";
+                        cmd.Parameters.Add("@ProductLevel", SqlDbType.VarChar).Value = productLevel;
+                        cmd.Parameters.Add("@SSAS", SqlDbType.Bit).Value = ssasservice.Exists;
+                        cmd.Parameters.Add("@SSRS", SqlDbType.Bit).Value = ssrsservice.Exists;
+
+                        repConn.Open();
+                        cmd.ExecuteNonQuery();
+                        repConn.Close();
+                    }
+                    
+                }
             }
             catch (Exception e)
             {

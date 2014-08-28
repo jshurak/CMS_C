@@ -12,7 +12,8 @@ namespace CMS_C
     {
         static void Main(string[] args)
         {
-
+            Instance instance = new Instance("RDGPRSQLC06\\PRS0802",68,56);
+            instance.GatherInstance();
             //InstanceJobs.ProcessInstances();
         }
         

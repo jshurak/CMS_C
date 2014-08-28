@@ -14,17 +14,10 @@ namespace CMS_C
     {
         public static void ProcessInstances()
         {
-            bool SSAS;
-            bool SSRS;
             Instance instance;
-            //string connectionString = ConfigurationManager.ConnectionStrings("Repository");
-            SqlConnectionStringBuilder connectionString = new SqlConnectionStringBuilder();
-            connectionString["Data Source"] = "PHLDVWSSQL002\\DVS1201";
-            connectionString["Initial Catalog"] = "CMS_Dev";
-            connectionString["Timeout"] = 3;
-            connectionString["Integrated Security"] = true;
-          
-            SqlConnection conn = new SqlConnection(connectionString.ConnectionString);
+            string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
+            
+            SqlConnection conn = new SqlConnection(repository);
             
             conn.Open();
             SqlCommand listInstances = new SqlCommand("exec MonitoredInstances_GetInstances @Module = 'CheckServers'", conn);
@@ -37,18 +30,16 @@ namespace CMS_C
                 string Name = (string)pRow["InstanceName"];
                 if(pRow.IsNull("SSAS") || pRow.IsNull("SSRS"))
                 {
-                    instance = new Instance(Name);
+                    instance = new Instance((string)pRow["InstanceName"],(int)pRow["ServerID"],(int)pRow["InstanceID"]);
                     instance.GatherServices();
                 }
                 else
                 {
-                    SSAS = (bool)pRow["SSAS"];
-                    SSRS = (bool)pRow["SSRS"];
-                    instance = new Instance(Name, SSAS, SSRS);
+                    instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"],(int)pRow["InstanceID"],(bool)pRow["SSAS"], (bool)pRow["SSRS"]);
                 }
                 
                 instance.TestConnection();
-                instance.CheckServices();
+                // instance.CheckServices();
                 instance.GatherInstance();
             }
 
