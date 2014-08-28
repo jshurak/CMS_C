@@ -9,6 +9,7 @@ namespace CMS_C
     public class ServiceValue
     {
         public string serviceName;
+        public string status;
         private int _exists;
         public int Exists 
         { get
@@ -23,12 +24,12 @@ namespace CMS_C
                 }
             }
         }
-        public int exists;
-
-        public ServiceValue(string ServiceName,int Exists)
+        
+        public ServiceValue(string ServiceName,int Exists,string Status)
         {
             serviceName = ServiceName;
-            exists = Exists;
+            _exists = Exists;
+            status = Status;
         }
     }
 }

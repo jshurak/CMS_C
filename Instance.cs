@@ -26,14 +26,13 @@ namespace CMS_C
         private ServiceValue ssrsservice;
         private ServiceValue agentservice;
         private ServiceValue sqlservice;
-        private List<string> _services;
         private Dictionary<string, ServiceValue> _serviceDictionary;
-        private Dictionary<string, int> _serviceResultDictionary;
-        //private Dictionary<string, List<string>> _serviceDictionary;
-
+        
         public Instance(string InstanceName)
         {
+            // This constructor is called only when the SSAS SSRS values are unknown.
             BuildServices(InstanceName);
+            GatherServices();
         }
 
         private void BuildServices(string InstanceName)
@@ -53,10 +52,10 @@ namespace CMS_C
                 _AgentService = "SQLAgent$" + stub;
                 _SQLService = "MSSQL$" + stub;
             }
-            ssasservice = new ServiceValue(_SSASService, 0);
-            ssrsservice = new ServiceValue(_SSRSService, 0);
-            agentservice = new ServiceValue(_SSASService, 1);
-            sqlservice = new ServiceValue(_SQLService, 1);
+            ssasservice = new ServiceValue(_SSASService, 0,"Stopped");
+            ssrsservice = new ServiceValue(_SSRSService, 0,"Stopped");
+            agentservice = new ServiceValue(_AgentService, 1,"Running");
+            sqlservice = new ServiceValue(_SQLService, 1,"Running");
 
             _serviceDictionary = new Dictionary<string, ServiceValue>{};
             _serviceDictionary.Add("SSAS", ssasservice);
@@ -65,21 +64,23 @@ namespace CMS_C
             _serviceDictionary.Add("MSSQL",sqlservice);
             
         }
-        //public Instance(string InstanceName,bool SSAS,bool SSRS)
-        //{
-        //    instanceName = InstanceName;
-        //    BuildServices(instanceName);
-        //    if (SSAS)
-        //    {
-        //        _serviceDictionary.Key["SSAS"] = 1;
-        //    }
-        //    if(SSRS)
-        //    {
-        //        _services.Add(_SSRSService);
-        //    }
+        
+        public Instance(string InstanceName,bool SSAS,bool SSRS)
+        {
+            instanceName = InstanceName;
+            BuildServices(instanceName);
             
-            
-        //}
+            if (SSAS)
+            {
+                ssasservice.Exists = 1;
+            }
+            if(SSRS)
+            {
+                ssrsservice.Exists = 1;
+            }
+          
+          
+        }
 
         public bool TestConnection()
         {
@@ -160,34 +161,38 @@ namespace CMS_C
 
 
         }
-        //public void CheckServices()
-        //{
-        //    foreach(KeyValuePair<string, string> service in _serviceNameDictionary)
-        //    {
-        //        try
-        //        {
-        //        ServiceController sc = new ServiceController(service.Value,_serverName);
-        //        Console.WriteLine(service + " on " + _serverName + " status is " + sc.Status);
-        //        }
-        //        catch (Exception e)
-        //        {
-                    
-        //            Console.WriteLine(e.ToString());
-        //        }
-        //    }
-        //}
+        public void CheckServices()
+        {
+            foreach(KeyValuePair<string, ServiceValue> service in _serviceDictionary)
+            {
+                if(service.Value.Exists == 1)
+                {
+                    try
+                    {
+                        
+                        ServiceController sc = new ServiceController(service.Value.serviceName, _serverName);
+                        Console.WriteLine(service.Key + " on " + _serverName + " status is " + sc.Status);
+                    }
+                    catch (Exception e)
+                    {
+
+                        Console.WriteLine(e.ToString());
+                    }
+                }
+                
+            }
+        }
         public void GatherServices()
         {
             foreach(KeyValuePair<string, ServiceValue> service in _serviceDictionary)
             {
                 if(service.Key =="SSAS" || service.Key == "SSRS")
                 {
-                    string _servicename= service.Value.serviceName;
                     try
                     {
-                        if(DoesServiceExist(_servicename, _serverName))
+                        if (DoesServiceExist(service.Value.serviceName, _serverName))
                         {
-                            service.Value.exists = 1;
+                            service.Value.Exists = 1;
                         }
                     }
                     catch (Exception e)

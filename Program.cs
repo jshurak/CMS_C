@@ -15,6 +15,7 @@ namespace CMS_C
 
             Instance instance = new Instance("PHLSTWSSQL001");
             instance.GatherServices();
+            instance.CheckServices();
         }
         
     }
