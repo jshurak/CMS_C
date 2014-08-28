@@ -23,9 +23,9 @@ namespace CMS_C
             connectionString["Initial Catalog"] = "CMS_Dev";
             connectionString["Timeout"] = 3;
             connectionString["Integrated Security"] = true;
-
+          
             SqlConnection conn = new SqlConnection(connectionString.ConnectionString);
-
+            
             conn.Open();
             SqlCommand listInstances = new SqlCommand("exec MonitoredInstances_GetInstances @Module = 'CheckServers'", conn);
             SqlDataAdapter adapter = new SqlDataAdapter(listInstances);
@@ -35,7 +35,7 @@ namespace CMS_C
             foreach (DataRow pRow in instances.Tables[0].Rows)
             {
                 string Name = (string)pRow["InstanceName"];
-                if (pRow.IsNull("SSAS") || pRow.IsNull("SSRS"))
+                if(pRow.IsNull("SSAS") || pRow.IsNull("SSRS"))
                 {
                     instance = new Instance(Name);
                     instance.GatherServices();
@@ -46,7 +46,7 @@ namespace CMS_C
                     SSRS = (bool)pRow["SSRS"];
                     instance = new Instance(Name, SSAS, SSRS);
                 }
-
+                
                 instance.TestConnection();
                 instance.CheckServices();
                 instance.GatherInstance();
