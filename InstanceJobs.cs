@@ -53,5 +53,16 @@ namespace CMS_C
 
             log.LogModule(_moduleName, _logID);
         }
+        public static void CheckServices()
+        {
+            CollectionLog log = new CollectionLog();
+            _moduleName = "CheckServices";
+            _logID = log.LogModule(_moduleName);
+
+            //do work here
+
+            log.LogModule(_moduleName, _logID);
+
+        }
     }
 }

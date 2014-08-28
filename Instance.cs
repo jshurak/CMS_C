@@ -192,13 +192,11 @@ namespace CMS_C
                 {
                     try
                     {
-                        
                         ServiceController sc = new ServiceController(service.Value.serviceName, _serverName);
                         Console.WriteLine(service.Key + " on " + _serverName + " status is " + sc.Status);
                     }
                     catch (Exception e)
                     {
-
                         Console.WriteLine(e.ToString());
                     }
                 }
