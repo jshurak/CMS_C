@@ -12,8 +12,15 @@ namespace CMS_C
 {
     class InstanceJobs
     {
+        static private string _moduleName;
+        static private long _logID;
+
         public static void ProcessInstances()
         {
+            CollectionLog log = new CollectionLog();
+            _moduleName = "ProcessInstances";
+            _logID = log.LogModule(_moduleName);
+
             Instance instance;
             string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
             
@@ -43,6 +50,8 @@ namespace CMS_C
                     instance.GatherInstance();
                 }                
             }
+
+            log.LogModule(_moduleName, _logID);
         }
     }
 }

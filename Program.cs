@@ -12,11 +12,7 @@ namespace CMS_C
     {
         static void Main(string[] args)
         {
-
-            //InstanceJobs.ProcessInstances();
-            CollectionLog log = new CollectionLog();
-            long _ID = log.LogModule("TestLog");
-            log.LogModule("TestLog",_ID);
+            InstanceJobs.ProcessInstances();
         }
         
     }

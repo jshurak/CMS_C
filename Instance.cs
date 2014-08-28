@@ -30,6 +30,7 @@ namespace CMS_C
         private Dictionary<string, ServiceValue> _serviceDictionary;
         private int _serverID;
         private int _instanceID;
+
         
         public Instance(string InstanceName,int ServerID,int InstanceID)
         {
@@ -182,8 +183,6 @@ namespace CMS_C
             {
                 Console.WriteLine(e.ToString());
             }
-
-
         }
         public void CheckServices()
         {
