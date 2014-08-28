@@ -38,9 +38,12 @@ namespace CMS_C
                     instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"],(int)pRow["InstanceID"],(bool)pRow["SSAS"], (bool)pRow["SSRS"]);
                 }
                 
-                instance.TestConnection();
-                // instance.CheckServices();
-                instance.GatherInstance();
+                if(instance.TestConnection())
+                {
+                    instance.GatherInstance();
+                }
+                
+                
             }
 
             Console.ReadLine();
