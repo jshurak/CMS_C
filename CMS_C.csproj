@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CollectionLog.cs" />
+    <Compile Include="Database.cs" />
     <Compile Include="Instance.cs" />
     <Compile Include="InstanceJobs.cs" />
     <Compile Include="Program.cs" />
