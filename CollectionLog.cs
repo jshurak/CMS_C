@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Data;
+using System.Runtime.CompilerServices;
 
 namespace CMS_C
 {
@@ -15,7 +16,7 @@ namespace CMS_C
         private long _logID;
         private string repository;
 
-        public long LogModule(string ModuleName)
+        public long LogModule([CallerMemberName] string ModuleName = null)
         {
             _moduleName = ModuleName;
             string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
@@ -43,7 +44,7 @@ namespace CMS_C
             return _logID;
         }
 
-        public void LogModule(string ModuleName, long LogID)
+        public void LogModule( long LogID, [CallerMemberName] string ModuleName = null)
         {
             _moduleName = ModuleName;
             _logID = LogID;
