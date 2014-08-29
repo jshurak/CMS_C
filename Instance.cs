@@ -189,8 +189,15 @@ namespace CMS_C
                 {
                     try
                     {
-                        ServiceController sc = new ServiceController(service.Value.serviceName, _serverName);
-                        Console.WriteLine(service.Key + " on " + _serverName + " status is " + sc.Status);
+                        if(service.Key == "MSSQL")
+                        {
+                            service.Value.status = TestConnection().ToString();
+                        }
+                        else
+                        {
+                            ServiceController sc = new ServiceController(service.Value.serviceName, _serverName);
+                            service.Value.status = sc.Status.ToString();
+                        }
                     }
                     catch (Exception e)
                     {

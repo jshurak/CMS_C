@@ -13,7 +13,7 @@ namespace CMS_C
         static void Main(string[] args)
         {
             Instance instance = new Instance("PHLDVWSSQL002\\DVS1201", 1, 1);
-            instance.TestConnection();
+            instance.CheckServices();
             //InstanceJobs.CheckServices();
         }
         
