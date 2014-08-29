@@ -12,7 +12,7 @@ namespace CMS_C
     {
         static void Main(string[] args)
         {
-            Instance instance = new Instance("PHLDVWSSQL002\\DVS1201", 1, 1);
+            Instance instance = new Instance("RDGPRSQLC06\\PRS0802",68,56);
             instance.CheckServices();
             //InstanceJobs.CheckServices();
         }

@@ -6,6 +6,8 @@ using System.ServiceProcess;
 using System.Linq;
 using System.Configuration;
 
+
+
 namespace CMS_C
 {
     class Instance
@@ -206,6 +208,30 @@ namespace CMS_C
                 }
                 
             }
+            string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
+            using (SqlConnection repConn = new SqlConnection(repository))
+            {
+                using (SqlCommand cmd = new SqlCommand("dbo.MonitoredInstances_SetInstance", repConn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
+                    cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
+                    cmd.Parameters.Add("@InstanceName", SqlDbType.VarChar).Value = instanceName;
+                    cmd.Parameters.Add("@PingTest", SqlDbType.Bit).Value = 1;
+                    cmd.Parameters.Add("@PingStatus", SqlDbType.Bit).Value = sqlservice.status;
+                    cmd.Parameters.Add("@SSASStatus", SqlDbType.VarChar).Value = ssasservice.status;
+                    cmd.Parameters.Add("@SSRSStatus", SqlDbType.VarChar).Value = ssrsservice.status;
+                    cmd.Parameters.Add("@AgentStatus", SqlDbType.VarChar).Value = agentservice.status;
+
+
+                    
+                    //Console.WriteLine("exec dbo.MonitoredInstances_SetInstance @ServerID = {0},@InstanceID={1},@PingTest={2},@PingStatus={3},@SSASStatus='{4}',@SSRSStatus='{5}',@AgentStatus='{6}'", _serverID,_instanceID, 1, sqlservice.status,ssasservice.status,ssrsservice.status,agentservice.status);
+                    repConn.Open();
+                    cmd.ExecuteNonQuery();
+                    repConn.Close();
+                }
+            }
+
         }
         public void GatherServices()
         {
