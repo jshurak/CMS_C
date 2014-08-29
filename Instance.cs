@@ -89,45 +89,31 @@ namespace CMS_C
           
           
         }
-
         public bool TestConnection()
         {
 
-            SqlConnectionStringBuilder connectionstring = new SqlConnectionStringBuilder();
-            connectionstring["Data Source"] = instanceName;
-            connectionstring["Integrated Security"] = true;
-            connectionstring["Connect Timeout"] = 3;
-
-            SqlConnection conn = new SqlConnection(connectionstring.ConnectionString);
-
-            try
+            SqlConnection conn = BuildConnection();
+            using (SqlCommand instanceCheckCmd = new SqlCommand("SELECT @@SERVERNAME",conn))
             {
-                conn.Open();
-                if(conn.State == ConnectionState.Open)
+                try
                 {
+                    conn.Open();
+                    instanceCheckCmd.ExecuteScalar();
                     conn.Close();
                     return true;
                 }
-
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                    return false;
+                    
+                }
             }
-            catch (Exception)
-            {
-                return false;
-                throw;
-                
-            }
-            return false;
-            
         }
 
         public void GatherInstance()
         {
-            SqlConnectionStringBuilder connectionstring = new SqlConnectionStringBuilder();
-            connectionstring["Data Source"] = instanceName;
-            connectionstring["Integrated Security"] = true;
-            connectionstring["Connect Timeout"] = 3;
-
-            SqlConnection conn = new SqlConnection(connectionstring.ConnectionString);
+            SqlConnection conn = BuildConnection();
             try
             {
                 SqlDataReader myReader = null;
@@ -183,6 +169,17 @@ namespace CMS_C
             {
                 Console.WriteLine(e.ToString());
             }
+        }
+
+        private SqlConnection BuildConnection()
+        {
+            SqlConnectionStringBuilder connectionstring = new SqlConnectionStringBuilder();
+            connectionstring["Data Source"] = instanceName;
+            connectionstring["Integrated Security"] = true;
+            connectionstring["Connect Timeout"] = 3;
+
+            SqlConnection conn = new SqlConnection(connectionstring.ConnectionString);
+            return conn;
         }
         public void CheckServices()
         {
