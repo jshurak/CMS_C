@@ -62,9 +62,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="GatherDatabases.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Queries.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Queries.Designer.cs</LastGenOutput>

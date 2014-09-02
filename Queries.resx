@@ -164,9 +164,9 @@ from sys.database_files
 WHERE type = 0
 group by type'
 
-select sdb.name
+select sdb.name AS [DatabaseName]
 	,sdb.create_date as [CreationDate]
-	,sdb.compatibility_level AS [Compatibility]
+	,CAST(sdb.compatibility_level AS INT) AS [CompatibilityLevel]
 	,sdb.collation_name as [Collation]
 	,sdb.is_read_only as [ReadOnly]
 	,sdb.is_auto_close_on AS [AutoClose]
@@ -175,9 +175,9 @@ select sdb.name
 	,sdb.page_verify_option_desc AS [PageVerify]
 	,mf.Size
 	,s.DataSpaceUsage
-	,s.IndexUsage
+	,s.IndexUsage AS [IndexSpaceUsage]
 	,a.SpaceAvailable
-	,drs.database_guid
+	,drs.database_guid AS [DatabaseGUID]
 from sys.databases sdb
 inner join
 (

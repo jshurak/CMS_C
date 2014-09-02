@@ -131,7 +131,7 @@ namespace CMS_C
             try
             {
                 SqlDataReader myReader = null;
-                SqlCommand myCommand = new SqlCommand(@"select @@SERVERNAME AS InstanceName,SERVERPROPERTY('Edition') AS Edition,SERVERPROPERTY('ProductVersion') AS Version,CAST(SERVERPROPERTY('isClustered') as BIT) AS isClustered ,SERVERPROPERTY('ProductLevel') AS ProductLevel
+                using(SqlCommand myCommand = new SqlCommand(@"select @@SERVERNAME AS InstanceName,SERVERPROPERTY('Edition') AS Edition,SERVERPROPERTY('ProductVersion') AS Version,CAST(SERVERPROPERTY('isClustered') as BIT) AS isClustered ,SERVERPROPERTY('ProductLevel') AS ProductLevel
                                                         ,[Min] as minMemory,CAST([Max] AS BIGINT) as maxMemory
                                                         FROM
                                                         (SELECT left(name,3) as name, value_in_use
@@ -141,19 +141,22 @@ namespace CMS_C
                                                         (
 	                                                        max(value_in_use)
 	                                                        FOR name in ([min],[max])
-                                                        ) as output", conn);
-                conn.Open();
-                myReader = myCommand.ExecuteReader();
-                while (myReader.Read())
+                                                        ) as output", conn))
                 {
-                    edition = myReader["Edition"].ToString();
-                    version = myReader["Version"].ToString();
-                    isClustered = (bool)myReader["isClustered"];
-                    productLevel = myReader["ProductLevel"].ToString();
-                    minMemory = (int)myReader["minMemory"];
-                    maxMemory = (long)myReader["maxMemory"];
+                    conn.Open();
+                    myReader = myCommand.ExecuteReader();
+                    while (myReader.Read())
+                    {
+                        edition = myReader["Edition"].ToString();
+                        version = myReader["Version"].ToString();
+                        isClustered = (bool)myReader["isClustered"];
+                        productLevel = myReader["ProductLevel"].ToString();
+                        minMemory = (int)myReader["minMemory"];
+                        maxMemory = (long)myReader["maxMemory"];
+                    }
+                    conn.Close();
                 }
-                conn.Close();
+                
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
                 using (SqlConnection repConn = new SqlConnection(repository))
                 {
@@ -273,18 +276,58 @@ namespace CMS_C
             return service != null;
         }
 
-        public void GatherDatabases()
+        private string GetQuery(string Query)
         {
             try
             {
                 ResourceManager rm = Queries.ResourceManager;
-                string query = rm.GetString("GatherDatabases");
+                string query = rm.GetString(Query);
+                return query;
             }
             catch (Exception)
             {
                 
                 throw;
             }
+        }
+
+        public void GatherDatabases()
+        {
+            string _query = GetQuery("GatherDatabases");
+            SqlConnection conn = BuildConnection();
+            try 
+	        {	        
+                conn.Open();
+                SqlCommand gatherDatabases = new SqlCommand(_query, conn);
+                SqlDataAdapter adapter = new SqlDataAdapter(gatherDatabases);
+                DataSet dbs = new DataSet();
+                adapter.Fill(dbs);
+                conn.Close();
+                foreach (DataRow pRow in dbs.Tables[0].Rows)
+                {
+                    string databaseName = pRow["DatabaseName"].ToString();
+                    DateTime creationDate = (DateTime)pRow["CreationDate"];
+                    int compatibilityLevel = (int)pRow["CompatibilityLevel"];
+                    string collation = pRow["Collation"].ToString();
+                    bool readOnly = (bool)pRow["ReadOnly"];
+                    bool autoClose = (bool)pRow["AutoClose"];
+                    bool autoShrink = (bool)pRow["AutoShrink"];
+                    string recoveryModel = pRow["RecoveryModel"].ToString();
+                    string pageVerify = pRow["PageVerify"].ToString();
+                    int size = (int)pRow["Size"];
+                    long dataSpaceUsage = (long)pRow["DataSpaceUsage"];
+                    long indexSpaceUsage = (long)pRow["IndexSpaceUsage"];
+                    long spaceAvailable = (long)pRow["SpaceAvailable"];
+                    string databaseGUID = pRow["DatabaseGUID"].ToString();
+                }
+		
+	        }
+	        catch (Exception)
+	        {
+		
+		        throw;
+	        }
+
         }
     }
 }
