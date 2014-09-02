@@ -5,6 +5,9 @@ using System.Data;
 using System.ServiceProcess;
 using System.Linq;
 using System.Configuration;
+using System.IO;
+using System.Resources;
+using System.Reflection;
 
 
 
@@ -33,8 +36,17 @@ namespace CMS_C
         private int _serverID;
         private int _instanceID;
 
-        
-        public Instance(string InstanceName,int ServerID,int InstanceID)
+        Assembly _assembly;
+        StreamReader _textStreamReader;
+
+        public Instance(string InstanceName, int InstanceID)
+        {
+            instanceName = InstanceName;
+            _instanceID = InstanceID;
+        }
+
+
+        public Instance(string InstanceName, int ServerID, int InstanceID)
         {
             // This constructor is called only when the SSAS SSRS values are unknown.
             _serverID = ServerID;
@@ -60,42 +72,42 @@ namespace CMS_C
                 _AgentService = "SQLAgent$" + stub;
                 _SQLService = "MSSQL$" + stub;
             }
-            ssasservice = new ServiceValue(_SSASService, 0,"Stopped","");
-            ssrsservice = new ServiceValue(_SSRSService, 0,"Stopped","");
-            agentservice = new ServiceValue(_AgentService, 1,"Running","");
-            sqlservice = new ServiceValue(_SQLService, 1,"Running","");
+            ssasservice = new ServiceValue(_SSASService, 0, "Stopped", "");
+            ssrsservice = new ServiceValue(_SSRSService, 0, "Stopped", "");
+            agentservice = new ServiceValue(_AgentService, 1, "Running", "");
+            sqlservice = new ServiceValue(_SQLService, 1, "Running", "");
 
-            _serviceDictionary = new Dictionary<string, ServiceValue>{};
+            _serviceDictionary = new Dictionary<string, ServiceValue> { };
             _serviceDictionary.Add("SSAS", ssasservice);
             _serviceDictionary.Add("SSRS", ssrsservice);
-            _serviceDictionary.Add("Agent",agentservice);
-            _serviceDictionary.Add("MSSQL",sqlservice);
-            
+            _serviceDictionary.Add("Agent", agentservice);
+            _serviceDictionary.Add("MSSQL", sqlservice);
+
         }
-        
-        public Instance(string InstanceName,int ServerID,int InstanceID,bool SSAS,bool SSRS)
+
+        public Instance(string InstanceName, int ServerID, int InstanceID, bool SSAS, bool SSRS)
         {
             _serverID = ServerID;
             _instanceID = InstanceID;
             instanceName = InstanceName;
             BuildServices(instanceName);
-            
+
             if (SSAS)
             {
                 ssasservice.Exists = 1;
             }
-            if(SSRS)
+            if (SSRS)
             {
                 ssrsservice.Exists = 1;
             }
-          
-          
+
+
         }
         public bool TestConnection()
         {
 
             SqlConnection conn = BuildConnection();
-            using (SqlCommand instanceCheckCmd = new SqlCommand("SELECT @@SERVERNAME",conn))
+            using (SqlCommand instanceCheckCmd = new SqlCommand("SELECT @@SERVERNAME", conn))
             {
                 try
                 {
@@ -108,7 +120,7 @@ namespace CMS_C
                 {
                     Console.WriteLine(e.ToString());
                     return false;
-                    
+
                 }
             }
         }
@@ -129,7 +141,7 @@ namespace CMS_C
                                                         (
 	                                                        max(value_in_use)
 	                                                        FOR name in ([min],[max])
-                                                        ) as output",conn);
+                                                        ) as output", conn);
                 conn.Open();
                 myReader = myCommand.ExecuteReader();
                 while (myReader.Read())
@@ -164,7 +176,7 @@ namespace CMS_C
                         repConn.Open();
                         cmd.ExecuteNonQuery();
                         repConn.Close();
-                    }                    
+                    }
                 }
             }
             catch (Exception e)
@@ -185,13 +197,13 @@ namespace CMS_C
         }
         public void CheckServices()
         {
-            foreach(KeyValuePair<string, ServiceValue> service in _serviceDictionary)
+            foreach (KeyValuePair<string, ServiceValue> service in _serviceDictionary)
             {
-                if(service.Value.Exists == 1)
+                if (service.Value.Exists == 1)
                 {
                     try
                     {
-                        if(service.Key == "MSSQL")
+                        if (service.Key == "MSSQL")
                         {
                             service.Value.status = TestConnection().ToString();
                         }
@@ -206,7 +218,7 @@ namespace CMS_C
                         Console.WriteLine(e.ToString());
                     }
                 }
-                
+
             }
             string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
             using (SqlConnection repConn = new SqlConnection(repository))
@@ -224,7 +236,7 @@ namespace CMS_C
                     cmd.Parameters.Add("@AgentStatus", SqlDbType.VarChar).Value = agentservice.status;
 
 
-                    
+
                     //Console.WriteLine("exec dbo.MonitoredInstances_SetInstance @ServerID = {0},@InstanceID={1},@PingTest={2},@PingStatus={3},@SSASStatus='{4}',@SSRSStatus='{5}',@AgentStatus='{6}'", _serverID,_instanceID, 1, sqlservice.status,ssasservice.status,ssrsservice.status,agentservice.status);
                     repConn.Open();
                     cmd.ExecuteNonQuery();
@@ -235,9 +247,9 @@ namespace CMS_C
         }
         public void GatherServices()
         {
-            foreach(KeyValuePair<string, ServiceValue> service in _serviceDictionary)
+            foreach (KeyValuePair<string, ServiceValue> service in _serviceDictionary)
             {
-                if(service.Key =="SSAS" || service.Key == "SSRS")
+                if (service.Key == "SSAS" || service.Key == "SSRS")
                 {
                     try
                     {
@@ -253,7 +265,7 @@ namespace CMS_C
                 }
             }
         }
-        
+
         bool DoesServiceExist(string serviceName, string machineName)
         {
             ServiceController[] services = ServiceController.GetServices(machineName);
@@ -261,6 +273,18 @@ namespace CMS_C
             return service != null;
         }
 
-        public void GatherDatabases
+        public void GatherDatabases()
+        {
+            try
+            {
+                ResourceManager rm = Queries.ResourceManager;
+                string query = rm.GetString("GatherDatabases");
+            }
+            catch (Exception)
+            {
+                
+                throw;
+            }
+        }
     }
 }

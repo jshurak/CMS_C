@@ -1,4 +1,4 @@
-﻿if OBJECT_ID('tempdb..#sizes') IS NOT NULL
+﻿@"if OBJECT_ID('tempdb..#sizes') IS NOT NULL
 	DROP TABLE #sizes
 if OBJECT_ID('tempdb..#available') IS NOT NULL
 	DROP TABLE #available
@@ -67,4 +67,4 @@ inner join
 ) mf on sdb.database_id = mf.database_id 
 INNER JOIN #sizes s on sdb.database_id = s.database_id
 INNER JOIN #available a on sdb.database_id = a.database_id
-INNER JOIN sys.database_recovery_status drs ON drs.database_id = sdb.database_id
+INNER JOIN sys.database_recovery_status drs ON drs.database_id = sdb.database_id"
