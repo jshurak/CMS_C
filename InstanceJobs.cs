@@ -50,13 +50,25 @@ namespace CMS_C
 
             SqlConnection conn = new SqlConnection(repository);
 
-            conn.Open();
-            SqlCommand listInstances = new SqlCommand("exec MonitoredInstances_GetInstances @Module = 'CheckServers'", conn);
-            SqlDataAdapter adapter = new SqlDataAdapter(listInstances);
-            DataSet instances = new DataSet();
-            adapter.Fill(instances);
-            conn.Close();
-            return instances;
+            try
+            {
+                using (SqlCommand listInstances = new SqlCommand("exec MonitoredInstances_GetInstances @Module = 'CheckServers'", conn))
+                using (SqlDataAdapter adapter = new SqlDataAdapter(listInstances))
+                {
+                    conn.Open();
+                    DataSet instances = new DataSet();
+                    adapter.Fill(instances);
+                    conn.Close();
+                    return instances;
+                }
+            }
+            catch (Exception)
+            {
+                
+                throw;
+            }
+            
+                
         }
         public static void CheckServices()
         {
@@ -88,7 +100,7 @@ namespace CMS_C
             log.LogModule(_logID);
 
         }
-        public static void GatherDatabases()
+        public static void ProcessDatabases()
         {
             CollectionLog log = new CollectionLog();
 
@@ -108,6 +120,16 @@ namespace CMS_C
 
             log.LogModule(_logID);
 
+        }
+        public static void Daily()
+        {
+            CollectionLog log = new CollectionLog();
+            long _DlogID = log.LogModule();
+
+            ProcessInstances();
+            ProcessDatabases();
+
+            log.LogModule(_DlogID);
         }
     }
 }

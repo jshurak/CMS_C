@@ -12,7 +12,7 @@ namespace CMS_C
     {
         static void Main(string[] args)
         {
-            InstanceJobs.GatherDatabases();
+            InstanceJobs.Daily();
         }
         
     }
