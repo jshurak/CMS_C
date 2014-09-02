@@ -12,8 +12,7 @@ namespace CMS_C
     {
         static void Main(string[] args)
         {
-            Instance instance = new Instance("PHLDVWSSQL002\\DVS1201",8);
-            instance.GatherDatabases();
+            InstanceJobs.GatherDatabases();
         }
         
     }

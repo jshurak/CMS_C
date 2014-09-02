@@ -173,6 +173,8 @@ select sdb.name AS [DatabaseName]
 	,sdb.is_auto_shrink_on AS [AutoShrink]
 	,sdb.recovery_model_desc AS [RecoveryModel]
 	,sdb.page_verify_option_desc AS [PageVerify]
+	,sdb.state_desc as [Status]
+	,SUSER_SNAME(sdb.owner_sid) AS [Owner]
 	,mf.Size
 	,s.DataSpaceUsage
 	,s.IndexUsage AS [IndexSpaceUsage]

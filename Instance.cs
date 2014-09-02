@@ -51,8 +51,7 @@ namespace CMS_C
             // This constructor is called only when the SSAS SSRS values are unknown.
             _serverID = ServerID;
             _instanceID = InstanceID;
-            BuildServices(InstanceName);
-            GatherServices();
+            instanceName = InstanceName;
         }
 
         private void BuildServices(string InstanceName)
@@ -118,7 +117,7 @@ namespace CMS_C
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.ToString());
+                    Console.WriteLine(instanceName,e.ToString());
                     return false;
 
                 }
@@ -159,27 +158,25 @@ namespace CMS_C
                 
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
                 using (SqlConnection repConn = new SqlConnection(repository))
+                using (SqlCommand cmd = new SqlCommand("dbo.MonitoredInstances_SetInstance", repConn))
                 {
-                    using (SqlCommand cmd = new SqlCommand("dbo.MonitoredInstances_SetInstance", repConn))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
-                        cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
-                        cmd.Parameters.Add("@InstanceName", SqlDbType.VarChar).Value = instanceName;
-                        cmd.Parameters.Add("@Edition", SqlDbType.VarChar).Value = edition;
-                        cmd.Parameters.Add("@Version", SqlDbType.VarChar).Value = version;
-                        cmd.Parameters.Add("@IsClustered", SqlDbType.Bit).Value = isClustered;
-                        cmd.Parameters.Add("@MaxMemory", SqlDbType.BigInt).Value = maxMemory;
-                        cmd.Parameters.Add("@MinMemory", SqlDbType.BigInt).Value = minMemory;
-                        cmd.Parameters.Add("@ServiceAccount", SqlDbType.VarChar).Value = "TestServiceAccount";
-                        cmd.Parameters.Add("@ProductLevel", SqlDbType.VarChar).Value = productLevel;
-                        cmd.Parameters.Add("@SSAS", SqlDbType.Bit).Value = ssasservice.Exists;
-                        cmd.Parameters.Add("@SSRS", SqlDbType.Bit).Value = ssrsservice.Exists;
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
+                    cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
+                    cmd.Parameters.Add("@InstanceName", SqlDbType.VarChar).Value = instanceName;
+                    cmd.Parameters.Add("@Edition", SqlDbType.VarChar).Value = edition;
+                    cmd.Parameters.Add("@Version", SqlDbType.VarChar).Value = version;
+                    cmd.Parameters.Add("@IsClustered", SqlDbType.Bit).Value = isClustered;
+                    cmd.Parameters.Add("@MaxMemory", SqlDbType.BigInt).Value = maxMemory;
+                    cmd.Parameters.Add("@MinMemory", SqlDbType.BigInt).Value = minMemory;
+                    cmd.Parameters.Add("@ServiceAccount", SqlDbType.VarChar).Value = "TestServiceAccount";
+                    cmd.Parameters.Add("@ProductLevel", SqlDbType.VarChar).Value = productLevel;
+                    cmd.Parameters.Add("@SSAS", SqlDbType.Bit).Value = ssasservice.Exists;
+                    cmd.Parameters.Add("@SSRS", SqlDbType.Bit).Value = ssrsservice.Exists;
 
-                        repConn.Open();
-                        cmd.ExecuteNonQuery();
-                        repConn.Close();
-                    }
+                    repConn.Open();
+                    cmd.ExecuteNonQuery();
+                    repConn.Close();
                 }
             }
             catch (Exception e)
@@ -250,6 +247,7 @@ namespace CMS_C
         }
         public void GatherServices()
         {
+            BuildServices(instanceName);
             foreach (KeyValuePair<string, ServiceValue> service in _serviceDictionary)
             {
                 if (service.Key == "SSAS" || service.Key == "SSRS")
@@ -303,24 +301,49 @@ namespace CMS_C
                 DataSet dbs = new DataSet();
                 adapter.Fill(dbs);
                 conn.Close();
-                foreach (DataRow pRow in dbs.Tables[0].Rows)
+
+                string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
+                using (SqlConnection repConn = new SqlConnection(repository))
+                using (SqlCommand cmd = new SqlCommand("dbo.MonitoredDatabases_SetDatabases", repConn))
                 {
-                    string databaseName = pRow["DatabaseName"].ToString();
-                    DateTime creationDate = (DateTime)pRow["CreationDate"];
-                    int compatibilityLevel = (int)pRow["CompatibilityLevel"];
-                    string collation = pRow["Collation"].ToString();
-                    bool readOnly = (bool)pRow["ReadOnly"];
-                    bool autoClose = (bool)pRow["AutoClose"];
-                    bool autoShrink = (bool)pRow["AutoShrink"];
-                    string recoveryModel = pRow["RecoveryModel"].ToString();
-                    string pageVerify = pRow["PageVerify"].ToString();
-                    int size = (int)pRow["Size"];
-                    long dataSpaceUsage = (long)pRow["DataSpaceUsage"];
-                    long indexSpaceUsage = (long)pRow["IndexSpaceUsage"];
-                    long spaceAvailable = (long)pRow["SpaceAvailable"];
-                    string databaseGUID = pRow["DatabaseGUID"].ToString();
-                }
-		
+                    try
+                    {
+                        repConn.Open();
+                        foreach (DataRow pRow in dbs.Tables[0].Rows)
+                        {
+                            cmd.Parameters.Clear();
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
+                            cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
+                            cmd.Parameters.Add("@DatabaseName", SqlDbType.VarChar).Value = pRow["DatabaseName"].ToString();
+                            cmd.Parameters.Add("@CreationDate", SqlDbType.DateTime).Value = (DateTime)pRow["CreationDate"];
+                            cmd.Parameters.Add("@CompatibilityLevel", SqlDbType.Int).Value = (int)pRow["CompatibilityLevel"];
+                            cmd.Parameters.Add("@Collation", SqlDbType.VarChar).Value = pRow["Collation"].ToString();
+                            cmd.Parameters.Add("@size", SqlDbType.Int).Value = (int)pRow["Size"];
+                            cmd.Parameters.Add("@DataSpaceUsage", SqlDbType.BigInt).Value = (long)pRow["DataSpaceUsage"];
+                            cmd.Parameters.Add("@IndexSpaceUsage", SqlDbType.BigInt).Value = (long)pRow["IndexSpaceUsage"];
+                            cmd.Parameters.Add("@SpaceAvailable", SqlDbType.BigInt).Value = (long)pRow["SpaceAvailable"];
+                            cmd.Parameters.Add("@RecoveryModel", SqlDbType.VarChar).Value = pRow["RecoveryModel"].ToString();
+                            cmd.Parameters.Add("@AutoClose", SqlDbType.Bit).Value = (bool)pRow["AutoClose"]; ;
+                            cmd.Parameters.Add("@AutoShrink", SqlDbType.Bit).Value = (bool)pRow["AutoShrink"];
+                            cmd.Parameters.Add("@ReadOnly", SqlDbType.Bit).Value = (bool)pRow["ReadOnly"];
+                            cmd.Parameters.Add("@PageVerify", SqlDbType.VarChar).Value = pRow["PageVerify"].ToString();
+                            cmd.Parameters.Add("@GUID", SqlDbType.VarChar).Value = pRow["DatabaseGUID"].ToString();
+                            cmd.Parameters.Add("@Owner", SqlDbType.VarChar).Value = pRow["Owner"].ToString();
+                            cmd.Parameters.Add("@Status", SqlDbType.VarChar).Value = pRow["Status"].ToString();
+                            cmd.Parameters.Add("@Deleted", SqlDbType.Bit).Value = false;
+
+                            cmd.ExecuteNonQuery();
+                        }
+                        repConn.Close();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.ToString());
+                        Console.ReadLine();
+                        throw;
+                    }
+                }		
 	        }
 	        catch (Exception)
 	        {
