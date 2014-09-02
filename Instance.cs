@@ -260,5 +260,7 @@ namespace CMS_C
             var service = services.FirstOrDefault(s => s.ServiceName == serviceName);
             return service != null;
         }
+
+        public void GatherDatabases
     }
 }
