@@ -61,6 +61,26 @@ namespace CMS_C {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SELECT
+        ///  DISTINCT
+        ///        rs.database_guid as [DatabaseGuid],
+        ///		a.recovery_model_desc as [RecoveryModel],
+        ///        COALESCE( (SELECT   MAX(backup_finish_date)
+        ///                   FROM     msdb.dbo.backupset
+        ///                   WHERE    database_name = a.name
+        ///                            AND type = &apos;d&apos;
+        ///                            AND is_copy_only = &apos;0&apos;
+        ///                 ),&apos;01/01/1900 00:00:00&apos;) AS [LastBackupDate] ,
+        ///        COALESCE( ( SELECT   MAX(backup_finish_date)
+        ///                   FROM     msdb.d [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string GatherBackups {
+            get {
+                return ResourceManager.GetString("GatherBackups", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to if OBJECT_ID(&apos;tempdb..#sizes&apos;) IS NOT NULL
         ///	DROP TABLE #sizes
         ///if OBJECT_ID(&apos;tempdb..#available&apos;) IS NOT NULL

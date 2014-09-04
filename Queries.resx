@@ -117,6 +117,37 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="GatherBackups" xml:space="preserve">
+    <value>SELECT
+  DISTINCT
+        rs.database_guid as [DatabaseGuid],
+		a.recovery_model_desc as [RecoveryModel],
+        COALESCE( (SELECT   MAX(backup_finish_date)
+                   FROM     msdb.dbo.backupset
+                   WHERE    database_name = a.name
+                            AND type = 'd'
+                            AND is_copy_only = '0'
+                 ),'01/01/1900 00:00:00') AS [LastBackupDate] ,
+        COALESCE( ( SELECT   MAX(backup_finish_date)
+                   FROM     msdb.dbo.backupset
+                   WHERE    database_name = a.name
+                            AND type = 'i'
+                            AND is_copy_only = '0'
+                 ),'01/01/1900 00:00:00') AS [LastDifferentialBackupDate] ,
+        COALESCE( ( SELECT   MAX(backup_finish_date)
+                   FROM     msdb.dbo.backupset
+                   WHERE    database_name = a.name
+                            AND type = 'l'
+                 ),'01/01/1900 00:00:00') AS [LastLogBackupDate]
+FROM    sys.databases a
+		INNER JOIN sys.database_recovery_status rs ON a.database_id = rs.database_id
+        LEFT OUTER JOIN msdb.dbo.backupset b ON b.database_name = a.name
+WHERE   a.name &lt;&gt; 'tempdb' and a.name &lt;&gt; 'model'
+        AND a.state_desc = 'online'
+GROUP BY a.Name ,
+        rs.database_guid,
+		a.recovery_model_desc;</value>
+  </data>
   <data name="GatherDatabases" xml:space="preserve">
     <value>if OBJECT_ID('tempdb..#sizes') IS NOT NULL
 	DROP TABLE #sizes

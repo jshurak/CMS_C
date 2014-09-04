@@ -35,6 +35,7 @@ namespace CMS_C
         private Dictionary<string, ServiceValue> _serviceDictionary;
         private int _serverID;
         private int _instanceID;
+        private DataSet _dbs;
 
         Assembly _assembly;
         StreamReader _textStreamReader;
@@ -235,9 +236,6 @@ namespace CMS_C
                     cmd.Parameters.Add("@SSRSStatus", SqlDbType.VarChar).Value = ssrsservice.status;
                     cmd.Parameters.Add("@AgentStatus", SqlDbType.VarChar).Value = agentservice.status;
 
-
-
-                    //Console.WriteLine("exec dbo.MonitoredInstances_SetInstance @ServerID = {0},@InstanceID={1},@PingTest={2},@PingStatus={3},@SSASStatus='{4}',@SSRSStatus='{5}',@AgentStatus='{6}'", _serverID,_instanceID, 1, sqlservice.status,ssasservice.status,ssrsservice.status,agentservice.status);
                     repConn.Open();
                     cmd.ExecuteNonQuery();
                     repConn.Close();
@@ -292,16 +290,7 @@ namespace CMS_C
         public void GatherDatabases()
         {
             string _query = GetQuery("GatherDatabases");
-            SqlConnection conn = BuildConnection();
-            try 
-	        {	        
-                conn.Open();
-                SqlCommand gatherDatabases = new SqlCommand(_query, conn);
-                SqlDataAdapter adapter = new SqlDataAdapter(gatherDatabases);
-                DataSet dbs = new DataSet();
-                adapter.Fill(dbs);
-                conn.Close();
-
+            PullDatabases(_query);
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
                 using (SqlConnection repConn = new SqlConnection(repository))
                 using (SqlCommand cmd = new SqlCommand("dbo.MonitoredDatabases_SetDatabases", repConn))
@@ -309,7 +298,7 @@ namespace CMS_C
                     try
                     {
                         repConn.Open();
-                        foreach (DataRow pRow in dbs.Tables[0].Rows)
+                        foreach (DataRow pRow in _dbs.Tables[0].Rows)
                         {
                             cmd.Parameters.Clear();
                             cmd.CommandType = CommandType.StoredProcedure;
@@ -345,12 +334,25 @@ namespace CMS_C
                     }
                 }		
 	        }
-	        catch (Exception)
-	        {
-		
-		        throw;
-	        }
 
+        private void PullDatabases(string _query)
+        {
+            SqlConnection conn = BuildConnection();
+            try
+            {
+                conn.Open();
+                SqlCommand gatherDatabases = new SqlCommand(_query, conn);
+                SqlDataAdapter adapter = new SqlDataAdapter(gatherDatabases);
+                _dbs = new DataSet();
+                adapter.Fill(_dbs);
+                conn.Close();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
         }
     }
-}
+
