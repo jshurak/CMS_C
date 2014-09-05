@@ -35,7 +35,7 @@ namespace CMS_C
         private Dictionary<string, ServiceValue> _serviceDictionary;
         private int _serverID;
         private int _instanceID;
-        private DataSet _dbs;
+        
 
         Assembly _assembly;
         StreamReader _textStreamReader;
@@ -287,10 +287,45 @@ namespace CMS_C
             }
         }
 
+        public void GatherBackups()
+        {
+            string _query = GetQuery("GatherBackups");
+            DataSet _dbs = PullDatabases(_query);
+            string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
+            using (SqlConnection repConn = new SqlConnection(repository))
+            using (SqlCommand cmd = new SqlCommand("dbo.MonitoredDatabases_SetBackups", repConn))
+            {
+                try
+                {
+                    repConn.Open();
+                    foreach (DataRow pRow in _dbs.Tables[0].Rows)
+                    {
+                        cmd.Parameters.Clear();
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
+                        cmd.Parameters.Add("@DatabaseGUID", SqlDbType.VarChar).Value = pRow["DatabaseGUID"].ToString();
+                        cmd.Parameters.Add("@RecoveryModel", SqlDbType.VarChar).Value = pRow["RecoveryModel"].ToString();
+                        cmd.Parameters.Add("@LastFullBackupDate", SqlDbType.DateTime).Value = pRow["LastBackupDate"];
+                        cmd.Parameters.Add("@LastDifferentialBackupDate", SqlDbType.DateTime).Value = pRow["LastDifferentialBackupDate"];
+                        cmd.Parameters.Add("@LastLogBackupDate", SqlDbType.DateTime).Value = pRow["LastLogBackupDate"];
+
+                        cmd.ExecuteNonQuery();
+                    }
+                    repConn.Close();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                    Console.ReadLine();
+                    throw;
+                }
+            }
+        }
+
         public void GatherDatabases()
         {
             string _query = GetQuery("GatherDatabases");
-            PullDatabases(_query);
+            DataSet _dbs = PullDatabases(_query);
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
                 using (SqlConnection repConn = new SqlConnection(repository))
                 using (SqlCommand cmd = new SqlCommand("dbo.MonitoredDatabases_SetDatabases", repConn))
@@ -335,7 +370,7 @@ namespace CMS_C
                 }		
 	        }
 
-        private void PullDatabases(string _query)
+        private DataSet PullDatabases(string _query)
         {
             SqlConnection conn = BuildConnection();
             try
@@ -343,9 +378,10 @@ namespace CMS_C
                 conn.Open();
                 SqlCommand gatherDatabases = new SqlCommand(_query, conn);
                 SqlDataAdapter adapter = new SqlDataAdapter(gatherDatabases);
-                _dbs = new DataSet();
+                DataSet _dbs = new DataSet();
                 adapter.Fill(_dbs);
                 conn.Close();
+                return _dbs;
             }
             catch (Exception)
             {
