@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="CMS_Dev" Class="CMSDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=PHLDVWSSQL002\DVS1201;Initial Catalog=CMS_Dev;Integrated Security=True" SettingsObjectName="CMS_C.Properties.Settings" SettingsPropertyName="CMS_DevConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.MonitoredInstances" Member="MonitoredInstances">
+    <Type Name="MonitoredInstance">
+      <Column Name="InstanceID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ServerID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="InstanceName" Type="System.String" DbType="VarChar(128) NOT NULL" CanBeNull="false" />
+      <Column Name="Environment" Type="System.String" DbType="VarChar(60)" CanBeNull="true" />
+      <Column Name="MonitorInstance" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="Edition" Type="System.String" DbType="VarChar(128)" CanBeNull="true" />
+      <Column Name="Version" Type="System.String" DbType="VarChar(20)" CanBeNull="true" />
+      <Column Name="isClustered" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="MaxMemory" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="MinMemory" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="ServiceAccount" Type="System.String" DbType="VarChar(60)" CanBeNull="true" />
+      <Column Name="DateUpdated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="MonitorDatabases" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="MonitorBlocking" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="Criticality" Type="System.Byte" DbType="TinyInt" CanBeNull="true" />
+      <Column Name="SSAS" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="SSRS" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="Deleted" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="DateDeleted" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="ProductLevel" Type="System.String" DbType="VarChar(10)" CanBeNull="true" />
+      <Column Name="PingStatus" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="SSASStatus" Type="System.String" DbType="VarChar(20)" CanBeNull="true" />
+      <Column Name="SSRSStatus" Type="System.String" DbType="VarChar(20)" CanBeNull="true" />
+      <Column Name="AgentStatus" Type="System.String" DbType="VarChar(20)" CanBeNull="true" />
+      <Column Name="MonitorWaitStats" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="HasBaseline" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="BaselineStartDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="HasWaitsBaseline" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="WaitsBaselineStartDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.MonitoredServers" Member="MonitoredServers">
+    <Type Name="MonitoredServer">
+      <Column Name="ServerID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ServerName" Type="System.String" DbType="VarChar(128) NOT NULL" CanBeNull="false" />
+      <Column Name="Environment" Type="System.String" DbType="VarChar(60)" CanBeNull="true" />
+      <Column Name="MonitorServer" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="TotalMemory" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="Manufacturer" Type="System.String" DbType="VarChar(128)" CanBeNull="true" />
+      <Column Name="Model" Type="System.String" DbType="VarChar(128)" CanBeNull="true" />
+      <Column Name="IPAddress" Type="System.String" DbType="VarChar(15)" CanBeNull="true" />
+      <Column Name="OperatingSystem" Type="System.String" DbType="VarChar(128)" CanBeNull="true" />
+      <Column Name="BitLevel" Type="System.Byte" DbType="TinyInt" CanBeNull="true" />
+      <Column Name="DateInstalled" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="NumberofProcessors" Type="System.Byte" DbType="TinyInt" CanBeNull="true" />
+      <Column Name="NumberofProcessorCores" Type="System.Byte" DbType="TinyInt" CanBeNull="true" />
+      <Column Name="ProcessorClockSpeed" Type="System.Int16" DbType="SmallInt" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateUpdated" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="DateLastBoot" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="MonitorDrives" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="PingStatus" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="Deleted" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="DateDeleted" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="IsVirtualServerName" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="HasBaseline" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="BaselineStartDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+    </Type>
+  </Table>
+</Database>
