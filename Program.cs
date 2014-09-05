@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Data.SqlClient;
+using System.Data;
+using System.Data.Linq;
 
 
 namespace CMS_C
@@ -12,7 +15,9 @@ namespace CMS_C
     {
         static void Main(string[] args)
         {
-            InstanceJobs.ProcessBackups();
+      
+           
+            //InstanceJobs.ProcessBackups();
         }
         
     }
