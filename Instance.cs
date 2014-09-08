@@ -191,7 +191,7 @@ namespace CMS_C
             SqlConnectionStringBuilder connectionstring = new SqlConnectionStringBuilder();
             connectionstring["Data Source"] = instanceName;
             connectionstring["Integrated Security"] = true;
-            connectionstring["Connect Timeout"] = 3;
+            connectionstring["Connect Timeout"] = 60;
 
             SqlConnection conn = new SqlConnection(connectionstring.ConnectionString);
             return conn;
@@ -375,18 +375,20 @@ namespace CMS_C
             SqlConnection conn = BuildConnection();
             try
             {
-                conn.Open();
                 SqlCommand gatherDatabases = new SqlCommand(_query, conn);
                 SqlDataAdapter adapter = new SqlDataAdapter(gatherDatabases);
+                conn.Open();
                 DataSet _dbs = new DataSet();
                 adapter.Fill(_dbs);
-                conn.Close();
                 return _dbs;
             }
             catch (Exception)
             {
-
                 throw;
+            }
+            finally
+            {
+                conn.Close();
             }
         }
         }
