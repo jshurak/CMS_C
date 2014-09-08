@@ -34,6 +34,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Linq" />
     <Reference Include="System.ServiceProcess" />
@@ -49,7 +50,9 @@
     <Compile Include="Database.cs" />
     <Compile Include="Instance.cs" />
     <Compile Include="InstanceJobs.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Program.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries.Designer.cs">
       <AutoGen>True</AutoGen>
