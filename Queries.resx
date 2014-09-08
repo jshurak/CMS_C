@@ -148,6 +148,16 @@ GROUP BY a.Name ,
         rs.database_guid,
 		a.recovery_model_desc;</value>
   </data>
+  <data name="GatherDatabaseFiles" xml:space="preserve">
+    <value>select name as LogicalName
+	,SUBSTRING(Physical_Name,LEN(Physical_Name)-CHARINDEX('\',REVERSE(physical_name)) + 2,CHARINDEX('\',REVERSE(physical_name))) as PhysicalName
+	,Size as FileSize
+	,CASE
+		WHEN type = 0 THEN 'Data'
+		ELSE 'Log'
+	END FileType
+from sys.master_files</value>
+  </data>
   <data name="GatherDatabases" xml:space="preserve">
     <value>if OBJECT_ID('tempdb..#sizes') IS NOT NULL
 	DROP TABLE #sizes
