@@ -106,5 +106,18 @@ namespace CMS_C {
                 return ResourceManager.GetString("GatherDatabases", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to select @@SERVERNAME AS InstanceName,SERVERPROPERTY(&apos;Edition&apos;) AS Edition,SERVERPROPERTY(&apos;ProductVersion&apos;) AS Version,CAST(SERVERPROPERTY(&apos;isClustered&apos;) as BIT) AS isClustered ,SERVERPROPERTY(&apos;ProductLevel&apos;) AS ProductLevel
+        ///                                                        ,[Min] as minMemory,CAST([Max] AS BIGINT) as maxMemory
+        ///                                                        FROM
+        ///                                                        (SELECT left(name,3) as name, value_in_use
+        ///               [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string GatherInstance {
+            get {
+                return ResourceManager.GetString("GatherInstance", resourceCulture);
+            }
+        }
     }
 }

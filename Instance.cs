@@ -128,62 +128,43 @@ namespace CMS_C
         public void GatherInstance()
         {
             SqlConnection conn = BuildConnection();
-            try
+            string _query = GetQuery("GatherInstance");
+            DataSet _instances = PullDatabases(_query);
+            if (InstanceJobs.TestDataSet(_instances))
             {
-                SqlDataReader myReader = null;
-                using(SqlCommand myCommand = new SqlCommand(@"select @@SERVERNAME AS InstanceName,SERVERPROPERTY('Edition') AS Edition,SERVERPROPERTY('ProductVersion') AS Version,CAST(SERVERPROPERTY('isClustered') as BIT) AS isClustered ,SERVERPROPERTY('ProductLevel') AS ProductLevel
-                                                        ,[Min] as minMemory,CAST([Max] AS BIGINT) as maxMemory
-                                                        FROM
-                                                        (SELECT left(name,3) as name, value_in_use
-                                                        FROM sys.configurations
-                                                        where name like '%server memory%') as s
-                                                        PIVOT
-                                                        (
-	                                                        max(value_in_use)
-	                                                        FOR name in ([min],[max])
-                                                        ) as output", conn))
+                try
                 {
-                    conn.Open();
-                    myReader = myCommand.ExecuteReader();
-                    while (myReader.Read())
+                    string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
+                    using (SqlConnection repConn = new SqlConnection(repository))
+                    using (SqlCommand cmd = new SqlCommand("dbo.MonitoredInstances_SetInstance", repConn))
                     {
-                        edition = myReader["Edition"].ToString();
-                        version = myReader["Version"].ToString();
-                        isClustered = (bool)myReader["isClustered"];
-                        productLevel = myReader["ProductLevel"].ToString();
-                        minMemory = (int)myReader["minMemory"];
-                        maxMemory = (long)myReader["maxMemory"];
+                        repConn.Open();
+                        foreach (DataRow pRow in _instances.Tables[0].Rows)
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
+                            cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
+                            cmd.Parameters.Add("@InstanceName", SqlDbType.VarChar).Value = pRow["InstanceName"].ToString();
+                            cmd.Parameters.Add("@Edition", SqlDbType.VarChar).Value = pRow["Edition"].ToString();
+                            cmd.Parameters.Add("@Version", SqlDbType.VarChar).Value = pRow["Version"].ToString();
+                            cmd.Parameters.Add("@IsClustered", SqlDbType.Bit).Value = (bool)pRow["isClustered"];
+                            cmd.Parameters.Add("@MaxMemory", SqlDbType.BigInt).Value = (long)pRow["maxMemory"];
+                            cmd.Parameters.Add("@MinMemory", SqlDbType.BigInt).Value = (int)pRow["minMemory"];
+                            cmd.Parameters.Add("@ServiceAccount", SqlDbType.VarChar).Value = "TestServiceAccount";
+                            cmd.Parameters.Add("@ProductLevel", SqlDbType.VarChar).Value = pRow["ProductLevel"].ToString();
+                            cmd.Parameters.Add("@SSAS", SqlDbType.Bit).Value = ssasservice.Exists;
+                            cmd.Parameters.Add("@SSRS", SqlDbType.Bit).Value = ssrsservice.Exists;
+                        }
+                        cmd.ExecuteNonQuery();
+                        repConn.Close();
                     }
-                    conn.Close();
                 }
-                
-                string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
-                using (SqlConnection repConn = new SqlConnection(repository))
-                using (SqlCommand cmd = new SqlCommand("dbo.MonitoredInstances_SetInstance", repConn))
+                catch (Exception e)
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
-                    cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
-                    cmd.Parameters.Add("@InstanceName", SqlDbType.VarChar).Value = instanceName;
-                    cmd.Parameters.Add("@Edition", SqlDbType.VarChar).Value = edition;
-                    cmd.Parameters.Add("@Version", SqlDbType.VarChar).Value = version;
-                    cmd.Parameters.Add("@IsClustered", SqlDbType.Bit).Value = isClustered;
-                    cmd.Parameters.Add("@MaxMemory", SqlDbType.BigInt).Value = maxMemory;
-                    cmd.Parameters.Add("@MinMemory", SqlDbType.BigInt).Value = minMemory;
-                    cmd.Parameters.Add("@ServiceAccount", SqlDbType.VarChar).Value = "TestServiceAccount";
-                    cmd.Parameters.Add("@ProductLevel", SqlDbType.VarChar).Value = productLevel;
-                    cmd.Parameters.Add("@SSAS", SqlDbType.Bit).Value = ssasservice.Exists;
-                    cmd.Parameters.Add("@SSRS", SqlDbType.Bit).Value = ssrsservice.Exists;
-
-                    repConn.Open();
-                    cmd.ExecuteNonQuery();
-                    repConn.Close();
+                    EventLogger.LogEvent(e.ToString(), "Error");
                 }
             }
-            catch (Exception e)
-            {
-                EventLogger.LogEvent(e.ToString(), "Error");
-            }
+            
         }
 
         private SqlConnection BuildConnection()

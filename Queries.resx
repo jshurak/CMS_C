@@ -222,4 +222,17 @@ INNER JOIN #sizes s on sdb.database_id = s.database_id
 INNER JOIN #available a on sdb.database_id = a.database_id
 INNER JOIN sys.database_recovery_status drs ON drs.database_id = sdb.database_id</value>
   </data>
+  <data name="GatherInstance" xml:space="preserve">
+    <value>select @@SERVERNAME AS InstanceName,SERVERPROPERTY('Edition') AS Edition,SERVERPROPERTY('ProductVersion') AS Version,CAST(SERVERPROPERTY('isClustered') as BIT) AS isClustered ,SERVERPROPERTY('ProductLevel') AS ProductLevel
+                                                        ,[Min] as minMemory,CAST([Max] AS BIGINT) as maxMemory
+                                                        FROM
+                                                        (SELECT left(name,3) as name, value_in_use
+                                                        FROM sys.configurations
+                                                        where name like '%server memory%') as s
+                                                        PIVOT
+                                                        (
+	                                                        max(value_in_use)
+	                                                        FOR name in ([min],[max])
+                                                        ) as output</value>
+  </data>
 </root>
