@@ -291,7 +291,7 @@ namespace CMS_C
         {
             string _query = GetQuery("GatherBackups");
             DataSet _dbs = PullDatabases(_query);
-            if(_dbs.Tables[0].Rows.Count > 0)
+            if (InstanceJobs.TestDataSet(_dbs))
             {
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
                 using (SqlConnection repConn = new SqlConnection(repository))
@@ -329,7 +329,7 @@ namespace CMS_C
         {
             string _query = GetQuery("GatherDatabases");
             DataSet _dbs = PullDatabases(_query);
-            if(_dbs.Tables[0].Rows.Count > 0)
+            if (InstanceJobs.TestDataSet(_dbs))
             {
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
                 using (SqlConnection repConn = new SqlConnection(repository))
@@ -376,6 +376,8 @@ namespace CMS_C
             }
                 		
 	    }
+
+
 
         private DataSet PullDatabases(string _query)
         {

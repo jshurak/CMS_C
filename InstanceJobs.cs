@@ -22,7 +22,7 @@ namespace CMS_C
 
             Instance instance;
             DataSet instances = ConnectRepository();
-            if (instances.Tables[0].Rows.Count > 0)
+            if (TestDataSet(instances))
             {
                 foreach (DataRow pRow in instances.Tables[0].Rows)
                 {
@@ -81,7 +81,7 @@ namespace CMS_C
 
             Instance instance;
             DataSet instances = ConnectRepository();
-            if (instances.Tables[0].Rows.Count > 0)
+            if (TestDataSet(instances))
             {
                 foreach (DataRow pRow in instances.Tables[0].Rows)
                 {
@@ -114,7 +114,7 @@ namespace CMS_C
 
             Instance instance;
             DataSet instances = ConnectRepository();
-            if(instances.Tables[0].Rows.Count > 0)
+            if(TestDataSet(instances))
             {
                 foreach (DataRow pRow in instances.Tables[0].Rows)
                 {
@@ -138,7 +138,7 @@ namespace CMS_C
 
             Instance instance;
             DataSet instances = ConnectRepository();
-            if(instances.Tables[0].Rows.Count > 0)
+            if(TestDataSet(instances))
             {
                 foreach (DataRow pRow in instances.Tables[0].Rows)
                 {
@@ -151,6 +151,7 @@ namespace CMS_C
                 }
             }
             
+
             log.LogModule(_logID);
 
         }
@@ -163,6 +164,11 @@ namespace CMS_C
             ProcessDatabases();
 
             log.LogModule(_DlogID);
+        }
+
+        public static bool TestDataSet(DataSet _dbs)
+        {
+            return _dbs.Tables.Count > 0;
         }
     }
 }
