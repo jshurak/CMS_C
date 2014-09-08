@@ -191,7 +191,7 @@ namespace CMS_C
             SqlConnectionStringBuilder connectionstring = new SqlConnectionStringBuilder();
             connectionstring["Data Source"] = instanceName;
             connectionstring["Integrated Security"] = true;
-            connectionstring["Connect Timeout"] = 60;
+            connectionstring["Connect Timeout"] = 15;
 
             SqlConnection conn = new SqlConnection(connectionstring.ConnectionString);
             return conn;
@@ -326,6 +326,8 @@ namespace CMS_C
         {
             string _query = GetQuery("GatherDatabases");
             DataSet _dbs = PullDatabases(_query);
+            if(_dbs.Tables[0].Rows.Count > 0)
+            {
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
                 using (SqlConnection repConn = new SqlConnection(repository))
                 using (SqlCommand cmd = new SqlCommand("dbo.MonitoredDatabases_SetDatabases", repConn))
@@ -367,24 +369,27 @@ namespace CMS_C
                         Console.ReadLine();
                         throw;
                     }
-                }		
-	        }
+                }
+            }
+                		
+	    }
 
         private DataSet PullDatabases(string _query)
         {
             SqlConnection conn = BuildConnection();
+            DataSet _dbs = new DataSet();
             try
             {
                 SqlCommand gatherDatabases = new SqlCommand(_query, conn);
                 SqlDataAdapter adapter = new SqlDataAdapter(gatherDatabases);
                 conn.Open();
-                DataSet _dbs = new DataSet();
                 adapter.Fill(_dbs);
                 return _dbs;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                EventLogger.LogEvent(ex.ToString(),"Error");
+                return _dbs;
             }
             finally
             {
