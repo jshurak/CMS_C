@@ -182,7 +182,7 @@ namespace CMS_C
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                EventLogger.LogEvent(e.ToString(), "Error");
             }
         }
 
@@ -291,33 +291,36 @@ namespace CMS_C
         {
             string _query = GetQuery("GatherBackups");
             DataSet _dbs = PullDatabases(_query);
-            string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
-            using (SqlConnection repConn = new SqlConnection(repository))
-            using (SqlCommand cmd = new SqlCommand("dbo.MonitoredDatabases_SetBackups", repConn))
+            if(_dbs.Tables[0].Rows.Count > 0)
             {
-                try
+                string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
+                using (SqlConnection repConn = new SqlConnection(repository))
+                using (SqlCommand cmd = new SqlCommand("dbo.MonitoredDatabases_SetBackups", repConn))
                 {
-                    repConn.Open();
-                    foreach (DataRow pRow in _dbs.Tables[0].Rows)
+                    try
                     {
-                        cmd.Parameters.Clear();
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
-                        cmd.Parameters.Add("@DatabaseGUID", SqlDbType.VarChar).Value = pRow["DatabaseGUID"].ToString();
-                        cmd.Parameters.Add("@RecoveryModel", SqlDbType.VarChar).Value = pRow["RecoveryModel"].ToString();
-                        cmd.Parameters.Add("@LastFullBackupDate", SqlDbType.DateTime).Value = pRow["LastBackupDate"];
-                        cmd.Parameters.Add("@LastDifferentialBackupDate", SqlDbType.DateTime).Value = pRow["LastDifferentialBackupDate"];
-                        cmd.Parameters.Add("@LastLogBackupDate", SqlDbType.DateTime).Value = pRow["LastLogBackupDate"];
+                        repConn.Open();
+                        foreach (DataRow pRow in _dbs.Tables[0].Rows)
+                        {
+                            cmd.Parameters.Clear();
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
+                            cmd.Parameters.Add("@DatabaseGUID", SqlDbType.VarChar).Value = pRow["DatabaseGUID"].ToString();
+                            cmd.Parameters.Add("@RecoveryModel", SqlDbType.VarChar).Value = pRow["RecoveryModel"].ToString();
+                            cmd.Parameters.Add("@LastFullBackupDate", SqlDbType.DateTime).Value = pRow["LastBackupDate"];
+                            cmd.Parameters.Add("@LastDifferentialBackupDate", SqlDbType.DateTime).Value = pRow["LastDifferentialBackupDate"];
+                            cmd.Parameters.Add("@LastLogBackupDate", SqlDbType.DateTime).Value = pRow["LastLogBackupDate"];
 
-                        cmd.ExecuteNonQuery();
+                            cmd.ExecuteNonQuery();
+                        }
+                        repConn.Close();
                     }
-                    repConn.Close();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.ToString());
-                    Console.ReadLine();
-                    throw;
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.ToString());
+                        Console.ReadLine();
+                        throw;
+                    }
                 }
             }
         }

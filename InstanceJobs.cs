@@ -22,24 +22,28 @@ namespace CMS_C
 
             Instance instance;
             DataSet instances = ConnectRepository();
-            foreach (DataRow pRow in instances.Tables[0].Rows)
+            if (instances.Tables[0].Rows.Count > 0)
             {
-                string Name = (string)pRow["InstanceName"];
-                if(pRow.IsNull("SSAS") || pRow.IsNull("SSRS"))
+                foreach (DataRow pRow in instances.Tables[0].Rows)
                 {
-                    instance = new Instance((string)pRow["InstanceName"],(int)pRow["ServerID"],(int)pRow["InstanceID"]);
-                    instance.GatherServices();
+                    string Name = (string)pRow["InstanceName"];
+                    if (pRow.IsNull("SSAS") || pRow.IsNull("SSRS"))
+                    {
+                        instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]);
+                        instance.GatherServices();
+                    }
+                    else
+                    {
+                        instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"], (bool)pRow["SSAS"], (bool)pRow["SSRS"]);
+                    }
+
+                    if (instance.TestConnection())
+                    {
+                        instance.GatherInstance();
+                    }
                 }
-                else
-                {
-                    instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"],(int)pRow["InstanceID"],(bool)pRow["SSAS"], (bool)pRow["SSRS"]);
-                }
-                
-                if(instance.TestConnection())
-                {
-                    instance.GatherInstance();
-                }                
             }
+
 
             log.LogModule(_logID);
         }
@@ -47,7 +51,7 @@ namespace CMS_C
         private static DataSet ConnectRepository()
         {
             string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
-
+            DataSet instances = new DataSet();
             SqlConnection conn = new SqlConnection(repository);
 
             try
@@ -56,16 +60,15 @@ namespace CMS_C
                 using (SqlDataAdapter adapter = new SqlDataAdapter(listInstances))
                 {
                     conn.Open();
-                    DataSet instances = new DataSet();
                     adapter.Fill(instances);
                     conn.Close();
                     return instances;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                
-                throw;
+                EventLogger.LogEvent(ex.ToString(), "Error");
+                return instances;
             }
             
                 
@@ -78,22 +81,25 @@ namespace CMS_C
 
             Instance instance;
             DataSet instances = ConnectRepository();
-            foreach (DataRow pRow in instances.Tables[0].Rows)
+            if (instances.Tables[0].Rows.Count > 0)
             {
-                string Name = (string)pRow["InstanceName"];
-                if (pRow.IsNull("SSAS") || pRow.IsNull("SSRS"))
+                foreach (DataRow pRow in instances.Tables[0].Rows)
                 {
-                    instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]);
-                    instance.GatherServices();
-                }
-                else
-                {
-                    instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"], (bool)pRow["SSAS"], (bool)pRow["SSRS"]);
-                }
+                    string Name = (string)pRow["InstanceName"];
+                    if (pRow.IsNull("SSAS") || pRow.IsNull("SSRS"))
+                    {
+                        instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]);
+                        instance.GatherServices();
+                    }
+                    else
+                    {
+                        instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"], (bool)pRow["SSAS"], (bool)pRow["SSRS"]);
+                    }
 
-                if (instance.TestConnection())
-                {
-                    instance.CheckServices();
+                    if (instance.TestConnection())
+                    {
+                        instance.CheckServices();
+                    }
                 }
             }
 
@@ -108,16 +114,19 @@ namespace CMS_C
 
             Instance instance;
             DataSet instances = ConnectRepository();
-            foreach (DataRow pRow in instances.Tables[0].Rows)
+            if(instances.Tables[0].Rows.Count > 0)
             {
-
-                instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]);
-                if (instance.TestConnection())
+                foreach (DataRow pRow in instances.Tables[0].Rows)
                 {
-                    instance.GatherDatabases();
+
+                    instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]);
+                    if (instance.TestConnection())
+                    {
+                        instance.GatherDatabases();
+                    }
                 }
             }
-
+            
             log.LogModule(_logID);
 
         }
@@ -129,16 +138,19 @@ namespace CMS_C
 
             Instance instance;
             DataSet instances = ConnectRepository();
-            foreach (DataRow pRow in instances.Tables[0].Rows)
+            if(instances.Tables[0].Rows.Count > 0)
             {
-
-                instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]);
-                if (instance.TestConnection())
+                foreach (DataRow pRow in instances.Tables[0].Rows)
                 {
-                    instance.GatherBackups();
+
+                    instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]);
+                    if (instance.TestConnection())
+                    {
+                        instance.GatherBackups();
+                    }
                 }
             }
-
+            
             log.LogModule(_logID);
 
         }
