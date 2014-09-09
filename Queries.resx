@@ -149,14 +149,94 @@ GROUP BY a.Name ,
 		a.recovery_model_desc;</value>
   </data>
   <data name="GatherDatabaseFiles" xml:space="preserve">
-    <value>select name as LogicalName
+    <value>if OBJECT_ID('tempdb..#sizes') IS NOT NULL
+	DROP TABLE #sizes
+if OBJECT_ID('tempdb..#available') IS NOT NULL
+	DROP TABLE #available
+
+if OBJECT_ID('tempdb..#dbs') IS NOT NULL
+	DROP TABLE #dbs
+
+CREATE TABLE #dbs(
+	DatabaseName varchar(128)
+	,database_id int
+	,physical_name nvarchar(260)
+	,[file_id] int
+	,Size bigint
+	,Type tinyint
+	,AvailableSpace bigint
+	,Max_size int
+	,Growth int
+	,is_percent_growth bit
+)
+
+create table #sizes(
+	database_id int
+	,LogicalName varchar(128)
+	,groupID int
+	,SpaceUsed bigint
+)
+create table #available (
+	database_id int,
+	[file_id] int,
+	SpaceAvailable bigint
+)
+exec sp_MSforeachdb N'USE [?] INSERT INTO #sizes
+	SELECT db_id() as database_id, RTRIM(name) AS [LogicalName],groupid,
+   cast(FILEPROPERTY(name, ''SpaceUsed'') as decimal(10,0))AS [SpaceUsed]
+FROM sysfiles
+ORDER BY groupid DESC
+
+USE [?] 
+	insert into #dbs
+	select name
+	,db_id() as database_id
+	,physical_name
+	,file_id
+	,size
+	,type
+	,(size * 8) -(FILEPROPERTY(name,''SpaceUsed''))*8 as AvailableSpace
+	,Max_size
+	,growth
+	,is_percent_growth
+from sys.database_files'
+
+select d.DatabaseName as LogicalName
 	,SUBSTRING(Physical_Name,LEN(Physical_Name)-CHARINDEX('\',REVERSE(physical_name)) + 2,CHARINDEX('\',REVERSE(physical_name))) as PhysicalName
-	,Size as FileSize
+	,d.Size * 8 as FileSize
 	,CASE
-		WHEN type = 0 THEN 'Data'
+		WHEN d.type = 0 THEN 'Data'
 		ELSE 'Log'
 	END FileType
-from sys.master_files</value>
+	,CASE
+		WHEN d.type = 0 THEN cast(s.SpaceUsed as decimal(20,0))
+		ELSE l.SpaceUsed
+	END UsedSpace
+	,d.AvailableSPace as AvailableSpace
+	,CAST(cast(d.AvailableSpace AS DECIMAL)/cast((d.size *8) as decimal) AS DECIMAL(10,3)) AS PercentageFree
+	,d.Max_size as MaxSize
+	,d.Growth * 8 as Growth
+	,CASE
+		WHEN d.is_percent_growth = 1 THEN 'PERCENT'
+		ELSE 'KB'
+	END GrowthType
+from #dbs d
+INNER JOIN #sizes s ON d.database_id = s.database_id AND d.databaseName = s.LogicalName
+LEFT OUTER JOIN 
+(
+	SELECT instance_name AS 'DatabaseName'
+	   ,db_id(instance_name) as database_id	
+	   ,1 as Type
+	   ,MAX(CASE 
+			   WHEN counter_name = 'Log File(s) Used Size (KB)' 
+				   THEN cntr_value
+			   ELSE 0 
+		   END) AS 'SpaceUsed'
+	FROM sysperfinfo 
+	WHERE counter_name = 'Log File(s) Used Size (KB)'
+	  AND instance_name != '_total' 
+	GROUP BY instance_name
+) as l on d.database_id= l.database_id</value>
   </data>
   <data name="GatherDatabases" xml:space="preserve">
     <value>if OBJECT_ID('tempdb..#sizes') IS NOT NULL

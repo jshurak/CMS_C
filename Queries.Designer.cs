@@ -81,14 +81,31 @@ namespace CMS_C {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to select name as LogicalName
-        ///	,SUBSTRING(Physical_Name,LEN(Physical_Name)-CHARINDEX(&apos;\&apos;,REVERSE(physical_name)) + 2,CHARINDEX(&apos;\&apos;,REVERSE(physical_name))) as PhysicalName
-        ///	,Size as FileSize
-        ///	,CASE
-        ///		WHEN type = 0 THEN &apos;Data&apos;
-        ///		ELSE &apos;Log&apos;
-        ///	END FileType
-        ///from sys.master_files.
+        ///   Looks up a localized string similar to if OBJECT_ID(&apos;tempdb..#sizes&apos;) IS NOT NULL
+        ///	DROP TABLE #sizes
+        ///if OBJECT_ID(&apos;tempdb..#available&apos;) IS NOT NULL
+        ///	DROP TABLE #available
+        ///
+        ///if OBJECT_ID(&apos;tempdb..#dbs&apos;) IS NOT NULL
+        ///	DROP TABLE #dbs
+        ///
+        ///CREATE TABLE #dbs(
+        ///	DatabaseName varchar(128)
+        ///	,database_id int
+        ///	,physical_name nvarchar(260)
+        ///	,[file_id] int
+        ///	,Size bigint
+        ///	,Type tinyint
+        ///	,AvailableSpace bigint
+        ///	,Max_size int
+        ///	,Growth int
+        ///	,is_percent_growth bit
+        ///)
+        ///
+        ///create table #sizes(
+        ///	database_id int
+        ///	,LogicalName varchar(128)
+        ///	,groupID int [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string GatherDatabaseFiles {
             get {
