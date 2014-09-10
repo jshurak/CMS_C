@@ -375,7 +375,7 @@ namespace CMS_C
                         
                         foreach(DataRow _blocker in _existingBlocking.Tables[0].Rows)
                         {
-                            _currentBlockers.Add((int)_blocker["CurrentBlockingSpid"],(DateTime)_blocker["LastBatchTime"]);
+                            _currentBlockers.Add(Convert.ToInt32(_blocker["CurrentBlockingSpid"]),(Convert.ToDateTime(_blocker["LastBatchTime"])));
                         }
 
                         foreach (DataRow pRow in _data.Tables[0].Rows)
@@ -385,7 +385,7 @@ namespace CMS_C
                             cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
                             cmd.Parameters.Add("@SPID", SqlDbType.SmallInt).Value = pRow["SPID"];
                             cmd.Parameters.Add("@Action", SqlDbType.VarChar).Value = "OPEN";
-                            cmd.Parameters.Add("@LastBatchTime", SqlDbType.DateTime).Value = pRow["LastActionTime"];
+                            cmd.Parameters.Add("@LastBatchTime", SqlDbType.DateTime).Value = pRow["LastBatchTime"];
                             cmd.Parameters.Add("@Status", SqlDbType.VarChar).Value = pRow["Status"].ToString();
                             cmd.Parameters.Add("@LoginName", SqlDbType.VarChar).Value = pRow["LoginName"].ToString();
                             cmd.Parameters.Add("@HostName", SqlDbType.VarChar).Value = pRow["HostName"].ToString();
@@ -395,9 +395,9 @@ namespace CMS_C
                             cmd.Parameters.Add("@Command", SqlDbType.VarChar).Value = pRow["Command"].ToString();
                             cmd.Parameters.Add("@LastWaitType", SqlDbType.VarChar).Value = pRow["LastWaitType"].ToString();
                             cmd.Parameters.Add("@WaitTime", SqlDbType.BigInt).Value = pRow["WaitTime"];
-                            cmd.Parameters.Add("@SQL", SqlDbType.VarChar).Value = pRow["SQL"];  
+                            cmd.Parameters.Add("@SQL", SqlDbType.VarChar).Value = pRow["SQLStatement"].ToString();  
                             cmd.ExecuteNonQuery();
-                            _currentBlockers.Remove((int)pRow["SPID"]);
+                            _currentBlockers.Remove(Convert.ToInt32(pRow["SPID"]));
                         }
 
                         foreach(KeyValuePair<int,DateTime> _deadBlocker in _currentBlockers)
