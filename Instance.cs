@@ -305,7 +305,50 @@ namespace CMS_C
                 }
             }
         }
+        public void GatherDatabaseFiles()
+        {
+            string _query = GetQuery("GatherDatabaseFiles");
+            DataSet _files = PullDatabases(_query);
+            if(InstanceJobs.TestDataSet(_files))
+            {
+                string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
+                using (SqlConnection repConn = new SqlConnection(repository))
+                using (SqlCommand cmd = new SqlCommand("dbo.MonitoredDatabaseFiles_SetDatabaseFiles", repConn))
+                {
+                    try
+                    {
+                        repConn.Open();
+                        foreach (DataRow pRow in _files.Tables[0].Rows)
+                        {
+                            cmd.Parameters.Clear();
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
+                            cmd.Parameters.Add("@DatabaseGUID", SqlDbType.VarChar).Value = pRow["DatabaseGUID"].ToString();
+                            cmd.Parameters.Add("@LogicalName", SqlDbType.VarChar).Value = pRow["LogicalName"].ToString();
+                            cmd.Parameters.Add("@PhysicalName", SqlDbType.VarChar).Value = pRow["PhysicalName"].ToString();
+                            cmd.Parameters.Add("@Directory", SqlDbType.VarChar).Value = pRow["Directory"].ToString();
+                            cmd.Parameters.Add("@FileType", SqlDbType.VarChar).Value = pRow["FileType"].ToString();
+                            cmd.Parameters.Add("@FileSize", SqlDbType.Float).Value = pRow["FileSize"];
+                            cmd.Parameters.Add("@UsedSpace", SqlDbType.Float).Value = pRow["UsedSpace"];
+                            cmd.Parameters.Add("@AvailableSpace", SqlDbType.Float).Value = pRow["AvailableSpace"];
+                            cmd.Parameters.Add("@MaxSize", SqlDbType.Float).Value = pRow["MaxSize"];
+                            cmd.Parameters.Add("@Growth", SqlDbType.Float).Value = pRow["Growth"];
+                            cmd.Parameters.Add("@PercentageFree", SqlDbType.Decimal).Value = pRow["PercentageFree"];
+                            cmd.Parameters.Add("@GrowthType", SqlDbType.VarChar).Value = pRow["GrowthType"].ToString();
 
+                            cmd.ExecuteNonQuery();
+                        }
+                        repConn.Close();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.ToString());
+                        Console.ReadLine();
+                        throw;
+                    }
+                }
+            }
+        }
         public void GatherDatabases()
         {
             string _query = GetQuery("GatherDatabases");

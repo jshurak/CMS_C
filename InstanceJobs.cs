@@ -130,6 +130,32 @@ namespace CMS_C
             log.LogModule(_logID);
 
         }
+
+        public static void ProcessDatabaseFiles()
+        {
+            CollectionLog log = new CollectionLog();
+
+            _logID = log.LogModule();
+
+            Instance instance;
+            DataSet instances = ConnectRepository();
+            if (TestDataSet(instances))
+            {
+                foreach (DataRow pRow in instances.Tables[0].Rows)
+                {
+
+                    instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]);
+                    if (instance.TestConnection())
+                    {
+                        instance.GatherDatabaseFiles();
+                    }
+                }
+            }
+
+
+            log.LogModule(_logID);
+        }
+
         public static void ProcessBackups()
         {
             CollectionLog log = new CollectionLog();

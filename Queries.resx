@@ -151,15 +151,13 @@ GROUP BY a.Name ,
   <data name="GatherDatabaseFiles" xml:space="preserve">
     <value>if OBJECT_ID('tempdb..#sizes') IS NOT NULL
 	DROP TABLE #sizes
-if OBJECT_ID('tempdb..#available') IS NOT NULL
-	DROP TABLE #available
-
 if OBJECT_ID('tempdb..#dbs') IS NOT NULL
 	DROP TABLE #dbs
 
 CREATE TABLE #dbs(
 	DatabaseName varchar(128)
 	,database_id int
+	,DatabaseGUID varchar(36)
 	,physical_name nvarchar(260)
 	,[file_id] int
 	,Size bigint
@@ -176,11 +174,7 @@ create table #sizes(
 	,groupID int
 	,SpaceUsed bigint
 )
-create table #available (
-	database_id int,
-	[file_id] int,
-	SpaceAvailable bigint
-)
+
 exec sp_MSforeachdb N'USE [?] INSERT INTO #sizes
 	SELECT db_id() as database_id, RTRIM(name) AS [LogicalName],groupid,
    cast(FILEPROPERTY(name, ''SpaceUsed'') as decimal(10,0))AS [SpaceUsed]
@@ -191,6 +185,7 @@ USE [?]
 	insert into #dbs
 	select name
 	,db_id() as database_id
+	,r.database_guid as DatabaseGUID
 	,physical_name
 	,file_id
 	,size
@@ -199,9 +194,11 @@ USE [?]
 	,Max_size
 	,growth
 	,is_percent_growth
-from sys.database_files'
+from sys.database_files d
+INNER JOIN sys.database_recovery_status r on db_id() = r.database_id'
 
 select d.DatabaseName as LogicalName
+	,d.DatabaseGUID
 	,SUBSTRING(Physical_Name,LEN(Physical_Name)-CHARINDEX('\',REVERSE(physical_name)) + 2,CHARINDEX('\',REVERSE(physical_name))) as PhysicalName
 	,d.Size * 8 as FileSize
 	,CASE

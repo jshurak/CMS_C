@@ -15,7 +15,7 @@ namespace CMS_C
     {
         static void Main(string[] args)
         {
-            InstanceJobs.Daily();
+            InstanceJobs.ProcessDatabaseFiles();
         }
     }
 }
