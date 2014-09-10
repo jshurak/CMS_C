@@ -220,6 +220,7 @@ select d.DatabaseName as LogicalName
 		WHEN d.is_percent_growth = 1 THEN 'PERCENT'
 		ELSE 'KB'
 	END GrowthType
+	,REVERSE(SUBSTRING(REVERSE(d.Physical_name),CHARINDEX('\',REVERSE(d.Physical_Name))+1,LEN(d.Physical_Name))) AS Directory
 from #dbs d
 INNER JOIN #sizes s ON d.database_id = s.database_id AND d.databaseName = s.LogicalName
 LEFT OUTER JOIN 
