@@ -403,12 +403,12 @@ namespace CMS_C
                         foreach(KeyValuePair<int,DateTime> _deadBlocker in _currentBlockers)
                         {
                             cmd.Parameters.Clear();
+                            cmd.CommandType = CommandType.StoredProcedure;
                             cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
                             cmd.Parameters.Add("@Action", SqlDbType.VarChar).Value = "CLOSE";
                             cmd.Parameters.Add("@SPID", SqlDbType.Int).Value = _deadBlocker.Key;
                             cmd.Parameters.Add("@LastBatchTime", SqlDbType.DateTime).Value = _deadBlocker.Value;
                             cmd.ExecuteNonQuery();
-                            _currentBlockers.Remove(_deadBlocker.Key);
                         }
                         repConn.Close();
                     }
