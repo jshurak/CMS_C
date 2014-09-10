@@ -349,6 +349,8 @@ namespace CMS_C
 
         public void GatherBlocking()
         {
+            Dictionary<int,DateTime> _currentBlockers  = new Dictionary<int,DateTime>();
+
             DataSet _data = GatherData("GatherBlocking");
             if(InstanceJobs.TestDataSet(_data))
             {
@@ -373,9 +375,7 @@ namespace CMS_C
                         
                         foreach(DataRow _blocker in _existingBlocking.Tables[0].Rows)
                         {
-                            Dictionary<int,DateTime> _currentBlockers = new Dictionary<int,DateTime>();
                             _currentBlockers.Add((int)_blocker["CurrentBlockingSpid"],(DateTime)_blocker["LastBatchTime"]);
-
                         }
 
                         foreach (DataRow pRow in _data.Tables[0].Rows)
@@ -383,8 +383,32 @@ namespace CMS_C
                             cmd.Parameters.Clear();
                             cmd.CommandType = CommandType.StoredProcedure;
                             cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
-                            
+                            cmd.Parameters.Add("@SPID", SqlDbType.SmallInt).Value = pRow["SPID"];
+                            cmd.Parameters.Add("@Action", SqlDbType.VarChar).Value = "OPEN";
+                            cmd.Parameters.Add("@LastBatchTime", SqlDbType.DateTime).Value = pRow["LastActionTime"];
+                            cmd.Parameters.Add("@Status", SqlDbType.VarChar).Value = pRow["Status"].ToString();
+                            cmd.Parameters.Add("@LoginName", SqlDbType.VarChar).Value = pRow["LoginName"].ToString();
+                            cmd.Parameters.Add("@HostName", SqlDbType.VarChar).Value = pRow["HostName"].ToString();
+                            cmd.Parameters.Add("@ProgramName", SqlDbType.VarChar).Value = pRow["ProgramName"].ToString();
+                            cmd.Parameters.Add("@OpenTran", SqlDbType.SmallInt).Value = pRow["OpenTran"];
+                            cmd.Parameters.Add("@DatabaseName", SqlDbType.VarChar).Value = pRow["DatabaseName"].ToString();
+                            cmd.Parameters.Add("@Command", SqlDbType.VarChar).Value = pRow["Command"].ToString();
+                            cmd.Parameters.Add("@LastWaitType", SqlDbType.VarChar).Value = pRow["LastWaitType"].ToString();
+                            cmd.Parameters.Add("@WaitTime", SqlDbType.BigInt).Value = pRow["WaitTime"];
+                            cmd.Parameters.Add("@SQL", SqlDbType.VarChar).Value = pRow["SQL"];  
                             cmd.ExecuteNonQuery();
+                            _currentBlockers.Remove((int)pRow["SPID"]);
+                        }
+
+                        foreach(KeyValuePair<int,DateTime> _deadBlocker in _currentBlockers)
+                        {
+                            cmd.Parameters.Clear();
+                            cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
+                            cmd.Parameters.Add("@Action", SqlDbType.VarChar).Value = "CLOSE";
+                            cmd.Parameters.Add("@SPID", SqlDbType.Int).Value = _deadBlocker.Key;
+                            cmd.Parameters.Add("@LastBatchTime", SqlDbType.DateTime).Value = _deadBlocker.Value;
+                            cmd.ExecuteNonQuery();
+                            _currentBlockers.Remove(_deadBlocker.Key);
                         }
                         repConn.Close();
                     }
