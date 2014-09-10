@@ -8,6 +8,7 @@ using System.Configuration;
 using System.IO;
 using System.Resources;
 using System.Reflection;
+using System.Collections;
 
 
 
@@ -127,9 +128,7 @@ namespace CMS_C
 
         public void GatherInstance()
         {
-            SqlConnection conn = BuildConnection();
-            string _query = GetQuery("GatherInstance");
-            DataSet _instances = PullDatabases(_query);
+            DataSet _instances = GatherData("GatherInstance");
             if (InstanceJobs.TestDataSet(_instances))
             {
                 try
@@ -270,8 +269,7 @@ namespace CMS_C
 
         public void GatherBackups()
         {
-            string _query = GetQuery("GatherBackups");
-            DataSet _dbs = PullDatabases(_query);
+            DataSet _dbs = GatherData("GatherBackups");
             if (InstanceJobs.TestDataSet(_dbs))
             {
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
@@ -307,8 +305,7 @@ namespace CMS_C
         }
         public void GatherDatabaseFiles()
         {
-            string _query = GetQuery("GatherDatabaseFiles");
-            DataSet _files = PullDatabases(_query);
+            DataSet _files = GatherData("GatherDatabaseFiles");
             if(InstanceJobs.TestDataSet(_files))
             {
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
@@ -349,10 +346,60 @@ namespace CMS_C
                 }
             }
         }
+
+        public void GatherBlocking()
+        {
+            DataSet _data = GatherData("GatherBlocking");
+            if(InstanceJobs.TestDataSet(_data))
+            {
+                string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
+                using (SqlConnection repConn = new SqlConnection(repository))
+                using (SqlCommand cmd = new SqlCommand("dbo.MonitoredBlocking_SetBlocking", repConn))
+                {
+                    try
+                    {
+                        SqlCommand existingcmd = new SqlCommand("dbo.MonitoredBlocking_GetBlocking", repConn);
+                        
+
+                        existingcmd.Parameters.Clear();
+                        existingcmd.CommandType = CommandType.StoredProcedure;
+                        existingcmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
+
+
+                        SqlDataAdapter adapter = new SqlDataAdapter(existingcmd);
+                        DataSet _existingBlocking = new DataSet();
+                        repConn.Open();
+                        adapter.Fill(_existingBlocking);
+                        
+                        foreach(DataRow _blocker in _existingBlocking.Tables[0].Rows)
+                        {
+                            Dictionary<int,DateTime> _currentBlockers = new Dictionary<int,DateTime>();
+                            _currentBlockers.Add((int)_blocker["CurrentBlockingSpid"],(DateTime)_blocker["LastBatchTime"]);
+
+                        }
+
+                        foreach (DataRow pRow in _data.Tables[0].Rows)
+                        {
+                            cmd.Parameters.Clear();
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
+                            
+                            cmd.ExecuteNonQuery();
+                        }
+                        repConn.Close();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.ToString());
+                        Console.ReadLine();
+                        throw;
+                    }
+                }
+            }
+        }
         public void GatherDatabases()
         {
-            string _query = GetQuery("GatherDatabases");
-            DataSet _dbs = PullDatabases(_query);
+            DataSet _dbs = GatherData("GatherDatabases");
             if (InstanceJobs.TestDataSet(_dbs))
             {
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
@@ -400,6 +447,13 @@ namespace CMS_C
             }
                 		
 	    }
+
+        private DataSet GatherData(string Query)
+        {
+            string _query = GetQuery(Query);
+            DataSet _data = PullDatabases(_query);
+            return _data;
+        }
 
 
 

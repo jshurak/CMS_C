@@ -81,6 +81,31 @@ namespace CMS_C {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SELECT
+        ///    spid
+        ///    ,LTRIM(RTRIM(sp.STATUS)) AS Status
+        ///    ,LTRIM(RTRIM(loginame)) as LoginName
+        ///    ,LTRIM(RTRIM(hostname)) as HostName
+        ///	,LTRIM(RTRIM(program_name)) as ProgramName
+        ///    ,open_tran as OpenTran
+        ///    ,LTRIM(RTRIM(DB_NAME(sp.dbid))) as DatabaseName
+        ///    ,LTRIM(RTRIM(cmd)) as Command
+        ///    ,LTRIM(RTRIM(lastwaittype)) as LastWaitType
+        ///    ,waittime
+        ///    ,last_batch as LastBatchTime
+        ///    ,SQLStatement       =
+        ///        SUBSTRING
+        ///        (
+        ///            qt.text,
+        ///            er.statement_start_of [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string GatherBlocking {
+            get {
+                return ResourceManager.GetString("GatherBlocking", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to if OBJECT_ID(&apos;tempdb..#sizes&apos;) IS NOT NULL
         ///	DROP TABLE #sizes
         ///if OBJECT_ID(&apos;tempdb..#dbs&apos;) IS NOT NULL
