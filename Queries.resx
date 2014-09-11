@@ -117,6 +117,72 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="GatherAgentJobs" xml:space="preserve">
+    <value>select REPLACE(sj.Name,'''','`') [Name]
+	  ,sj.job_id [JobID]
+	  ,sc.name [Category]
+	  ,sl.name [OwnerLoginName]
+	  ,[LastRunDate] = COALESCE(CONVERT(DATETIME, RTRIM(jh.run_date) + ' '
+        + STUFF(STUFF(REPLACE(STR(RTRIM(jh.run_time),6,0),
+        ' ','0'),3,0,':'),6,0,':')),'01/01/1900 00:00:00')
+	  ,[NextRunDate] = COALESCE(CONVERT(DATETIME, RTRIM(sjs.next_run_date) + ' '
+        + STUFF(STUFF(REPLACE(STR(RTRIM(sjs.next_run_time),6,0),
+        ' ','0'),3,0,':'),6,0,':')),'01/01/1900 00:00:00')
+		,jh.run_status
+	  ,CASE
+			WHEN jh.run_status = 0 THEN 'Failed'
+			WHEN jh.run_status = 1 THEN 'Succeeded'
+			WHEN jh.run_status = 2 THEN 'Retry'
+			WHEN jh.run_status = 3 THEN 'Canceled'
+			ELSE 'Unknown'
+	   END [LastRunOutcome]
+	  ,sj.Enabled [IsEnabled]
+	  ,COALESCE(sjs.HasSchedule,0) [HasSchedule]
+	  ,COALESCE(jh.run_duration,0) [RunDuration]
+	  ,sj.date_created [DateCreated]
+	  ,sj.date_modified [DateLastModified]
+	  ,CASE
+			WHEN sj.notify_level_email = 0 THEN 'Never'
+			WHEN sj.notify_level_email = 1 THEN 'OnSuccess'
+			WHEN sj.notify_level_email = 2 THEN 'OnFailure'
+			WHEN sj.notify_level_email = 3 THEN 'Always'
+	   END EmailLevel
+	  ,CASE
+			WHEN sj.notify_level_page = 0 THEN 'Never'
+			WHEN sj.notify_level_page = 1 THEN 'OnSuccess'
+			WHEN sj.notify_level_page = 2 THEN 'OnFailure'
+			WHEN sj.notify_level_page = 3 THEN 'Always'
+	   END PageLevel
+	  ,CASE
+			WHEN sj.notify_level_netsend = 0 THEN 'Never'
+			WHEN sj.notify_level_netsend = 1 THEN 'OnSuccess'
+			WHEN sj.notify_level_netsend = 2 THEN 'OnFailure'
+			WHEN sj.notify_level_netsend = 3 THEN 'Always'
+	   END EmailLevel
+	   ,COALESCE(o1.name,'') [OperatorToEmail]
+	   ,COALESCE(o2.name,'') [OperatorToPage]
+	   ,COALESCE(o3.name,'') [OperatorToNetSend]
+from msdb.dbo.sysjobs sj
+INNER JOIN master.dbo.syslogins sl ON sj.owner_sid = sl.sid
+INNER JOIN msdb.dbo.syscategories sc ON sj.category_id = sc.category_id
+LEFT OUTER JOIN (
+select jhi.job_id,jhi.run_date,jhi.run_time,jhi.run_duration,jhi.run_status
+from msdb.dbo.sysjobhistory jhi	
+inner join (
+	select job_id,max(instance_id) instance_id
+	from msdb.dbo.sysjobhistory
+	group by job_id 
+) i on jhi.job_id = i.job_id and jhi.instance_id = i.instance_id
+) as jh ON sj.job_id = jh.job_id
+LEFT OUTER JOIN (
+	SELECT job_id,next_run_date,next_run_time,1 as HasSchedule
+	FROM msdb.dbo.sysjobschedules
+	WHERE next_run_date &gt; 0
+) sjs ON sj.job_id = sjs.job_id
+LEFT OUTER JOIN msdb.dbo.sysoperators o1 ON sj.notify_email_operator_id = o1.id
+LEFT OUTER JOIN msdb.dbo.sysoperators o2 ON sj.notify_page_operator_id = o2.id
+LEFT OUTER JOIN msdb.dbo.sysoperators o3 ON sj.notify_netsend_operator_id = o3.id</value>
+  </data>
   <data name="GatherBackups" xml:space="preserve">
     <value>SELECT
   DISTINCT

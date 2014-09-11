@@ -61,6 +61,24 @@ namespace CMS_C {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to select REPLACE(sj.Name,&apos;&apos;&apos;&apos;,&apos;`&apos;) [Name]
+        ///	  ,sj.job_id [JobID]
+        ///	  ,sc.name [Category]
+        ///	  ,sl.name [OwnerLoginName]
+        ///	  ,[LastRunDate] = COALESCE(CONVERT(DATETIME, RTRIM(jh.run_date) + &apos; &apos;
+        ///        + STUFF(STUFF(REPLACE(STR(RTRIM(jh.run_time),6,0),
+        ///        &apos; &apos;,&apos;0&apos;),3,0,&apos;:&apos;),6,0,&apos;:&apos;)),&apos;01/01/1900 00:00:00&apos;)
+        ///	  ,[NextRunDate] = COALESCE(CONVERT(DATETIME, RTRIM(sjs.next_run_date) + &apos; &apos;
+        ///        + STUFF(STUFF(REPLACE(STR(RTRIM(sjs.next_run_time),6,0),
+        ///        &apos; &apos;,&apos;0&apos;),3,0,&apos;:&apos;),6,0,&apos;:&apos;)),&apos;01/01/1900 00:00:00 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string GatherAgentJobs {
+            get {
+                return ResourceManager.GetString("GatherAgentJobs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to SELECT
         ///  DISTINCT
         ///        rs.database_guid as [DatabaseGuid],

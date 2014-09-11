@@ -9,7 +9,7 @@ using System.IO;
 using System.Resources;
 using System.Reflection;
 using System.Collections;
-
+using System.Runtime.CompilerServices;
 
 
 namespace CMS_C
@@ -119,7 +119,7 @@ namespace CMS_C
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(instanceName,e.ToString());
+                    EventLogger.LogEvent(e.ToString(), "warning");
                     return false;
 
                 }
@@ -128,7 +128,7 @@ namespace CMS_C
 
         public void GatherInstance()
         {
-            DataSet _instances = GatherData("GatherInstance");
+            DataSet _instances = GatherData();
             if (InstanceJobs.TestDataSet(_instances))
             {
                 try
@@ -196,7 +196,7 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e.ToString());
+                        EventLogger.LogEvent(e.ToString(), "warning");
                     }
                 }
 
@@ -269,7 +269,7 @@ namespace CMS_C
 
         public void GatherBackups()
         {
-            DataSet _dbs = GatherData("GatherBackups");
+            DataSet _dbs = GatherData();
             if (InstanceJobs.TestDataSet(_dbs))
             {
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
@@ -296,16 +296,14 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e.ToString());
-                        Console.ReadLine();
-                        throw;
+                        EventLogger.LogEvent(e.ToString(), "warning");
                     }
                 }
             }
         }
         public void GatherDatabaseFiles()
         {
-            DataSet _files = GatherData("GatherDatabaseFiles");
+            DataSet _files = GatherData();
             if(InstanceJobs.TestDataSet(_files))
             {
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
@@ -339,9 +337,7 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e.ToString());
-                        Console.ReadLine();
-                        throw;
+                        EventLogger.LogEvent(e.ToString(), "warning");
                     }
                 }
             }
@@ -351,7 +347,7 @@ namespace CMS_C
         {
             Dictionary<int,DateTime> _currentBlockers  = new Dictionary<int,DateTime>();
 
-            DataSet _data = GatherData("GatherBlocking");
+            DataSet _data = GatherData();
             if(InstanceJobs.TestDataSet(_data))
             {
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
@@ -414,16 +410,14 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e.ToString());
-                        Console.ReadLine();
-                        throw;
+                        EventLogger.LogEvent(e.ToString(),"warning");
                     }
                 }
             }
         }
         public void GatherDatabases()
         {
-            DataSet _dbs = GatherData("GatherDatabases");
+            DataSet _dbs = GatherData();
             if (InstanceJobs.TestDataSet(_dbs))
             {
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
@@ -463,16 +457,68 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e.ToString());
-                        Console.ReadLine();
-                        throw;
+                        EventLogger.LogEvent(e.ToString(), "warning");
                     }
                 }
             }
                 		
 	    }
 
-        private DataSet GatherData(string Query)
+        public void GatherAgentJobs()
+        {
+            DataSet _agentJobs = GatherData();
+            if(InstanceJobs.TestDataSet(_agentJobs))
+            {
+                string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
+                using (SqlConnection repConn = new SqlConnection(repository))
+                using (SqlCommand cmd = new SqlCommand("dbo.MonitoredInstanceJobs_SetJobs", repConn))
+                {
+                    try
+                    {
+                        repConn.Open();
+                        foreach (DataRow pRow in _agentJobs.Tables[0].Rows)
+                        {
+                            cmd.Parameters.Clear();
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
+                            cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
+                            cmd.Parameters.Add("@JobName", SqlDbType.VarChar).Value = pRow["Name"].ToString();
+                            cmd.Parameters.Add("@JobGUID", SqlDbType.VarChar).Value = pRow["JobID"].ToString();
+                            cmd.Parameters.Add("@JobCategory", SqlDbType.VarChar).Value = pRow["Category"].ToString();
+                            cmd.Parameters.Add("@JobOwner", SqlDbType.VarChar).Value = pRow["OwnerLoginName"].ToString();
+                            cmd.Parameters.Add("@LastRunDate", SqlDbType.DateTime).Value = (DateTime)pRow["LastRunDate"];
+                            cmd.Parameters.Add("@NextRunDate", SqlDbType.DateTime).Value = (DateTime)pRow["NextRunDate"];
+                            cmd.Parameters.Add("@JobOutcome", SqlDbType.VarChar).Value = pRow["LastRunOutcome"].ToString();
+
+                            cmd.Parameters.Add("@CompatibilityLevel", SqlDbType.Int).Value = (int)pRow["CompatibilityLevel"];
+                            cmd.Parameters.Add("@Collation", SqlDbType.VarChar).Value = pRow["Collation"].ToString();
+                            cmd.Parameters.Add("@size", SqlDbType.Int).Value = (int)pRow["Size"];
+                            cmd.Parameters.Add("@DataSpaceUsage", SqlDbType.BigInt).Value = (long)pRow["DataSpaceUsage"];
+                            cmd.Parameters.Add("@IndexSpaceUsage", SqlDbType.BigInt).Value = (long)pRow["IndexSpaceUsage"];
+                            cmd.Parameters.Add("@SpaceAvailable", SqlDbType.BigInt).Value = (long)pRow["SpaceAvailable"];
+                            cmd.Parameters.Add("@RecoveryModel", SqlDbType.VarChar).Value = pRow["RecoveryModel"].ToString();
+                            cmd.Parameters.Add("@AutoClose", SqlDbType.Bit).Value = (bool)pRow["AutoClose"]; ;
+                            cmd.Parameters.Add("@AutoShrink", SqlDbType.Bit).Value = (bool)pRow["AutoShrink"];
+                            cmd.Parameters.Add("@ReadOnly", SqlDbType.Bit).Value = (bool)pRow["ReadOnly"];
+                            cmd.Parameters.Add("@PageVerify", SqlDbType.VarChar).Value = pRow["PageVerify"].ToString();
+                            
+                            cmd.Parameters.Add("@Owner", SqlDbType.VarChar).Value = pRow["Owner"].ToString();
+                            cmd.Parameters.Add("@Status", SqlDbType.VarChar).Value = pRow["Status"].ToString();
+                            cmd.Parameters.Add("@Deleted", SqlDbType.Bit).Value = false;
+
+                            cmd.ExecuteNonQuery();
+                        }
+                        repConn.Close();
+                    }
+                    catch (Exception e)
+                    {
+                        EventLogger.LogEvent(e.ToString(), "warning");
+                    }
+                }
+            }
+        }
+
+        private DataSet GatherData([CallerMemberName] string Query = null)
         {
             string _query = GetQuery(Query);
             DataSet _data = PullDatabases(_query);
