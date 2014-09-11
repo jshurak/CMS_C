@@ -56,7 +56,10 @@ namespace CMS_C
                     operatingSystem = _os["Caption"].ToString();
                     dateInstalled = ManagementDateTimeConverter.ToDateTime(_os["InstallDate"].ToString());
                     dateLastBoot = ManagementDateTimeConverter.ToDateTime(_os["LastBootUpTime"].ToString());
-                    bitLevel = _os["OSArchitecture"].ToString().Substring(0, 2);
+                    if (!operatingSystem.Contains("2003"))
+                    {
+                        bitLevel = _os["OSArchitecture"].ToString().Substring(0, 2);
+                    }
                 }
                 foreach (ManagementObject _cs in _csCollection)
                 {
@@ -68,8 +71,17 @@ namespace CMS_C
                 numProcessors = _cpuCollection.Count;
                 foreach (ManagementObject _cpu in _cpuCollection)
                 {
-                    numCores = (UInt32)_cpu["NumberOfCores"];
+                    
                     clockSpeed = (UInt32)_cpu["CurrentClockSpeed"];
+                    if (operatingSystem.Contains("2003"))
+                    {
+                        numCores = (uint)numProcessors;
+                        bitLevel = _cpu["AddressWidth"].ToString().Substring(0, 2);
+                    }
+                    else
+                    {
+                        numCores = (UInt32)_cpu["NumberOfCores"];
+                    }
                 }
 
                 using (SqlCommand cmd = new SqlCommand("dbo.MonitoredServers_SetServer", repConn))

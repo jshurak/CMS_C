@@ -16,9 +16,9 @@ namespace CMS_C
         static void Main(string[] args)
         {
 
-            //Jobs.ProcessServers();
-            Server server = new Server("KMHPSQLPA22");
-            server.GatherServer();
+            Jobs.ProcessServers();
+            //Server server = new Server("KMHPSQLPA22");
+            //server.GatherServer();
            
 
 
