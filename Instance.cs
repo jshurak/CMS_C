@@ -513,6 +513,44 @@ namespace CMS_C
             }
         }
 
+
+        public void GatherWaitStats()
+        {
+            DataSet _waitStats = GatherData();
+            if (InstanceJobs.TestDataSet(_waitStats))
+            {
+                string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
+                using (SqlConnection repConn = new SqlConnection(repository))
+                using (SqlCommand cmd = new SqlCommand("dbo.MonitoredInstanceServerWaits_SetWaits", repConn))
+                {
+                    try
+                    {
+                        repConn.Open();
+                        foreach (DataRow pRow in _waitStats.Tables[0].Rows)
+                        {
+                            cmd.Parameters.Clear();
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
+                            cmd.Parameters.Add("@WaitType", SqlDbType.VarChar).Value = pRow["wait_type"].ToString();
+                            cmd.Parameters.Add("@Waiting_Task_Count", SqlDbType.BigInt).Value = (long)pRow["waiting_tasks_count"];
+                            cmd.Parameters.Add("@Wait_Time_MS", SqlDbType.BigInt).Value = (long)pRow["Wait_Time_MS"];
+                            cmd.Parameters.Add("@Max_Wait_Time_MS", SqlDbType.BigInt).Value = (long)pRow["Max_Wait_Time_MS"];
+                            cmd.Parameters.Add("@Signal_Wait_Time_MS", SqlDbType.BigInt).Value = (long)pRow["Signal_Wait_Time_MS"];
+                            cmd.Parameters.Add("@CollectionDate", SqlDbType.DateTime).Value = (DateTime)pRow["CollectionDate"];
+
+                            cmd.ExecuteNonQuery();
+                        }
+                        repConn.Close();
+                    }
+                    catch (Exception e)
+                    {
+                        EventLogger.LogEvent(e.ToString(), "Warning");
+                    }
+                }
+            }
+        }
+
+
         private DataSet GatherData([CallerMemberName] string Query = null)
         {
             string _query = GetQuery(Query);

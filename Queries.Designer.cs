@@ -197,5 +197,16 @@ namespace CMS_C {
                 return ResourceManager.GetString("GatherInstance", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT @@ServerName as InstanceName,[wait_type],[waiting_tasks_count],[wait_time_ms],[max_wait_time_ms],[signal_wait_time_ms],
+        ///GETDATE() as [CollectionDate]
+        ///FROM sys.dm_os_wait_stats.
+        /// </summary>
+        internal static string GatherWaitStats {
+            get {
+                return ResourceManager.GetString("GatherWaitStats", resourceCulture);
+            }
+        }
     }
 }

@@ -250,5 +250,30 @@ namespace CMS_C
         {
             return _dbs.Tables.Count > 0;
         }
+
+        internal static void ProcessWaitStats()
+        {
+            CollectionLog log = new CollectionLog();
+
+            _logID = log.LogModule();
+
+            Instance instance;
+            DataSet instances = ConnectRepository();
+            if (TestDataSet(instances))
+            {
+                foreach (DataRow pRow in instances.Tables[0].Rows)
+                {
+
+                    instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]);
+                    if (instance.TestConnection())
+                    {
+                        instance.GatherWaitStats();
+                    }
+                }
+            }
+
+
+            log.LogModule(_logID);
+        }
     }
 }

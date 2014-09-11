@@ -419,4 +419,9 @@ INNER JOIN sys.database_recovery_status drs ON drs.database_id = sdb.database_id
 	                                                        FOR name in ([min],[max])
                                                         ) as output</value>
   </data>
+  <data name="GatherWaitStats" xml:space="preserve">
+    <value>SELECT @@ServerName as InstanceName,[wait_type],[waiting_tasks_count],[wait_time_ms],[max_wait_time_ms],[signal_wait_time_ms],
+GETDATE() as [CollectionDate]
+FROM sys.dm_os_wait_stats</value>
+  </data>
 </root>
