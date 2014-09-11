@@ -17,7 +17,9 @@ namespace CMS_C
         {
 
             Server server = new Server("PHLDVWSSQL002");
-            server.GatherOSInfo();
+            server.GatherServer();
+
+           
             //Instance instance = new Instance("PHLDVWSSQL002\\DVS1201", 8);
             //instance.GatherWaitStats();
 
