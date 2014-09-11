@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using System.Management;
 using System.Net.NetworkInformation;
 using System.Net;
+using System.Configuration;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace CMS_C
 {
@@ -32,7 +35,8 @@ namespace CMS_C
         public bool isVirtualServerName { get; set; }
         public UInt32 clockSpeed;
         private ManagementScope _scope;
-        
+        static string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
+        SqlConnection repConn = new SqlConnection(repository);
         
         public void GatherServer()
         {
@@ -68,13 +72,35 @@ namespace CMS_C
                     clockSpeed = (UInt32)_cpu["CurrentClockSpeed"];
                 }
 
+                using (SqlCommand cmd = new SqlCommand("dbo.MonitoredServers_SetServer", repConn))
+                {
+                    
+                    cmd.Parameters.Clear();
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@ServerName",SqlDbType.VarChar).Value = serverName;
+                    cmd.Parameters.Add("@Manufacturer", SqlDbType.VarChar).Value = manufacturer;
+                    cmd.Parameters.Add("@Model", SqlDbType.VarChar).Value = model;
+                    cmd.Parameters.Add("@IPAddress", SqlDbType.VarChar).Value = ipAddress;
+                    cmd.Parameters.Add("@OperatingSystem", SqlDbType.VarChar).Value = operatingSystem;
+                    cmd.Parameters.Add("@BitLevel", SqlDbType.Char).Value = bitLevel;
+                    cmd.Parameters.Add("@TotalMemory", SqlDbType.BigInt).Value = totalMemory;
+                    cmd.Parameters.Add("@DateInstalled", SqlDbType.DateTime).Value = dateInstalled;
+                    cmd.Parameters.Add("@DateLastBoot", SqlDbType.DateTime).Value = dateLastBoot;
+                    cmd.Parameters.Add("@NumberOfProcessors", SqlDbType.TinyInt).Value = numProcessors;
+                    cmd.Parameters.Add("@NumberOfProcessorCores", SqlDbType.TinyInt).Value = numCores;
 
-
+                    repConn.Open();
+                    cmd.ExecuteNonQuery();
+                }
 
             }
             catch (Exception e)
             {
                 EventLogger.LogEvent(e.ToString(), "Error");
+            }
+            finally
+            {
+                repConn.Close();
             }
 
         }
