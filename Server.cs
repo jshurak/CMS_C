@@ -117,7 +117,21 @@ namespace CMS_C
             }
 
         }
-
+        public void GatherDrives()
+        {
+            try
+            {
+                ManagementObjectCollection _driveCollection = GatherServerInfo("SELECT * FROM Win32_OperatingSystem", _scope);
+            }
+            catch (Exception e)
+            {
+                EventLogger.LogEvent(e.ToString(), "Error");
+            }
+            finally
+            {
+                repConn.Close();
+            }
+        }
         private ManagementObjectCollection GatherServerInfo(string Query, ManagementScope Scope)
         {
             ManagementScope _scope = Scope;
