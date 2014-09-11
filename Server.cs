@@ -88,6 +88,7 @@ namespace CMS_C
                     cmd.Parameters.Add("@DateLastBoot", SqlDbType.DateTime).Value = dateLastBoot;
                     cmd.Parameters.Add("@NumberOfProcessors", SqlDbType.TinyInt).Value = numProcessors;
                     cmd.Parameters.Add("@NumberOfProcessorCores", SqlDbType.TinyInt).Value = numCores;
+                    cmd.Parameters.Add("@ProcessorClockSpeed", SqlDbType.SmallInt).Value = clockSpeed;
 
                     repConn.Open();
                     cmd.ExecuteNonQuery();
