@@ -136,7 +136,7 @@
 			WHEN jh.run_status = 3 THEN 'Canceled'
 			ELSE 'Unknown'
 	   END [LastRunOutcome]
-	  ,sj.Enabled [IsEnabled]
+	  ,CAST(sj.Enabled AS INT) AS [IsEnabled]
 	  ,COALESCE(sjs.HasSchedule,0) [HasSchedule]
 	  ,COALESCE(jh.run_duration,0) [RunDuration]
 	  ,sj.date_created [DateCreated]
@@ -158,7 +158,7 @@
 			WHEN sj.notify_level_netsend = 1 THEN 'OnSuccess'
 			WHEN sj.notify_level_netsend = 2 THEN 'OnFailure'
 			WHEN sj.notify_level_netsend = 3 THEN 'Always'
-	   END EmailLevel
+	   END NetSendLevel
 	   ,COALESCE(o1.name,'') [OperatorToEmail]
 	   ,COALESCE(o2.name,'') [OperatorToPage]
 	   ,COALESCE(o3.name,'') [OperatorToNetSend]

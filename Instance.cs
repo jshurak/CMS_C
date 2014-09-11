@@ -119,7 +119,7 @@ namespace CMS_C
                 }
                 catch (Exception e)
                 {
-                    EventLogger.LogEvent(e.ToString(), "warning");
+                    EventLogger.LogEvent(e.ToString(), "Warning");
                     return false;
 
                 }
@@ -196,7 +196,7 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        EventLogger.LogEvent(e.ToString(), "warning");
+                        EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
 
@@ -296,7 +296,7 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        EventLogger.LogEvent(e.ToString(), "warning");
+                        EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
             }
@@ -337,7 +337,7 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        EventLogger.LogEvent(e.ToString(), "warning");
+                        EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
             }
@@ -410,7 +410,7 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        EventLogger.LogEvent(e.ToString(),"warning");
+                        EventLogger.LogEvent(e.ToString(),"Warning");
                     }
                 }
             }
@@ -457,7 +457,7 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        EventLogger.LogEvent(e.ToString(), "warning");
+                        EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
             }
@@ -489,22 +489,17 @@ namespace CMS_C
                             cmd.Parameters.Add("@LastRunDate", SqlDbType.DateTime).Value = (DateTime)pRow["LastRunDate"];
                             cmd.Parameters.Add("@NextRunDate", SqlDbType.DateTime).Value = (DateTime)pRow["NextRunDate"];
                             cmd.Parameters.Add("@JobOutcome", SqlDbType.VarChar).Value = pRow["LastRunOutcome"].ToString();
-
-                            cmd.Parameters.Add("@CompatibilityLevel", SqlDbType.Int).Value = (int)pRow["CompatibilityLevel"];
-                            cmd.Parameters.Add("@Collation", SqlDbType.VarChar).Value = pRow["Collation"].ToString();
-                            cmd.Parameters.Add("@size", SqlDbType.Int).Value = (int)pRow["Size"];
-                            cmd.Parameters.Add("@DataSpaceUsage", SqlDbType.BigInt).Value = (long)pRow["DataSpaceUsage"];
-                            cmd.Parameters.Add("@IndexSpaceUsage", SqlDbType.BigInt).Value = (long)pRow["IndexSpaceUsage"];
-                            cmd.Parameters.Add("@SpaceAvailable", SqlDbType.BigInt).Value = (long)pRow["SpaceAvailable"];
-                            cmd.Parameters.Add("@RecoveryModel", SqlDbType.VarChar).Value = pRow["RecoveryModel"].ToString();
-                            cmd.Parameters.Add("@AutoClose", SqlDbType.Bit).Value = (bool)pRow["AutoClose"]; ;
-                            cmd.Parameters.Add("@AutoShrink", SqlDbType.Bit).Value = (bool)pRow["AutoShrink"];
-                            cmd.Parameters.Add("@ReadOnly", SqlDbType.Bit).Value = (bool)pRow["ReadOnly"];
-                            cmd.Parameters.Add("@PageVerify", SqlDbType.VarChar).Value = pRow["PageVerify"].ToString();
-                            
-                            cmd.Parameters.Add("@Owner", SqlDbType.VarChar).Value = pRow["Owner"].ToString();
-                            cmd.Parameters.Add("@Status", SqlDbType.VarChar).Value = pRow["Status"].ToString();
-                            cmd.Parameters.Add("@Deleted", SqlDbType.Bit).Value = false;
+                            cmd.Parameters.Add("@JobEnabled", SqlDbType.TinyInt).Value = (int)pRow["IsEnabled"];
+                            cmd.Parameters.Add("@JobScheduled", SqlDbType.Int).Value = (int)pRow["HasSchedule"];
+                            cmd.Parameters.Add("@JobDuration", SqlDbType.Int).Value = (int)pRow["RunDuration"];
+                            cmd.Parameters.Add("@JobCreationDate", SqlDbType.DateTime).Value = (DateTime)pRow["DateCreated"];
+                            cmd.Parameters.Add("@JobModifiedDate", SqlDbType.DateTime).Value = (DateTime)pRow["DateLastModified"];
+                            cmd.Parameters.Add("@JobEmailLevel", SqlDbType.VarChar).Value = pRow["EmailLevel"].ToString();
+                            cmd.Parameters.Add("@JobPageLevel", SqlDbType.VarChar).Value = pRow["PageLevel"].ToString();
+                            cmd.Parameters.Add("@JobNetSendLevel", SqlDbType.VarChar).Value = pRow["NetSendLevel"].ToString();
+                            cmd.Parameters.Add("@OperatorToEmail", SqlDbType.VarChar).Value = pRow["OperatorToEmail"].ToString();
+                            cmd.Parameters.Add("@OperatorToPage", SqlDbType.VarChar).Value = pRow["OperatorToPage"].ToString();
+                            cmd.Parameters.Add("@OperatorToNetSend", SqlDbType.VarChar).Value = pRow["OperatorToNetSend"].ToString();
 
                             cmd.ExecuteNonQuery();
                         }
@@ -512,7 +507,7 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        EventLogger.LogEvent(e.ToString(), "warning");
+                        EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
             }
