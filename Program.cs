@@ -16,16 +16,11 @@ namespace CMS_C
         static void Main(string[] args)
         {
 
-            //Jobs.ProcessServers();
-            Server server = new Server("PHLDVWSSQL002",6);
+            //Jobs.ProcessDrives();
+
+            Server server = new Server("KDEVSQLPA22", 1);
             server.GatherDrives();
-           
-
-
-            //Instance instance = new Instance("PHLDVWSSQL002\\DVS1201", 8);
-            //instance.GatherWaitStats();
-
-            //InstanceJobs.ProcessWaitStats();
+            
         }
     }
 }

@@ -154,6 +154,10 @@ namespace CMS_C
                 }
 
             }
+            catch(NullReferenceException e)
+            {
+                EventLogger.LogEvent(e.ToString(), "Warning");
+            }
             catch (Exception e)
             {
                 EventLogger.LogEvent(e.ToString(), "Error");

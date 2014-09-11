@@ -269,6 +269,24 @@ namespace CMS_C
             
             log.LogModule(_logID);
         }
+        public static void ProcessDrives()
+        {
+            CollectionLog log = new CollectionLog();
+            _logID = log.LogModule();
+
+            DataSet servers = ConnectRepository("exec MonitoredServers_GetServers @ModuleName = 'ProcessDrives'");
+            if (TestDataSet(servers))
+            {
+                foreach (DataRow pRow in servers.Tables[0].Rows)
+                {
+                    Server server = new Server(pRow["ServerName"].ToString(),(int)pRow["ServerID"]);
+                    server.GatherDrives();
+                }
+            }
+
+
+            log.LogModule(_logID);
+        }
 
         public static void ProcessWaitStats()
         {
