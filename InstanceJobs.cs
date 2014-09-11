@@ -10,7 +10,7 @@ using System.Configuration;
 
 namespace CMS_C
 {
-    class InstanceJobs
+    class Jobs
     {
         
         static private long _logID;
@@ -48,7 +48,7 @@ namespace CMS_C
             log.LogModule(_logID);
         }
 
-        private static DataSet ConnectRepository()
+        private static DataSet ConnectRepository(string Query = "exec MonitoredInstances_GetInstances @Module = 'CheckServers'")
         {
             string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
             DataSet instances = new DataSet();
@@ -56,7 +56,7 @@ namespace CMS_C
 
             try
             {
-                using (SqlCommand listInstances = new SqlCommand("exec MonitoredInstances_GetInstances @Module = 'CheckServers'", conn))
+                using (SqlCommand listInstances = new SqlCommand(Query, conn))
                 using (SqlDataAdapter adapter = new SqlDataAdapter(listInstances))
                 {
                     conn.Open();
@@ -251,7 +251,26 @@ namespace CMS_C
             return _dbs.Tables.Count > 0;
         }
 
-        internal static void ProcessWaitStats()
+        public static void ProcessServers()
+        {
+            CollectionLog log = new CollectionLog();
+            _logID = log.LogModule();
+
+            DataSet servers = ConnectRepository("exec MonitoredServers_GetServers @ModuleName = 'ProcessServers'");
+            if(TestDataSet(servers))
+            {
+                foreach (DataRow pRow in servers.Tables[0].Rows)
+                {
+                    Server server = new Server((string)pRow["ServerName"].ToString());
+                    server.GatherServer();
+                }
+            }
+            
+            
+            log.LogModule(_logID);
+        }
+
+        public static void ProcessWaitStats()
         {
             CollectionLog log = new CollectionLog();
 

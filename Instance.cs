@@ -129,7 +129,7 @@ namespace CMS_C
         public void GatherInstance()
         {
             DataSet _instances = GatherData();
-            if (InstanceJobs.TestDataSet(_instances))
+            if (Jobs.TestDataSet(_instances))
             {
                 try
                 {
@@ -270,7 +270,7 @@ namespace CMS_C
         public void GatherBackups()
         {
             DataSet _dbs = GatherData();
-            if (InstanceJobs.TestDataSet(_dbs))
+            if (Jobs.TestDataSet(_dbs))
             {
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
                 using (SqlConnection repConn = new SqlConnection(repository))
@@ -304,7 +304,7 @@ namespace CMS_C
         public void GatherDatabaseFiles()
         {
             DataSet _files = GatherData();
-            if(InstanceJobs.TestDataSet(_files))
+            if(Jobs.TestDataSet(_files))
             {
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
                 using (SqlConnection repConn = new SqlConnection(repository))
@@ -348,7 +348,7 @@ namespace CMS_C
             Dictionary<int,DateTime> _currentBlockers  = new Dictionary<int,DateTime>();
 
             DataSet _data = GatherData();
-            if(InstanceJobs.TestDataSet(_data))
+            if(Jobs.TestDataSet(_data))
             {
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
                 using (SqlConnection repConn = new SqlConnection(repository))
@@ -418,7 +418,7 @@ namespace CMS_C
         public void GatherDatabases()
         {
             DataSet _dbs = GatherData();
-            if (InstanceJobs.TestDataSet(_dbs))
+            if (Jobs.TestDataSet(_dbs))
             {
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
                 using (SqlConnection repConn = new SqlConnection(repository))
@@ -467,7 +467,7 @@ namespace CMS_C
         public void GatherAgentJobs()
         {
             DataSet _agentJobs = GatherData();
-            if(InstanceJobs.TestDataSet(_agentJobs))
+            if(Jobs.TestDataSet(_agentJobs))
             {
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
                 using (SqlConnection repConn = new SqlConnection(repository))
@@ -517,7 +517,7 @@ namespace CMS_C
         public void GatherWaitStats()
         {
             DataSet _waitStats = GatherData();
-            if (InstanceJobs.TestDataSet(_waitStats))
+            if (Jobs.TestDataSet(_waitStats))
             {
                 string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
                 using (SqlConnection repConn = new SqlConnection(repository))
