@@ -19,7 +19,14 @@ namespace CMS_C
             serverName = Name;       
             _scope = new ManagementScope("\\\\" + serverName + "\\root\\cimv2");
         }
+        public Server(string Name,int ServerID)
+        {
+            serverName = Name;
+            _serverID = ServerID;
+            _scope = new ManagementScope("\\\\" + serverName + "\\root\\cimv2");
+        }
 
+        private int _serverID;
         public string serverName { get; set; }
         public ulong totalMemory { get; set; }
         public string manufacturer { get; set; }
@@ -121,7 +128,31 @@ namespace CMS_C
         {
             try
             {
-                ManagementObjectCollection _driveCollection = GatherServerInfo("SELECT * FROM Win32_OperatingSystem", _scope);
+                ManagementObjectCollection _driveCollection = GatherServerInfo("SELECT * FROM win32_Volume", _scope);
+                repConn.Open();
+                foreach(ManagementObject _drive in _driveCollection)
+                {
+                    string _mountPoint = _drive["Name"].ToString();
+                    UInt64 _totalCapacity = (UInt64)_drive["Capacity"];
+                    UInt64 _freeSpace = (UInt64)_drive["FreeSpace"];
+                    string _volumeName = _drive["Label"].ToString();
+                    string _deviceID = _drive["DeviceID"].ToString().Substring(_drive["DeviceID"].ToString().IndexOf("{") + 1, _drive["DeviceID"].ToString().IndexOf("}") - _drive["DeviceID"].ToString().IndexOf("{") - 1);
+
+                    using(SqlCommand driveCmd = new SqlCommand("dbo.MonitoredDrives_SetDrives",repConn))
+                    {
+                        driveCmd.Parameters.Clear();
+                        driveCmd.CommandType = CommandType.StoredProcedure;
+                        driveCmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
+                        driveCmd.Parameters.Add("@DeviceID", SqlDbType.VarChar).Value = _deviceID;
+                        driveCmd.Parameters.Add("@MountPoint", SqlDbType.VarChar).Value = _mountPoint;
+                        driveCmd.Parameters.Add("@TotalCapacity", SqlDbType.BigInt).Value = _totalCapacity;
+                        driveCmd.Parameters.Add("@FreeSpace", SqlDbType.BigInt).Value = _freeSpace;
+                        driveCmd.Parameters.Add("@VolumeName", SqlDbType.VarChar).Value = _volumeName;
+
+                        driveCmd.ExecuteNonQuery();
+                    }
+                }
+
             }
             catch (Exception e)
             {
