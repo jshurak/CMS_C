@@ -16,11 +16,7 @@ namespace CMS_C
         static void Main(string[] args)
         {
 
-            Jobs.ProcessDrives();
-
-            //Server server = new Server("KMHPSQLPA35", 52);
-            //server.GatherDrives();
-            
+            Jobs.Daily();
         }
     }
 }

@@ -240,8 +240,12 @@ namespace CMS_C
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
 
+            ProcessServers();
+            ProcessDrives();
             ProcessInstances();
             ProcessDatabases();
+            ProcessDatabaseFiles();
+            ProcessAgentJobs();
 
             log.LogModule(_DlogID);
         }
