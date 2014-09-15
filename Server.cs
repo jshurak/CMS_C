@@ -132,35 +132,39 @@ namespace CMS_C
                 repConn.Open();
                 foreach(ManagementObject _drive in _driveCollection)
                 {
-                    string _mountPoint = _drive["Name"].ToString();
-                    UInt64 _totalCapacity = (UInt64)_drive["Capacity"];
-                    UInt64 _freeSpace = (UInt64)_drive["FreeSpace"];
-                    string _volumeName = _drive["Label"].ToString();
-                    string _deviceID = _drive["DeviceID"].ToString().Substring(_drive["DeviceID"].ToString().IndexOf("{") + 1, _drive["DeviceID"].ToString().IndexOf("}") - _drive["DeviceID"].ToString().IndexOf("{") - 1);
-
-                    using(SqlCommand driveCmd = new SqlCommand("dbo.MonitoredDrives_SetDrives",repConn))
+                    if(!(String.IsNullOrEmpty(Convert.ToString(_drive["DriveType"]))) &&
+                            (UInt32)_drive["DriveType"] >= 2 && (UInt32)_drive["DriveType"] <=4)
                     {
-                        driveCmd.Parameters.Clear();
-                        driveCmd.CommandType = CommandType.StoredProcedure;
-                        driveCmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
-                        driveCmd.Parameters.Add("@DeviceID", SqlDbType.VarChar).Value = _deviceID;
-                        driveCmd.Parameters.Add("@MountPoint", SqlDbType.VarChar).Value = _mountPoint;
-                        driveCmd.Parameters.Add("@TotalCapacity", SqlDbType.BigInt).Value = _totalCapacity;
-                        driveCmd.Parameters.Add("@FreeSpace", SqlDbType.BigInt).Value = _freeSpace;
-                        driveCmd.Parameters.Add("@VolumeName", SqlDbType.VarChar).Value = _volumeName;
+                        string _mountPoint = _drive["Name"].ToString();
+                        UInt64 _totalCapacity = (UInt64)_drive["Capacity"];
+                        UInt64 _freeSpace = (UInt64)_drive["FreeSpace"];
+                        string _volumeName = String.IsNullOrEmpty(Convert.ToString(_drive["Label"])) ? "" : _drive["Label"].ToString();
+                        string _deviceID = _drive["DeviceID"].ToString().Substring(_drive["DeviceID"].ToString().IndexOf("{") + 1, _drive["DeviceID"].ToString().IndexOf("}") - _drive["DeviceID"].ToString().IndexOf("{") - 1);
 
-                        driveCmd.ExecuteNonQuery();
+                        using (SqlCommand driveCmd = new SqlCommand("dbo.MonitoredDrives_SetDrives", repConn))
+                        {
+                            driveCmd.Parameters.Clear();
+                            driveCmd.CommandType = CommandType.StoredProcedure;
+                            driveCmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
+                            driveCmd.Parameters.Add("@DeviceID", SqlDbType.VarChar).Value = _deviceID;
+                            driveCmd.Parameters.Add("@MountPoint", SqlDbType.VarChar).Value = _mountPoint;
+                            driveCmd.Parameters.Add("@TotalCapacity", SqlDbType.BigInt).Value = _totalCapacity;
+                            driveCmd.Parameters.Add("@FreeSpace", SqlDbType.BigInt).Value = _freeSpace;
+                            driveCmd.Parameters.Add("@VolumeName", SqlDbType.VarChar).Value = _volumeName;
+
+                            driveCmd.ExecuteNonQuery();
+                        }
                     }
                 }
 
             }
             catch(NullReferenceException e)
             {
-                EventLogger.LogEvent(e.ToString(), "Warning");
+                EventLogger.LogEvent(serverName + e.ToString(), "Warning");
             }
             catch (Exception e)
             {
-                EventLogger.LogEvent(e.ToString(), "Error");
+                EventLogger.LogEvent(serverName + e.ToString(), "Error");
             }
             finally
             {

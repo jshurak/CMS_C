@@ -16,10 +16,10 @@ namespace CMS_C
         static void Main(string[] args)
         {
 
-            //Jobs.ProcessDrives();
+            Jobs.ProcessDrives();
 
-            Server server = new Server("KDEVSQLPA22", 1);
-            server.GatherDrives();
+            //Server server = new Server("KMHPSQLPA35", 52);
+            //server.GatherDrives();
             
         }
     }
