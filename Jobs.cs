@@ -10,7 +10,7 @@ using System.Configuration;
 
 namespace CMS_C
 {
-    class Jobs
+    public static class Jobs
     {
         
         static private long _logID;
@@ -249,6 +249,28 @@ namespace CMS_C
 
             log.LogModule(_DlogID);
         }
+        public static void ThirtyMinutes()
+        {
+            CollectionLog log = new CollectionLog();
+            long _DlogID = log.LogModule();
+
+            ProcessDatabases();
+            ProcessDatabaseFiles();
+            ProcessAgentJobs();
+            ProcessWaitStats();
+
+            log.LogModule(_DlogID);
+        }
+        public static void FiveMinutes()
+        {
+            CheckServices();
+            ProcessDrives();
+            ProcessDatabaseFiles();
+            ProcessBlocking();
+            ProcessBackups();
+        }
+
+        
 
         public static bool TestDataSet(DataSet _dbs)
         {

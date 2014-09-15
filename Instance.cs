@@ -38,8 +38,7 @@ namespace CMS_C
         private int _instanceID;
         
 
-        Assembly _assembly;
-        StreamReader _textStreamReader;
+ 
 
         public Instance(string InstanceName, int InstanceID)
         {
