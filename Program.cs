@@ -13,10 +13,9 @@ namespace CMS_C
 {
     class Program
     {
-        static void Main(string[] args)
-        {
-
-            Jobs.Daily();
-        }
+        //static void Main(string[] args)
+        //{
+            
+        //}
     }
 }

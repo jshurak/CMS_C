@@ -60,6 +60,9 @@
       <DependentUpon>Queries.resx</DependentUpon>
     </Compile>
     <Compile Include="Server.cs" />
+    <Compile Include="Service.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ServiceValue.cs" />
   </ItemGroup>
   <ItemGroup>
