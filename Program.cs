@@ -13,9 +13,15 @@ namespace CMS_C
 {
     class Program
     {
-        //static void Main(string[] args)
-        //{
-            
-        //}
+        /// <summary>
+        /// The Main Thread: This is where your Service is Run.
+        /// </summary>
+        static void Main()
+        {
+            ServiceBase.Run(new Service());
+
+
+
+        }
     }
 }

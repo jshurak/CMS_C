@@ -12,7 +12,7 @@ namespace CMS_C
         public static void LogEvent(string Message,string EntryType)
         {
             EventLog eventlog = new EventLog("Application");
-            eventlog.Source = "CMS";
+            eventlog.Source = "CMS Collector";
             
             var entryType = (EventLogEntryType)Enum.Parse(typeof(EventLogEntryType), EntryType);
             eventlog.WriteEntry(Message,entryType);

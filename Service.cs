@@ -24,19 +24,7 @@ namespace CMS_C
         }
 
 
-        /// <summary>
-        /// The Main Thread: This is where your Service is Run.
-        /// </summary>
-        static void Main()
-        {
-            ServiceBase.Run(new Service());
-
-            Timer _fiveMinutes = new Timer(300000);
-            Timer _thirtyMinutes = new Timer(1000 * 60 * 30);
-            Timer _daily = new Timer(1000 * 60 * 60 * 24);
-            Timer _oneMinute = new Timer(1000);
-
-        }
+ 
 
         /// <summary>
         /// Dispose of objects that need it here.
@@ -56,7 +44,24 @@ namespace CMS_C
         protected override void OnStart(string[] args)
         {
             base.OnStart(args);
+
+            Timer _fiveMinutes = new Timer(300000);
+            Timer _thirtyMinutes = new Timer(1000 * 60 * 30);
+            Timer _daily = new Timer(1000 * 60 * 60 * 24);
+            
+
+            _fiveMinutes.Enabled = true;
+            _fiveMinutes.Start();
+            _fiveMinutes.Elapsed += new ElapsedEventHandler(FiveMinuteEvent);
         }
+
+        private static void FiveMinuteEvent(object source,ElapsedEventArgs e)
+        {
+            EventLogger.LogEvent("CMS Five Minute Job starting.","Information");
+            Jobs.FiveMinutes();
+            EventLogger.LogEvent("CMS Five Minute Job complete.","Information");
+        }
+        
 
         /// <summary>
         /// OnStop(): Put your stop code here
