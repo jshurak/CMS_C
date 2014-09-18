@@ -34,6 +34,7 @@ namespace CMS_C
             Timer _fiveMinutes = new Timer(300000);
             Timer _thirtyMinutes = new Timer(1000 * 60 * 30);
             Timer _daily = new Timer(1000 * 60 * 60 * 24);
+            Timer _oneMinute = new Timer(1000);
 
         }
 
