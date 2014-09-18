@@ -263,11 +263,16 @@ namespace CMS_C
         }
         public static void FiveMinutes()
         {
+            CollectionLog log = new CollectionLog();
+            long _DlogID = log.LogModule();
+
             CheckServices();
             ProcessDrives();
             ProcessDatabaseFiles();
             ProcessBlocking();
             ProcessBackups();
+
+            log.LogModule(_DlogID);
         }
 
         

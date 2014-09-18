@@ -53,13 +53,25 @@ namespace CMS_C
             _fiveMinutes.Enabled = true;
             _fiveMinutes.Start();
             _fiveMinutes.Elapsed += new ElapsedEventHandler(FiveMinuteEvent);
+
+            _thirtyMinutes.Enabled = true;
+            _thirtyMinutes.Start();
+            _thirtyMinutes.Elapsed += new ElapsedEventHandler(ThirtyMinuteEvent);
         }
+
 
         private static void FiveMinuteEvent(object source,ElapsedEventArgs e)
         {
             EventLogger.LogEvent("CMS Five Minute Job starting.","Information");
             Jobs.FiveMinutes();
             EventLogger.LogEvent("CMS Five Minute Job complete.","Information");
+        }
+
+        private static void ThirtyMinuteEvent(object source, ElapsedEventArgs e)
+        {
+            EventLogger.LogEvent("CMS Thirty Minute Job starting.", "Information");
+            Jobs.FiveMinutes();
+            EventLogger.LogEvent("CMS Thirty Minute Job complete.", "Information");
         }
         
 
