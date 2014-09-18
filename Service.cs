@@ -45,18 +45,22 @@ namespace CMS_C
         {
             base.OnStart(args);
 
-            Timer _fiveMinutes = new Timer(300000);
-            Timer _thirtyMinutes = new Timer(1000 * 60 * 30);
-            Timer _daily = new Timer(1000 * 60 * 60 * 24);
+            Timer _fiveMinuteTimer = new Timer(300000);
+            Timer _thirtyMinuteTimer = new Timer(1000 * 60 * 30);
+            Timer _dailyTimer = new Timer(1000 * 60 * 60 * 24);
             
 
-            _fiveMinutes.Enabled = true;
-            _fiveMinutes.Start();
-            _fiveMinutes.Elapsed += new ElapsedEventHandler(FiveMinuteEvent);
+            _fiveMinuteTimer.Enabled = true;
+            _fiveMinuteTimer.Start();
+            _fiveMinuteTimer.Elapsed += new ElapsedEventHandler(FiveMinuteEvent);
 
-            _thirtyMinutes.Enabled = true;
-            _thirtyMinutes.Start();
-            _thirtyMinutes.Elapsed += new ElapsedEventHandler(ThirtyMinuteEvent);
+            _thirtyMinuteTimer.Enabled = true;
+            _thirtyMinuteTimer.Start();
+            _thirtyMinuteTimer.Elapsed += new ElapsedEventHandler(ThirtyMinuteEvent);
+
+            _dailyTimer.Enabled = true;
+            _dailyTimer.Start();
+            _dailyTimer.Elapsed += new ElapsedEventHandler(DailyEvent);
         }
 
 
@@ -70,8 +74,14 @@ namespace CMS_C
         private static void ThirtyMinuteEvent(object source, ElapsedEventArgs e)
         {
             EventLogger.LogEvent("CMS Thirty Minute Job starting.", "Information");
-            Jobs.FiveMinutes();
+            Jobs.ThirtyMinutes();
             EventLogger.LogEvent("CMS Thirty Minute Job complete.", "Information");
+        }
+        private static void DailyEvent(object source, ElapsedEventArgs e)
+        {
+            EventLogger.LogEvent("CMS Daily Job starting.", "Information");
+            Jobs.Daily();
+            EventLogger.LogEvent("CMS Daily Job complete.", "Information");
         }
         
 
