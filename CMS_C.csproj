@@ -67,7 +67,7 @@
     <Compile Include="Service.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ServiceInstaller.cs">
+    <Compile Include="CMSServiceInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ServiceValue.cs" />
