@@ -16,7 +16,10 @@ namespace CMS_C
 
         static void Main()
         {
-            ServiceBase.Run(new Service());
+            // Uncomment this to start the services
+            //ServiceBase.Run(new Service()); 
+
+            Jobs.Daily();
 
 
 
