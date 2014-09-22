@@ -14,7 +14,7 @@ using System.Runtime.CompilerServices;
 
 namespace CMS_C
 {
-    class Instance
+    public class Instance
     {
         public string instanceName { get; set; }
         public string edition { get; set; }
@@ -581,9 +581,14 @@ namespace CMS_C
                 conn.Close();
             }
         }
-        private void CheckDeletedDatabases(List<Database> Databases)
+        public void CheckDeletedDatabases(List<Database> Databases)
         {
-            
+            var _dbs = Databases.Where(p => p.InstanceID == _instanceID);
+            foreach (Database _db in _dbs)
+            {
+                Console.WriteLine(_db.DatabaseName);
+            }
+                
         }
     }
 }

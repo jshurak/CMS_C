@@ -10,7 +10,7 @@ namespace CMS_C
     public class CMSCache
     {
         public List<Database> DatabaseCache = new List<Database>();
-
+        
         public void BuildDatabaseCache()
         {
             DataSet _databaseSet = Jobs.ConnectRepository("SELECT DatabaseID,mi.InstanceID,databaseName,DatabaseGUID FROM MonitoredDatabases md INNER JOIN MonitoredInstances mi ON md.InstanceID = mi.InstanceID where md.deleted = 0 AND mi.MonitorInstance = 1");
