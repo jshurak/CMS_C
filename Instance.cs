@@ -552,7 +552,16 @@ namespace CMS_C
 
         private DataSet GatherData([CallerMemberName] string Query = null)
         {
-            string _query = GetQuery(Query);
+            string _query;
+            if(Query == null)
+            {
+                 _query = GetQuery(Query);
+            }
+            else 
+            {
+                _query = Query;
+            }
+            
             DataSet _data = PullDatabases(_query);
             return _data;
         }
@@ -583,11 +592,19 @@ namespace CMS_C
         }
         public void CheckDeletedDatabases(List<Database> Databases)
         {
-            var _dbs = Databases.Where(p => p.InstanceID == _instanceID);
-            foreach (Database _db in _dbs)
+            List<Database> _existing = new List<Database>();
+            List<Database> _dbs = Databases.Where(p => p.InstanceID == _instanceID).ToList();
+                        
+            DataSet _existingDatabases = GatherData("select d.name,r.database_guid as DatabaseGUID from sys.databases d inner join sys.database_recovery_status r ON d.database_id = r.database_id");
+            if(Jobs.TestDataSet(_existingDatabases))
             {
-                Console.WriteLine(_db.DatabaseName);
+                foreach (DataRow pRow in _existingDatabases.Tables[0].Rows)
+                {
+                    _existing.Add(new Database(_instanceID, pRow["name"].ToString(),pRow["DatabaseGUID"].ToString()));
+                }
+
             }
+
                 
         }
     }

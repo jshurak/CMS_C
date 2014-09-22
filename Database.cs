@@ -9,7 +9,6 @@ namespace CMS_C
     public struct Database
     {
         private string _databaseName;
-        private int _databaseID;
         private int _instanceID;
         private string _guid;
 
@@ -18,13 +17,6 @@ namespace CMS_C
             get
             {
                 return _databaseName;
-            }
-        }
-        public int DatabaseID 
-        { 
-            get
-            {
-                return _databaseID;
             }
         }
         public int InstanceID 
@@ -43,9 +35,8 @@ namespace CMS_C
         
         }
 
-        public Database(int DatabaseID,int InstanceID,string Name,string GUID)
+        public Database(int InstanceID,string Name,string GUID)
         {
-            _databaseID = DatabaseID;
             _instanceID = InstanceID;
             _databaseName = Name;
             _guid = GUID;
