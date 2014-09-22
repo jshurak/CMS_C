@@ -581,6 +581,10 @@ namespace CMS_C
                 conn.Close();
             }
         }
+        private void CheckDeletedDatabases(List<Database> Databases)
+        {
+            
         }
     }
+}
 

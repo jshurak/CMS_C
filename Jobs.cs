@@ -48,7 +48,7 @@ namespace CMS_C
             log.LogModule(_logID);
         }
 
-        private static DataSet ConnectRepository(string Query = "exec MonitoredInstances_GetInstances @Module = 'CheckServers'")
+        public static DataSet ConnectRepository(string Query = "exec MonitoredInstances_GetInstances @Module = 'CheckServers'")
         {
             string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
             DataSet instances = new DataSet();

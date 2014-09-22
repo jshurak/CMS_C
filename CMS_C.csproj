@@ -41,6 +41,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Linq" />
     <Reference Include="System.Management" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Windows" />
@@ -51,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CMSCache.cs" />
     <Compile Include="CollectionLog.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="EventLogger.cs" />

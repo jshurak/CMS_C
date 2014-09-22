@@ -6,62 +6,49 @@ using System.Threading.Tasks;
 
 namespace CMS_C
 {
-    class Database
+    public struct Database
     {
         private string _databaseName;
-        private DateTime _creationDate;
+        private int _databaseID;
         private int _instanceID;
-        private int _serverID;
-        private int _compatibilityLevel;
-        private string _collation;
-        private float _size;
-        private float _dataSpaceUsage;
-        private float _indexSpaceUsage;
-        private float _spaceAvailable;
-        private string _recoveryModel;
-        private bool _autoClose;
-        private bool _autoShrink;
-        private bool _readOnly;
-        private string _pageVerify;
-        private string _owner;
-        private string _status;
         private string _guid;
-        private bool _deleted;
 
-        public string Owner 
-        { 
-            get
-            {
-                return _owner;
-            }
-        }
-        public DateTime CreationDate
-        { 
-            get
-            {
-                return _creationDate;
-            }
-        }
-        public string DatabaseName  
+        public string DatabaseName
         { 
             get
             {
                 return _databaseName;
             }
         }
-        public int ServerID 
-        {
-            get 
+        public int DatabaseID 
+        { 
+            get
             {
-                return _serverID;
+                return _databaseID;
             }
         }
-        public int InstanceID
-        {
+        public int InstanceID 
+        { 
             get
             {
                 return _instanceID;
             }
+        }
+        public string DatabaseGUID 
+        {
+            get 
+            {
+                return _guid;
+            }
+        
+        }
+
+        public Database(int DatabaseID,int InstanceID,string Name,string GUID)
+        {
+            _databaseID = DatabaseID;
+            _instanceID = InstanceID;
+            _databaseName = Name;
+            _guid = GUID;
         }
 
     }
