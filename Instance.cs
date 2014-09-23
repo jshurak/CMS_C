@@ -606,12 +606,34 @@ namespace CMS_C
             }
 
             List<Database> _result = _dbs.Except(_existing).ToList();
-
-            foreach(Database _r in _result)
+            if(_result.Count > 0)
             {
-                Console.WriteLine(_r.DatabaseName + " " + _r.DatabaseGUID);    
-            }
-                
+                string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
+                using (SqlConnection repConn = new SqlConnection(repository))
+                using (SqlCommand cmd = new SqlCommand("dbo.MonitoredDatabases_SetDatabases", repConn))
+                {
+                    try
+                    {
+                        repConn.Open();
+                        foreach (Database _r in _result)
+                        {
+                            cmd.Parameters.Clear();
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
+                            cmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
+                            cmd.Parameters.Add("@Deleted", SqlDbType.Bit).Value = true;
+                            cmd.Parameters.Add("@DatabaseName", SqlDbType.VarChar).Value = _r.DatabaseName;
+                            cmd.Parameters.Add("@GUID", SqlDbType.VarChar).Value = _r.DatabaseGUID;
+                            cmd.ExecuteNonQuery();
+                        }
+                        repConn.Close();
+                    }
+                    catch (Exception e)
+                    {
+                        EventLogger.LogEvent(e.ToString(), "Warning");
+                    }
+                }
+            }                
         }
     }
 }
