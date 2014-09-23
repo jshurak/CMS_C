@@ -11,6 +11,7 @@ namespace CMS_C
     {
         public List<Database> DatabaseCache = new List<Database>();
         public List<Server> ServerCache = new List<Server>();
+        public List<Instance> InstanceCache = new List<Instance>();
         
         public void BuildDatabaseCache()
         {

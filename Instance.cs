@@ -55,6 +55,25 @@ namespace CMS_C
             instanceName = InstanceName;
         }
 
+        public Instance(string InstanceName, int ServerID, int InstanceID, bool SSAS, bool SSRS)
+        {
+            _serverID = ServerID;
+            _instanceID = InstanceID;
+            instanceName = InstanceName;
+            BuildServices(instanceName);
+
+            if (SSAS)
+            {
+                ssasservice.Exists = 1;
+            }
+            if (SSRS)
+            {
+                ssrsservice.Exists = 1;
+            }
+
+
+        }
+
         private void BuildServices(string InstanceName)
         {
             instanceName = InstanceName;
@@ -85,24 +104,7 @@ namespace CMS_C
 
         }
 
-        public Instance(string InstanceName, int ServerID, int InstanceID, bool SSAS, bool SSRS)
-        {
-            _serverID = ServerID;
-            _instanceID = InstanceID;
-            instanceName = InstanceName;
-            BuildServices(instanceName);
 
-            if (SSAS)
-            {
-                ssasservice.Exists = 1;
-            }
-            if (SSRS)
-            {
-                ssrsservice.Exists = 1;
-            }
-
-
-        }
         public bool TestConnection()
         {
 
