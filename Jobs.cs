@@ -240,7 +240,7 @@ namespace CMS_C
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
 
-            ProcessServers();
+            ProcessServers(ServerList);
             ProcessDrives(ServerList);
             ProcessInstances();
             ProcessDatabases();
@@ -282,21 +282,15 @@ namespace CMS_C
             return _dbs.Tables.Count > 0;
         }
 
-        public static void ProcessServers()
+        public static void ProcessServers(List<Server> ServerList)
         {
             CollectionLog log = new CollectionLog();
             _logID = log.LogModule();
 
-            DataSet servers = ConnectRepository("exec MonitoredServers_GetServers @ModuleName = 'ProcessServers'");
-            if(TestDataSet(servers))
+            foreach (Server _server in ServerList)
             {
-                foreach (DataRow pRow in servers.Tables[0].Rows)
-                {
-                    Server server = new Server((string)pRow["ServerName"].ToString());
-                    server.GatherServer();
-                }
+                _server.GatherServer();
             }
-            
             
             log.LogModule(_logID);
         }
