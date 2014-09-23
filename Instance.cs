@@ -36,6 +36,8 @@ namespace CMS_C
         private Dictionary<string, ServiceValue> _serviceDictionary;
         private int _serverID;
         private int _instanceID;
+        public Nullable<bool> SSAS = null;
+        public Nullable<bool> SSRS = null;
         
 
  
@@ -64,10 +66,12 @@ namespace CMS_C
 
             if (SSAS)
             {
+                SSAS = true;
                 ssasservice.Exists = 1;
             }
             if (SSRS)
             {
+                SSRS = true;
                 ssrsservice.Exists = 1;
             }
 

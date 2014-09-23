@@ -15,36 +15,27 @@ namespace CMS_C
         
         static private long _logID;
         
-        public static void ProcessInstances()
+        public static void ProcessInstances(List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
             _logID = log.LogModule();
 
-            Instance instance;
-            DataSet instances = ConnectRepository();
-            if (TestDataSet(instances))
+            
+            foreach (Instance _instance in InstanceList)
             {
-                foreach (DataRow pRow in instances.Tables[0].Rows)
-                {
-                    string Name = (string)pRow["InstanceName"];
-                    if (pRow.IsNull("SSAS") || pRow.IsNull("SSRS"))
-                    {
-                        instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]);
-                        instance.GatherServices();
-                    }
-                    else
-                    {
-                        instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"], (bool)pRow["SSAS"], (bool)pRow["SSRS"]);
-                    }
+                
+                if ((_instance.SSAS.HasValue == false) || (_instance.SSRS.HasValue == false))
+                    
+                {                    
+                    _instance.GatherServices();
+                }
 
-                    if (instance.TestConnection())
-                    {
-                        instance.GatherInstance();
-                    }
+
+                if (_instance.TestConnection())
+                {
+                    _instance.GatherInstance();
                 }
             }
-
-
             log.LogModule(_logID);
         }
 
