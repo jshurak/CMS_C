@@ -21,9 +21,9 @@ namespace CMS_C
 
             CMSCache cache = new CMSCache();
             cache.BuildDatabaseCache();
+            cache.BuildServerCache();
 
-            Instance instance = new Instance("PHLDVWSSQL002\\DVS1201", 6,8);
-            instance.CheckDeletedDatabases(cache.DatabaseCache);
+            Jobs.ProcessDrives(cache.ServerCache);
 
             
         }

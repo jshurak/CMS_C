@@ -12,14 +12,14 @@ using System.Data;
 
 namespace CMS_C
 {
-    class Server
+    public class Server
     {
         public Server(string Name)
         {
             serverName = Name;       
             _scope = new ManagementScope("\\\\" + serverName + "\\root\\cimv2");
         }
-        public Server(string Name,int ServerID)
+        public Server(int ServerID,string Name)
         {
             serverName = Name;
             _serverID = ServerID;

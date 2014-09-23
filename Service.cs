@@ -45,6 +45,13 @@ namespace CMS_C
         {
             base.OnStart(args);
 
+
+
+            CMSCache cache = new CMSCache();
+            cache.BuildDatabaseCache();
+            cache.BuildServerCache();
+
+
             Timer _fiveMinuteTimer = new Timer(300000);
             Timer _thirtyMinuteTimer = new Timer(1000 * 60 * 30);
             Timer _dailyTimer = new Timer(1000 * 60 * 60 * 24);
@@ -67,7 +74,7 @@ namespace CMS_C
         private static void FiveMinuteEvent(object source,ElapsedEventArgs e)
         {
             EventLogger.LogEvent("CMS Five Minute Job starting.","Information");
-            Jobs.FiveMinutes();
+            //Jobs.FiveMinutes();
             EventLogger.LogEvent("CMS Five Minute Job complete.","Information");
         }
 
@@ -80,7 +87,7 @@ namespace CMS_C
         private static void DailyEvent(object source, ElapsedEventArgs e)
         {
             EventLogger.LogEvent("CMS Daily Job starting.", "Information");
-            Jobs.Daily();
+            //Jobs.Daily();
             EventLogger.LogEvent("CMS Daily Job complete.", "Information");
         }
         

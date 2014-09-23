@@ -235,13 +235,13 @@ namespace CMS_C
             log.LogModule(_logID);
 
         }
-        public static void Daily()
+        public static void Daily(List<Server> ServerList)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
 
             ProcessServers();
-            ProcessDrives();
+            ProcessDrives(ServerList);
             ProcessInstances();
             ProcessDatabases();
             ProcessDatabaseFiles();
@@ -261,13 +261,13 @@ namespace CMS_C
 
             log.LogModule(_DlogID);
         }
-        public static void FiveMinutes()
+        public static void FiveMinutes(List<Server> ServerList)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
 
             CheckServices();
-            ProcessDrives();
+            ProcessDrives(ServerList);
             ProcessDatabaseFiles();
             ProcessBlocking();
             ProcessBackups();
@@ -300,21 +300,15 @@ namespace CMS_C
             
             log.LogModule(_logID);
         }
-        public static void ProcessDrives()
+        public static void ProcessDrives(List<Server> ServerList)
         {
             CollectionLog log = new CollectionLog();
             _logID = log.LogModule();
 
-            DataSet servers = ConnectRepository("exec MonitoredServers_GetServers @ModuleName = 'ProcessDrives'");
-            if (TestDataSet(servers))
+            foreach (Server _server in ServerList)
             {
-                foreach (DataRow pRow in servers.Tables[0].Rows)
-                {
-                    Server server = new Server(pRow["ServerName"].ToString(),(int)pRow["ServerID"]);
-                    server.GatherDrives();
-                }
+                _server.GatherDrives();
             }
-
 
             log.LogModule(_logID);
         }

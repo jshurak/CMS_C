@@ -10,6 +10,7 @@ namespace CMS_C
     public class CMSCache
     {
         public List<Database> DatabaseCache = new List<Database>();
+        public List<Server> ServerCache = new List<Server>();
         
         public void BuildDatabaseCache()
         {
@@ -19,6 +20,18 @@ namespace CMS_C
                 foreach(DataRow pRow in _databaseSet.Tables[0].Rows)
                 {
                     DatabaseCache.Add(new Database((int)pRow["InstanceID"],(string)pRow["DatabaseName"],(string)pRow["DatabaseGUID"]));
+                }
+            }
+        }
+
+        public void BuildServerCache()
+        {
+            DataSet _serverSet = Jobs.ConnectRepository("SELECT ServerID,ServerName FROM MonitoredServers Where MonitorServer = 1 and Deleted = 0");
+            if (Jobs.TestDataSet(_serverSet))
+            {
+                foreach (DataRow pRow in _serverSet.Tables[0].Rows)
+                {
+                    ServerCache.Add(new Server((int)pRow["ServerID"], (string)pRow["ServerName"]));
                 }
             }
         }
