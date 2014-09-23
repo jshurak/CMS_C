@@ -22,9 +22,9 @@ namespace CMS_C
             CMSCache cache = new CMSCache();
             cache.BuildDatabaseCache();
             cache.BuildServerCache();
+            cache.BuildInstanceCache();
 
-
-            Jobs.ProcessServers(cache.ServerCache);
+            
 
             
         }
