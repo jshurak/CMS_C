@@ -605,6 +605,12 @@ namespace CMS_C
 
             }
 
+            List<Database> _result = _dbs.Except(_existing).ToList();
+
+            foreach(Database _r in _result)
+            {
+                Console.WriteLine(_r.DatabaseName + " " + _r.DatabaseGUID);    
+            }
                 
         }
     }
