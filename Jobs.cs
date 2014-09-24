@@ -226,14 +226,14 @@ namespace CMS_C
             log.LogModule(_logID);
 
         }
-        public static void Daily(List<Server> ServerList)
+        public static void Daily(List<Server> ServerList,List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
 
             ProcessServers(ServerList);
             ProcessDrives(ServerList);
-            ProcessInstances();
+            ProcessInstances(InstanceList);
             ProcessDatabases();
             ProcessDatabaseFiles();
             ProcessAgentJobs();
