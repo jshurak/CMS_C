@@ -205,7 +205,7 @@ namespace CMS_C
             ProcessDatabases(DatabaseList,InstanceList);
             ProcessDatabaseFiles(InstanceList);
             ProcessAgentJobs(InstanceList);
-            ProcessWaitStats();
+            ProcessWaitStats(InstanceList);
 
             log.LogModule(_DlogID);
         }
@@ -255,27 +255,21 @@ namespace CMS_C
             log.LogModule(_logID);
         }
 
-        public static void ProcessWaitStats()
+        public static void ProcessWaitStats(List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
 
             _logID = log.LogModule();
 
-            Instance instance;
-            DataSet instances = ConnectRepository();
-            if (TestDataSet(instances))
-            {
-                foreach (DataRow pRow in instances.Tables[0].Rows)
-                {
 
-                    instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]);
-                    if (instance.TestConnection())
-                    {
-                        instance.GatherWaitStats();
-                    }
+            foreach (Instance _instance in InstanceList)
+            {
+
+                if (_instance.TestConnection())
+                {
+                    _instance.GatherWaitStats();
                 }
             }
-
 
             log.LogModule(_logID);
         }
