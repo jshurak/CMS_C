@@ -57,25 +57,23 @@ namespace CMS_C
             instanceName = InstanceName;
         }
 
-        public Instance(string InstanceName, int ServerID, int InstanceID, bool SSAS, bool SSRS)
+        public Instance(string InstanceName, int ServerID, int InstanceID, bool _SSAS, bool _SSRS)
         {
             _serverID = ServerID;
             _instanceID = InstanceID;
             instanceName = InstanceName;
             BuildServices(instanceName);
+            SSAS = _SSAS;
+            SSRS = _SSRS;
 
-            if (SSAS)
+            if (_SSAS)
             {
-                SSAS = true;
                 ssasservice.Exists = 1;
             }
-            if (SSRS)
+            if (_SSRS)
             {
-                SSRS = true;
                 ssrsservice.Exists = 1;
             }
-
-
         }
 
         private void BuildServices(string InstanceName)

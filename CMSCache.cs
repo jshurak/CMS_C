@@ -17,7 +17,7 @@ namespace CMS_C
         {
             BuildDatabaseCache();
             BuildServerCache();
-            BuildServerCache();
+            BuildInstanceCache();
         }
 
         public void BuildDatabaseCache()
