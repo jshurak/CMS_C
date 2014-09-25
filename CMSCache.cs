@@ -13,6 +13,13 @@ namespace CMS_C
         public List<Server> ServerCache = new List<Server>();
         public List<Instance> InstanceCache = new List<Instance>();
         
+        public void BuildCache()
+        {
+            BuildDatabaseCache();
+            BuildServerCache();
+            BuildServerCache();
+        }
+
         public void BuildDatabaseCache()
         {
             DataSet _databaseSet = Jobs.ConnectRepository("SELECT mi.InstanceID,databaseName,DatabaseGUID FROM MonitoredDatabases md INNER JOIN MonitoredInstances mi ON md.InstanceID = mi.InstanceID where md.deleted = 0 AND mi.MonitorInstance = 1");
