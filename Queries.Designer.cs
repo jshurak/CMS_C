@@ -61,6 +61,15 @@ namespace CMS_C {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to select d.name,r.database_guid as DatabaseGUID from sys.databases d inner join sys.database_recovery_status r ON d.database_id = r.database_id.
+        /// </summary>
+        internal static string CheckDeletedDatabases {
+            get {
+                return ResourceManager.GetString("CheckDeletedDatabases", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to select REPLACE(sj.Name,&apos;&apos;&apos;&apos;,&apos;`&apos;) [Name]
         ///	  ,sj.job_id [JobID]
         ///	  ,sc.name [Category]

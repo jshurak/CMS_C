@@ -556,17 +556,8 @@ namespace CMS_C
 
         private DataSet GatherData([CallerMemberName] string Query = null)
         {
-            string _query;
-            if(Query == null)
-            {
-                 _query = GetQuery(Query);
-            }
-            else 
-            {
-                _query = Query;
-            }
-            
-            DataSet _data = PullDatabases(_query);
+
+            DataSet _data = PullDatabases(GetQuery(Query));
             return _data;
         }
 
@@ -599,7 +590,7 @@ namespace CMS_C
             List<Database> _existing = new List<Database>();
             List<Database> _dbs = Databases.Where(p => p.InstanceID == _instanceID).ToList();
                         
-            DataSet _existingDatabases = GatherData("select d.name,r.database_guid as DatabaseGUID from sys.databases d inner join sys.database_recovery_status r ON d.database_id = r.database_id");
+            DataSet _existingDatabases = GatherData();
             if(Jobs.TestDataSet(_existingDatabases))
             {
                 foreach (DataRow pRow in _existingDatabases.Tables[0].Rows)

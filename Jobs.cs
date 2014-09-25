@@ -28,6 +28,7 @@ namespace CMS_C
                     
                 {                    
                     _instance.GatherServices();
+                    _instance.GatherInstance();
                 }
 
 
