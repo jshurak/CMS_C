@@ -81,7 +81,7 @@ namespace CMS_C
         private static void ThirtyMinuteEvent(object source, ElapsedEventArgs e)
         {
             EventLogger.LogEvent("CMS Thirty Minute Job starting.", "Information");
-            Jobs.ThirtyMinutes();
+            //Jobs.ThirtyMinutes();
             EventLogger.LogEvent("CMS Thirty Minute Job complete.", "Information");
         }
         private static void DailyEvent(object source, ElapsedEventArgs e)

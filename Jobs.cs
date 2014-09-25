@@ -227,7 +227,7 @@ namespace CMS_C
             log.LogModule(_logID);
 
         }
-        public static void Daily(List<Server> ServerList,List<Instance> InstanceList)
+        public static void Daily(List<Server> ServerList,List<Instance> InstanceList,List<Database> DatabaseList)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
@@ -235,18 +235,18 @@ namespace CMS_C
             ProcessServers(ServerList);
             ProcessDrives(ServerList);
             ProcessInstances(InstanceList);
-            ProcessDatabases();
+            ProcessDatabases(DatabaseList);
             ProcessDatabaseFiles();
             ProcessAgentJobs();
 
             log.LogModule(_DlogID);
         }
-        public static void ThirtyMinutes()
+        public static void ThirtyMinutes(List<Database> DatabaseList)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
 
-            ProcessDatabases();
+            ProcessDatabases(DatabaseList);
             ProcessDatabaseFiles();
             ProcessAgentJobs();
             ProcessWaitStats();
