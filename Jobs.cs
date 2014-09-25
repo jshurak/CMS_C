@@ -98,7 +98,7 @@ namespace CMS_C
             log.LogModule(_logID);
 
         }
-        public static void ProcessDatabases()
+        public static void ProcessDatabases(List<Database> DatabaseList)
         {
             CollectionLog log = new CollectionLog();
 
@@ -114,7 +114,7 @@ namespace CMS_C
                     instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]);
                     if (instance.TestConnection())
                     {
-                        instance.GatherDatabases();
+                        instance.GatherDatabases(DatabaseList);
                     }
                 }
             }

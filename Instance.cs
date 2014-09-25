@@ -163,7 +163,8 @@ namespace CMS_C
                 }
                 catch (Exception e)
                 {
-                    EventLogger.LogEvent(e.ToString(), "Error");
+                    Console.WriteLine(e.ToString());
+                    //EventLogger.LogEvent(e.ToString(), "Error");
                 }
             }
             
@@ -199,7 +200,8 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        EventLogger.LogEvent(e.ToString(), "Warning");
+                        Console.WriteLine(e.ToString());
+                        //EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
 
@@ -299,7 +301,8 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        EventLogger.LogEvent(e.ToString(), "Warning");
+                        Console.WriteLine(e.ToString());
+                        //EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
             }
@@ -340,7 +343,8 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        EventLogger.LogEvent(e.ToString(), "Warning");
+                        Console.WriteLine(e.ToString());
+                        //EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
             }
@@ -413,12 +417,13 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        EventLogger.LogEvent(e.ToString(),"Warning");
+                        Console.WriteLine(e.ToString());
+                        //EventLogger.LogEvent(e.ToString(),"Warning");
                     }
                 }
             }
         }
-        public void GatherDatabases()
+        public void GatherDatabases(List<Database> DatabaseList)
         {
             DataSet _dbs = GatherData();
             if (Jobs.TestDataSet(_dbs))
@@ -457,10 +462,12 @@ namespace CMS_C
                             cmd.ExecuteNonQuery();
                         }
                         repConn.Close();
+                        CheckDeletedDatabases(DatabaseList);
                     }
                     catch (Exception e)
                     {
-                        EventLogger.LogEvent(e.ToString(), "Warning");
+                        Console.WriteLine(e.ToString());
+                        //EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
             }
@@ -510,7 +517,8 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        EventLogger.LogEvent(e.ToString(), "Warning");
+                        Console.WriteLine(e.ToString());
+                        //EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
             }
@@ -547,7 +555,8 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        EventLogger.LogEvent(e.ToString(), "Warning");
+                        Console.WriteLine(e.ToString());
+                        //EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
             }
@@ -625,7 +634,8 @@ namespace CMS_C
                     }
                     catch (Exception e)
                     {
-                        EventLogger.LogEvent(e.ToString(), "Warning");
+                        Console.WriteLine(e.ToString());
+                        //EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
             }                
