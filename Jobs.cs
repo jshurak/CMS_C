@@ -65,60 +65,39 @@ namespace CMS_C
             
                 
         }
-        public static void CheckServices()
+        public static void CheckServices(List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
             
             _logID = log.LogModule();
 
-            Instance instance;
-            DataSet instances = ConnectRepository();
-            if (TestDataSet(instances))
-            {
-                foreach (DataRow pRow in instances.Tables[0].Rows)
-                {
-                    string Name = (string)pRow["InstanceName"];
-                    if (pRow.IsNull("SSAS") || pRow.IsNull("SSRS"))
-                    {
-                        instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]);
-                        instance.GatherServices();
-                    }
-                    else
-                    {
-                        instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"], (bool)pRow["SSAS"], (bool)pRow["SSRS"]);
-                    }
 
-                    if (instance.TestConnection())
-                    {
-                        instance.CheckServices();
-                    }
+            foreach (Instance _instance in InstanceList)
+            {
+                if (_instance.TestConnection())
+                {
+                    _instance.CheckServices();
                 }
             }
+         
 
             log.LogModule(_logID);
 
         }
-        public static void ProcessDatabases(List<Database> DatabaseList)
+        public static void ProcessDatabases(List<Database> DatabaseList,List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
 
             _logID = log.LogModule();
 
-            Instance instance;
-            DataSet instances = ConnectRepository();
-            if(TestDataSet(instances))
+            foreach (Instance _instance in InstanceList)
             {
-                foreach (DataRow pRow in instances.Tables[0].Rows)
-                {
 
-                    instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]);
-                    if (instance.TestConnection())
-                    {
-                        instance.GatherDatabases(DatabaseList);
-                    }
+                if (_instance.TestConnection())
+                {
+                    _instance.GatherDatabases(DatabaseList);
                 }
-            }
-            
+            }            
             log.LogModule(_logID);
 
         }
@@ -151,24 +130,17 @@ namespace CMS_C
 
 
 
-        public static void ProcessBlocking()
+        public static void ProcessBlocking(List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
 
             _logID = log.LogModule();
 
-            Instance instance;
-            DataSet instances = ConnectRepository();
-            if (TestDataSet(instances))
+            foreach (Instance _instance in InstanceList)
             {
-                foreach (DataRow pRow in instances.Tables[0].Rows)
+                if (_instance.TestConnection())
                 {
-
-                    instance = new Instance((string)pRow["InstanceName"],(int)pRow["InstanceID"]);
-                    if (instance.TestConnection())
-                    {
-                        instance.GatherBlocking();
-                    }
+                    _instance.GatherBlocking();
                 }
             }
 
@@ -177,24 +149,19 @@ namespace CMS_C
         }
 
 
-        public static void ProcessDatabaseFiles()
+        public static void ProcessDatabaseFiles(List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
 
             _logID = log.LogModule();
 
-            Instance instance;
-            DataSet instances = ConnectRepository();
-            if (TestDataSet(instances))
-            {
-                foreach (DataRow pRow in instances.Tables[0].Rows)
-                {
 
-                    instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]);
-                    if (instance.TestConnection())
-                    {
-                        instance.GatherDatabaseFiles();
-                    }
+            foreach (Instance _instance in InstanceList)
+            {
+
+                if (_instance.TestConnection())
+                {
+                    _instance.GatherDatabaseFiles();
                 }
             }
 
@@ -202,27 +169,21 @@ namespace CMS_C
             log.LogModule(_logID);
         }
 
-        public static void ProcessBackups()
+        public static void ProcessBackups(List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
 
             _logID = log.LogModule();
 
-            Instance instance;
-            DataSet instances = ConnectRepository();
-            if(TestDataSet(instances))
-            {
-                foreach (DataRow pRow in instances.Tables[0].Rows)
+
+                foreach (Instance _instance in InstanceList)
                 {
 
-                    instance = new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]);
-                    if (instance.TestConnection())
+                    if (_instance.TestConnection())
                     {
-                        instance.GatherBackups();
+                        _instance.GatherBackups();
                     }
                 }
-            }
-            
 
             log.LogModule(_logID);
 
@@ -235,34 +196,34 @@ namespace CMS_C
             ProcessServers(ServerList);
             ProcessDrives(ServerList);
             ProcessInstances(InstanceList);
-            ProcessDatabases(DatabaseList);
-            ProcessDatabaseFiles();
+            ProcessDatabases(DatabaseList,InstanceList);
+            ProcessDatabaseFiles(InstanceList);
             ProcessAgentJobs();
 
             log.LogModule(_DlogID);
         }
-        public static void ThirtyMinutes(List<Database> DatabaseList)
+        public static void ThirtyMinutes(List<Database> DatabaseList, List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
 
-            ProcessDatabases(DatabaseList);
-            ProcessDatabaseFiles();
+            ProcessDatabases(DatabaseList,InstanceList);
+            ProcessDatabaseFiles(InstanceList);
             ProcessAgentJobs();
             ProcessWaitStats();
 
             log.LogModule(_DlogID);
         }
-        public static void FiveMinutes(List<Server> ServerList)
+        public static void FiveMinutes(List<Server> ServerList,List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
 
-            CheckServices();
+            CheckServices(InstanceList);
             ProcessDrives(ServerList);
-            ProcessDatabaseFiles();
-            ProcessBlocking();
-            ProcessBackups();
+            ProcessDatabaseFiles(InstanceList);
+            ProcessBlocking(InstanceList);
+            ProcessBackups(InstanceList);
 
             log.LogModule(_DlogID);
         }
