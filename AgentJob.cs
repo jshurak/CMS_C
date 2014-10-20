@@ -37,5 +37,12 @@ namespace CMS_C
             }
         }
 
+        public AgentJob(int InstanceID, string JobName, string JobGUID)
+        {
+            _instanceID = InstanceID;
+            _jobName = JobName;
+            _jobGUID = JobGUID;
+        }
+
     }
 }
