@@ -102,7 +102,7 @@ namespace CMS_C
 
         }
 
-        public static void ProcessAgentJobs(List<Instance> InstanceList)
+        public static void ProcessAgentJobs(List<Instance> InstanceList,List<AgentJob> AgentList)
         {
             CollectionLog log = new CollectionLog();
 
@@ -114,7 +114,8 @@ namespace CMS_C
 
                 if (_instance.TestConnection())
                 {
-                    _instance.GatherAgentJobs();
+                    _instance.GatherAgentJobs(AgentList);
+                    
                 }
             }
 
@@ -183,7 +184,7 @@ namespace CMS_C
             log.LogModule(_logID);
 
         }
-        public static void Daily(List<Server> ServerList,List<Instance> InstanceList,List<Database> DatabaseList)
+        public static void Daily(List<Server> ServerList,List<Instance> InstanceList,List<Database> DatabaseList,List<AgentJob> AgentJobList)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
@@ -193,18 +194,18 @@ namespace CMS_C
             ProcessInstances(InstanceList);
             ProcessDatabases(DatabaseList,InstanceList);
             ProcessDatabaseFiles(InstanceList);
-            ProcessAgentJobs(InstanceList);
+            ProcessAgentJobs(InstanceList, AgentJobList);
 
             log.LogModule(_DlogID);
         }
-        public static void ThirtyMinutes(List<Database> DatabaseList, List<Instance> InstanceList)
+        public static void ThirtyMinutes(List<Database> DatabaseList, List<Instance> InstanceList, List<AgentJob> AgentJobList)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
 
             ProcessDatabases(DatabaseList,InstanceList);
             ProcessDatabaseFiles(InstanceList);
-            ProcessAgentJobs(InstanceList);
+            ProcessAgentJobs(InstanceList,AgentJobList);
             ProcessWaitStats(InstanceList);
 
             log.LogModule(_DlogID);

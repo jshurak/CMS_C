@@ -474,7 +474,7 @@ namespace CMS_C
                 		
 	    }
 
-        public void GatherAgentJobs()
+        public void GatherAgentJobs(List<AgentJob> AgentJobs)
         {
             DataSet _agentJobs = GatherData();
             if(Jobs.TestDataSet(_agentJobs))
@@ -514,6 +514,7 @@ namespace CMS_C
                             cmd.ExecuteNonQuery();
                         }
                         repConn.Close();
+                        CheckDeletedAgentJobs(AgentJobs);
                     }
                     catch (Exception e)
                     {
