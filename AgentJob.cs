@@ -8,18 +8,10 @@ namespace CMS_C
 {
     public struct AgentJob
     {
-        private string _jobName;
+        
         private string _jobGUID;
         private int _instanceID;
 
-        public string JobName 
-        { 
-            get
-            {
-                return _jobName;
-            }
-        
-        }
 
         public string JobGUID
         {
@@ -37,10 +29,9 @@ namespace CMS_C
             }
         }
 
-        public AgentJob(int InstanceID, string JobName, string JobGUID)
+        public AgentJob(int InstanceID, string JobGUID)
         {
             _instanceID = InstanceID;
-            _jobName = JobName;
             _jobGUID = JobGUID;
         }
 

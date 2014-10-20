@@ -22,10 +22,11 @@ namespace CMS_C
             CMSCache cache = new CMSCache();
             cache.BuildCache();
 
-            foreach(AgentJob _aj in cache.AgentJobCache)
-            {
-                Console.WriteLine(_aj.InstanceID + " " + _aj.JobName + " " + _aj.JobGUID);
-            }
+            Instance instance = new Instance("PHLDVWSSQL002\\DVS1201", 8);
+
+            instance.CheckDeletedAgentJobs(cache.AgentJobCache);
+
+
         }
     }
 }

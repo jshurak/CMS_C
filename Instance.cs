@@ -594,6 +594,50 @@ namespace CMS_C
                 conn.Close();
             }
         }
+
+        public void CheckDeletedAgentJobs(List<AgentJob> AgentJobs)
+        {
+            List<AgentJob> _existing = new List<AgentJob>();
+            List<AgentJob> _jobs = AgentJobs.Where(p => p.InstanceID == _instanceID).ToList();
+
+            DataSet _existingJobs = GatherData();
+            if(Jobs.TestDataSet(_existingJobs))
+            {
+                foreach(DataRow pRow in _existingJobs.Tables[0].Rows)
+                {
+                    _existing.Add(new AgentJob(_instanceID, pRow["JobGUID"].ToString()));
+                }
+            }
+            List<AgentJob> _result = _jobs.Except(_existing).ToList();
+            if(_result.Count > 0)
+            {
+                string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
+                using (SqlConnection repConn = new SqlConnection(repository))
+                using (SqlCommand cmd = new SqlCommand("dbo.MonitoredInstanceJobs_SetJobs", repConn))
+                {
+                    try
+                    {
+                        repConn.Open();
+                        foreach (AgentJob _r in _result)
+                        {
+                            cmd.Parameters.Clear();
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
+                            cmd.Parameters.Add("@JobGUID", SqlDbType.VarChar).Value = _r.JobGUID;
+                            cmd.Parameters.Add("@Deleted", SqlDbType.Bit).Value = true;
+                            cmd.ExecuteNonQuery();
+                        }
+                        repConn.Close();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.ToString());
+                        //EventLogger.LogEvent(e.ToString(), "Warning");
+                    }
+                }
+            }
+        }
+
         public void CheckDeletedDatabases(List<Database> Databases)
         {
             List<Database> _existing = new List<Database>();

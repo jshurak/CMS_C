@@ -61,6 +61,16 @@ namespace CMS_C {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to select name as JobName, job_id as JobGUID
+        ///from msdb.dbo.sysjobs.
+        /// </summary>
+        internal static string CheckDeletedAgentJobs {
+            get {
+                return ResourceManager.GetString("CheckDeletedAgentJobs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to select d.name,r.database_guid as DatabaseGUID from sys.databases d inner join sys.database_recovery_status r ON d.database_id = r.database_id.
         /// </summary>
         internal static string CheckDeletedDatabases {
