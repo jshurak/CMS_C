@@ -12,12 +12,26 @@ namespace CMS_C
         public List<Database> DatabaseCache = new List<Database>();
         public List<Server> ServerCache = new List<Server>();
         public List<Instance> InstanceCache = new List<Instance>();
+        public List<AgentJob> AgentJobCache = new List<AgentJob>();
         
         public void BuildCache()
         {
             BuildDatabaseCache();
             BuildServerCache();
             BuildInstanceCache();
+            BuildAgentJobCache();
+        }
+
+        public void BuildAgentJobCache()
+        {
+            DataSet _agentJobSet = Jobs.ConnectRepository("SELECT InstanceID,JobName,JobGUID FROM monitoredinstancejobs WHERE MonitorJob = 1 and Deleted = 0");
+            if (Jobs.TestDataSet(_agentJobSet))
+            {
+                foreach (DataRow pRow in _agentJobSet.Tables[0].Rows)
+                {
+                    AgentJobCache.Add(new AgentJob((int)pRow["InstanceID"], (string)pRow["JobName"], (string)pRow["JobGUID"]));
+                }
+            }
         }
 
         public void BuildDatabaseCache()
