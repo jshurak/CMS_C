@@ -13,11 +13,13 @@ namespace CMS_C
         private int _exists;
         public string serviceAccount;
         public int Exists 
-        { get
+        { 
+            get
             {
                 return _exists;
             }
-          set
+          
+            set
             {
                 if(value >= 0 && value <= 1)
                 {
