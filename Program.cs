@@ -22,9 +22,7 @@ namespace CMS_C
             CMSCache cache = new CMSCache();
             cache.BuildCache();
 
-            Instance instance = new Instance("PHLDVWSSQL002\\DVS1201", 8);
-
-            instance.CheckDeletedAgentJobs(cache.AgentJobCache);
+            Jobs.ProcessInstances(cache.InstanceCache);
 
 
         }

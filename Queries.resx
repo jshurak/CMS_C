@@ -426,7 +426,7 @@ INNER JOIN sys.database_recovery_status drs ON drs.database_id = sdb.database_id
 	                                                        FOR name in ([min],[max])
                                                         ) as output</value>
   </data>
-  <data name="GatherServiceAccountes" xml:space="preserve">
+  <data name="GatherServiceAccounts" xml:space="preserve">
     <value>DECLARE @Version decimal(3,1)
 
 IF OBJECT_ID('tempdb..#ServiceAccounts') IS NOT NULL

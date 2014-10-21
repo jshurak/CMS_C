@@ -237,9 +237,9 @@ namespace CMS_C {
         ///		CASE
         ///			WHEN ServiceName LIKE &apos;SQL Server (%&apos; THEN &apos;MSSQL [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string GatherServiceAccountes {
+        internal static string GatherServiceAccounts {
             get {
-                return ResourceManager.GetString("GatherServiceAccountes", resourceCulture);
+                return ResourceManager.GetString("GatherServiceAccounts", resourceCulture);
             }
         }
         

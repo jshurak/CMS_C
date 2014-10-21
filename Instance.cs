@@ -174,7 +174,7 @@ namespace CMS_C
                             cmd.Parameters.Add("@IsClustered", SqlDbType.Bit).Value = (bool)pRow["isClustered"];
                             cmd.Parameters.Add("@MaxMemory", SqlDbType.BigInt).Value = (long)pRow["maxMemory"];
                             cmd.Parameters.Add("@MinMemory", SqlDbType.BigInt).Value = (int)pRow["minMemory"];
-                            cmd.Parameters.Add("@ServiceAccount", SqlDbType.VarChar).Value = "TestServiceAccount";
+                            cmd.Parameters.Add("@ServiceAccount", SqlDbType.VarChar).Value = sqlservice.serviceAccount;
                             cmd.Parameters.Add("@ProductLevel", SqlDbType.VarChar).Value = pRow["ProductLevel"].ToString();
                             cmd.Parameters.Add("@SSAS", SqlDbType.Bit).Value = ssasservice.Exists;
                             cmd.Parameters.Add("@SSRS", SqlDbType.Bit).Value = ssrsservice.Exists;
