@@ -218,6 +218,32 @@ namespace CMS_C {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to DECLARE @Version decimal(3,1)
+        ///
+        ///IF OBJECT_ID(&apos;tempdb..#ServiceAccounts&apos;) IS NOT NULL
+        ///	DROP TABLE #ServiceAccounts
+        ///
+        ///CREATE TABLE #ServiceAccounts
+        ///(
+        ///	ServiceName varchar(15)
+        ///	,ServiceAccount varchar(60)
+        ///)
+        ///
+        ///select @Version = CAST(SUBSTRING(CAST(SERVERPROPERTY(&apos;PRODUCTVERSION&apos;) AS VARCHAR),1,CHARINDEX(&apos;.&apos;,CAST(SERVERPROPERTY(&apos;PRODUCTVERSION&apos;) AS VARCHAR),1) + 1) AS DECIMAL(3,1))
+        ///
+        ///IF @Version &gt; 10.5
+        ///	INSERT INTO #ServiceAccounts
+        ///	select 
+        ///		CASE
+        ///			WHEN ServiceName LIKE &apos;SQL Server (%&apos; THEN &apos;MSSQL [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string GatherServiceAccountes {
+            get {
+                return ResourceManager.GetString("GatherServiceAccountes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to SELECT @@ServerName as InstanceName,[wait_type],[waiting_tasks_count],[wait_time_ms],[max_wait_time_ms],[signal_wait_time_ms],
         ///GETDATE() as [CollectionDate]
         ///FROM sys.dm_os_wait_stats.

@@ -426,6 +426,54 @@ INNER JOIN sys.database_recovery_status drs ON drs.database_id = sdb.database_id
 	                                                        FOR name in ([min],[max])
                                                         ) as output</value>
   </data>
+  <data name="GatherServiceAccountes" xml:space="preserve">
+    <value>DECLARE @Version decimal(3,1)
+
+IF OBJECT_ID('tempdb..#ServiceAccounts') IS NOT NULL
+	DROP TABLE #ServiceAccounts
+
+CREATE TABLE #ServiceAccounts
+(
+	ServiceName varchar(15)
+	,ServiceAccount varchar(60)
+)
+
+select @Version = CAST(SUBSTRING(CAST(SERVERPROPERTY('PRODUCTVERSION') AS VARCHAR),1,CHARINDEX('.',CAST(SERVERPROPERTY('PRODUCTVERSION') AS VARCHAR),1) + 1) AS DECIMAL(3,1))
+
+IF @Version &gt; 10.5
+	INSERT INTO #ServiceAccounts
+	select 
+		CASE
+			WHEN ServiceName LIKE 'SQL Server (%' THEN 'MSSQL'
+			WHEN ServiceName LIKE '%Agent%' THEN 'Agent'
+		END ServiceName
+		,service_account as ServiceAccount
+	from sys.dm_server_services
+	WHERE ServiceName NOT LIKE '%Full-text%'
+ELSE 
+	BEGIN
+		DECLARE       @DBEngineLogin       VARCHAR(100)
+		DECLARE       @AgentLogin          VARCHAR(100)
+ 
+		EXECUTE       master.dbo.xp_instance_regread
+              @rootkey      = N'HKEY_LOCAL_MACHINE',
+              @key          = N'SYSTEM\CurrentControlSet\Services\MSSQLServer',
+              @value_name   = N'ObjectName',
+              @value        = @DBEngineLogin OUTPUT
+ 
+		EXECUTE       master.dbo.xp_instance_regread
+              @rootkey      = N'HKEY_LOCAL_MACHINE',
+              @key          = N'SYSTEM\CurrentControlSet\Services\SQLServerAgent',
+              @value_name   = N'ObjectName',
+              @value        = @AgentLogin OUTPUT
+ 
+		INSERT INTO #ServiceAccounts (ServiceName,ServiceAccount) VALUES ('MSSQL',@DBEngineLogin)
+		INSERT INTO #ServiceAccounts (ServiceName,ServiceAccount) VALUES ('Agent',@DBEngineLogin)
+	END
+
+SELECT ServiceName,ServiceAccount
+FROM #ServiceAccounts</value>
+  </data>
   <data name="GatherWaitStats" xml:space="preserve">
     <value>SELECT @@ServerName as InstanceName,[wait_type],[waiting_tasks_count],[wait_time_ms],[max_wait_time_ms],[signal_wait_time_ms],
 GETDATE() as [CollectionDate]
