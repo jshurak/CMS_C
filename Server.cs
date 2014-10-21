@@ -26,6 +26,21 @@ namespace CMS_C
             _scope = new ManagementScope("\\\\" + serverName + "\\root\\cimv2");
         }
 
+        public Server(int ServerID, string Name, bool IsVirtualServerName)
+        {
+            serverName = Name;
+            _serverID = ServerID;
+            _scope = new ManagementScope("\\\\" + serverName + "\\root\\cimv2");
+            if(IsVirtualServerName)
+            {
+                isVirtualServerName = IsVirtualServerName;
+                ConnectionOptions _connectionOptions = new ConnectionOptions();
+                _connectionOptions.Authentication = AuthenticationLevel.PacketPrivacy;
+                _clusterScope = new ManagementScope("\\\\" + serverName + "\\root\\mscluster",_connectionOptions);
+                
+            }
+        }
+
         private int _serverID;
         public string serverName { get; set; }
         public ulong totalMemory { get; set; }
@@ -41,7 +56,9 @@ namespace CMS_C
         public bool pingStatus { get; set; }
         public bool isVirtualServerName { get; set; }
         public UInt32 clockSpeed;
+        private string _clusterName;
         private ManagementScope _scope;
+        private ManagementScope _clusterScope;
         static string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
         SqlConnection repConn = new SqlConnection(repository);
         
@@ -53,6 +70,31 @@ namespace CMS_C
                 ManagementObjectCollection _osCollection = GatherServerInfo("SELECT * FROM Win32_OperatingSystem", _scope);
                 ManagementObjectCollection _csCollection = GatherServerInfo("SELECT * FROM Win32_ComputerSystem", _scope);
                 ManagementObjectCollection _cpuCollection = GatherServerInfo("SELECT * FROM Win32_processor", _scope);
+                
+                //Process Clusters here
+                if(isVirtualServerName)
+                {
+                    ManagementObjectCollection _clusterCollection = GatherServerInfo("SELECT * FROM MSCluster_Cluster", _clusterScope);
+                    foreach(ManagementObject _cluster in _clusterCollection)
+                    {
+                        _clusterName = _cluster["Name"].ToString();
+                    }
+                    using (SqlCommand cmd = new SqlCommand("dbo.MonitoredClusters_SetCluster", repConn))
+                    {
+
+                        cmd.Parameters.Clear();
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("@ClusterName", SqlDbType.VarChar).Value = _clusterName;
+                        var _clusterID = cmd.Parameters.Add("@ClusterID", SqlDbType.Int);
+
+                        repConn.Open();
+                        cmd.ExecuteNonQuery();
+                        var result = _clusterID.Value;
+
+
+                    }
+                }
+                
 
                 foreach(IPAddress ip in addresslist)
                 {
