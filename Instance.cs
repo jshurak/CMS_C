@@ -78,12 +78,15 @@ namespace CMS_C
 
         private void BuildServices(string InstanceName)
         {
+            string _mssqlAccount = "";
+            string _agentAccount = "";
             instanceName = InstanceName;
             _serverName = instanceName;
             _SSASService = "MSSQLServerOLAPService";
             _SSRSService = "ReportServer";
             _AgentService = "SQLSERVERAGENT";
             _SQLService = "MSSQLSERVER";
+            
             if (instanceName.Contains("\\"))
             {
                 string stub = instanceName.Substring(instanceName.IndexOf("\\") + 1);
@@ -93,10 +96,25 @@ namespace CMS_C
                 _AgentService = "SQLAgent$" + stub;
                 _SQLService = "MSSQL$" + stub;
             }
+
+            DataSet _serviceAccounts = GatherServiceAccounts();
+            foreach(DataRow pRow in _serviceAccounts.Tables[0].Rows)
+            {
+                if(pRow["ServiceName"].ToString() == "MSSQL")
+                {
+                    _mssqlAccount = pRow["ServiceAccount"].ToString();
+                }
+                if (pRow["ServiceName"].ToString() == "Agent")
+                {
+                    _agentAccount = pRow["ServiceAccount"].ToString();
+                }
+            }
+
+
             ssasservice = new ServiceValue(_SSASService, 0, "Stopped", "");
             ssrsservice = new ServiceValue(_SSRSService, 0, "Stopped", "");
-            agentservice = new ServiceValue(_AgentService, 1, "Running", "");
-            sqlservice = new ServiceValue(_SQLService, 1, "Running", "");
+            agentservice = new ServiceValue(_AgentService, 1, "Running", _agentAccount);
+            sqlservice = new ServiceValue(_SQLService, 1, "Running", _mssqlAccount);
 
             _serviceDictionary = new Dictionary<string, ServiceValue> { };
             _serviceDictionary.Add("SSAS", ssasservice);
@@ -106,7 +124,11 @@ namespace CMS_C
 
         }
 
-
+        public DataSet GatherServiceAccounts()
+        {
+            DataSet _serviceAccounts = GatherData();
+            return _serviceAccounts;
+        }
         public bool TestConnection()
         {
 
@@ -152,7 +174,7 @@ namespace CMS_C
                             cmd.Parameters.Add("@IsClustered", SqlDbType.Bit).Value = (bool)pRow["isClustered"];
                             cmd.Parameters.Add("@MaxMemory", SqlDbType.BigInt).Value = (long)pRow["maxMemory"];
                             cmd.Parameters.Add("@MinMemory", SqlDbType.BigInt).Value = (int)pRow["minMemory"];
-                            cmd.Parameters.Add("@ServiceAccount", SqlDbType.VarChar).Value = "TestServiceAccount";
+                            cmd.Parameters.Add("@ServiceAccount", SqlDbType.VarChar).Value = sqlservice.serviceAccount;
                             cmd.Parameters.Add("@ProductLevel", SqlDbType.VarChar).Value = pRow["ProductLevel"].ToString();
                             cmd.Parameters.Add("@SSAS", SqlDbType.Bit).Value = ssasservice.Exists;
                             cmd.Parameters.Add("@SSRS", SqlDbType.Bit).Value = ssrsservice.Exists;
