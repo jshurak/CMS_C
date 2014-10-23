@@ -26,6 +26,21 @@ namespace CMS_C
             _scope = new ManagementScope("\\\\" + serverName + "\\root\\cimv2");
         }
 
+        public Server(int ServerID, string Name, bool IsVirtualServerName)
+        {
+            serverName = Name;
+            _serverID = ServerID;
+            _scope = new ManagementScope("\\\\" + serverName + "\\root\\cimv2");
+            if(IsVirtualServerName)
+            {
+                isVirtualServerName = IsVirtualServerName;
+                ConnectionOptions _connectionOptions = new ConnectionOptions();
+                _connectionOptions.Authentication = AuthenticationLevel.PacketPrivacy;
+                _clusterScope = new ManagementScope("\\\\" + serverName + "\\root\\mscluster",_connectionOptions);
+                
+            }
+        }
+
         private int _serverID;
         public string serverName { get; set; }
         public ulong totalMemory { get; set; }
@@ -41,18 +56,75 @@ namespace CMS_C
         public bool pingStatus { get; set; }
         public bool isVirtualServerName { get; set; }
         public UInt32 clockSpeed;
+        private string _clusterName;
         private ManagementScope _scope;
+        private ManagementScope _clusterScope;
         static string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
         SqlConnection repConn = new SqlConnection(repository);
         
-        public void GatherServer()
+        public void GatherServer(List<Instance> InstanceList)
         {
+            int _clusterID;
             try
             {
                 IPAddress[] addresslist = Dns.GetHostAddresses(serverName);
                 ManagementObjectCollection _osCollection = GatherServerInfo("SELECT * FROM Win32_OperatingSystem", _scope);
                 ManagementObjectCollection _csCollection = GatherServerInfo("SELECT * FROM Win32_ComputerSystem", _scope);
                 ManagementObjectCollection _cpuCollection = GatherServerInfo("SELECT * FROM Win32_processor", _scope);
+                
+                //Process Clusters here
+                if(isVirtualServerName)
+                {
+                    ManagementObjectCollection _clusterCollection = GatherServerInfo("SELECT * FROM MSCluster_Cluster", _clusterScope);
+                    foreach(ManagementObject _cluster in _clusterCollection)
+                    {
+                        _clusterName = _cluster["Name"].ToString();
+                    }
+                    using (SqlCommand cmd = new SqlCommand("dbo.MonitoredClusters_SetCluster", repConn))
+                    {
+
+                        cmd.Parameters.Clear();
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("@ClusterName", SqlDbType.VarChar).Value = _clusterName;
+                        SqlParameter _returnValue = cmd.Parameters.Add("@ClusterID", SqlDbType.Int);
+                        _returnValue.Direction = ParameterDirection.ReturnValue;
+                        
+                        if(repConn != null && repConn.State ==ConnectionState.Closed)
+                        {
+                            repConn.Open();
+                        }
+                        cmd.ExecuteNonQuery();
+                        _clusterID = (int) _returnValue.Value;
+                    }
+                    Instance _instance = InstanceList.Find(i => i.ServerID == _serverID);
+                    DataSet _nodes = _instance.GatherClusterNodes();
+                    foreach (DataRow pRow in _nodes.Tables[0].Rows)
+                    {
+                        using (SqlCommand _detailCmd = new SqlCommand("dbo.MonitoredClusters_SetDetails",repConn))
+                        {
+                            bool _isOwner = false;
+                            if(object.Equals(pRow["NodeName"],pRow["Owner"]))
+                            {
+                                _isOwner = true;
+                            }
+                            
+                            _detailCmd.Parameters.Clear();
+                            _detailCmd.CommandType = CommandType.StoredProcedure;
+                            _detailCmd.Parameters.Add("@ClusterID", SqlDbType.Int).Value = _clusterID;
+                            _detailCmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instance.InstanceID;
+                            _detailCmd.Parameters.Add("@NodeName", SqlDbType.VarChar).Value = pRow["NodeName"].ToString();
+                            _detailCmd.Parameters.Add("@IsCurrentOwner", SqlDbType.Bit).Value = _isOwner;
+
+                            if (repConn != null && repConn.State == ConnectionState.Closed)
+                            {
+                                repConn.Open();
+                            }
+                            _detailCmd.ExecuteNonQuery();
+                        }
+                    }
+
+                }
+                
 
                 foreach(IPAddress ip in addresslist)
                 {
@@ -109,7 +181,10 @@ namespace CMS_C
                     cmd.Parameters.Add("@NumberOfProcessorCores", SqlDbType.TinyInt).Value = numCores;
                     cmd.Parameters.Add("@ProcessorClockSpeed", SqlDbType.SmallInt).Value = clockSpeed;
 
-                    repConn.Open();
+                    if (repConn != null && repConn.State == ConnectionState.Closed)
+                    {
+                        repConn.Open();
+                    }
                     cmd.ExecuteNonQuery();
                 }
 
@@ -152,6 +227,10 @@ namespace CMS_C
                             driveCmd.Parameters.Add("@FreeSpace", SqlDbType.BigInt).Value = _freeSpace;
                             driveCmd.Parameters.Add("@VolumeName", SqlDbType.VarChar).Value = _volumeName;
 
+                            if (repConn != null && repConn.State == ConnectionState.Closed)
+                            {
+                                repConn.Open();
+                            }
                             driveCmd.ExecuteNonQuery();
                         }
                     }

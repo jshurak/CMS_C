@@ -48,12 +48,12 @@ namespace CMS_C
 
         public void BuildServerCache()
         {
-            DataSet _serverSet = Jobs.ConnectRepository("SELECT ServerID,ServerName FROM MonitoredServers Where MonitorServer = 1 and Deleted = 0");
+            DataSet _serverSet = Jobs.ConnectRepository("SELECT ServerID,ServerName,IsVirtualServerName FROM MonitoredServers Where MonitorServer = 1 and Deleted = 0");
             if (Jobs.TestDataSet(_serverSet))
             {
                 foreach(DataRow pRow in _serverSet.Tables[0].Rows)
                 {
-                    ServerCache.Add(new Server((int)pRow["ServerID"], (string)pRow["ServerName"]));
+                    ServerCache.Add(new Server((int)pRow["ServerID"], (string)pRow["ServerName"],(bool)pRow["IsVirtualServerName"]));
                 }
             }
         }

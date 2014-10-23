@@ -189,7 +189,7 @@ namespace CMS_C
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
 
-            ProcessServers(ServerList);
+            ProcessServers(ServerList,InstanceList);
             ProcessDrives(ServerList);
             ProcessInstances(InstanceList);
             ProcessDatabases(DatabaseList,InstanceList);
@@ -231,14 +231,14 @@ namespace CMS_C
             return _dbs.Tables.Count > 0;
         }
 
-        public static void ProcessServers(List<Server> ServerList)
+        public static void ProcessServers(List<Server> ServerList,List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
             _logID = log.LogModule();
 
             foreach (Server _server in ServerList)
             {
-                _server.GatherServer();
+                _server.GatherServer(InstanceList);
             }
             
             log.LogModule(_logID);

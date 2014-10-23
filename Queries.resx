@@ -251,6 +251,10 @@ OUTER APPLY sys.dm_exec_sql_text(er.sql_handle) AS qt
 WHERE spid IN (SELECT blocked FROM master.dbo.sysprocesses)
 AND blocked = 0</value>
   </data>
+  <data name="GatherClusterNodes" xml:space="preserve">
+    <value>SELECT NodeName,SERVERPROPERTY('ComputerNamePhysicalNetBIOS') as Owner
+FROM sys.dm_os_cluster_nodes</value>
+  </data>
   <data name="GatherDatabaseFiles" xml:space="preserve">
     <value>if OBJECT_ID('tempdb..#sizes') IS NOT NULL
 	DROP TABLE #sizes

@@ -38,9 +38,23 @@ namespace CMS_C
         private int _instanceID;
         public Nullable<bool> SSAS = null;
         public Nullable<bool> SSRS = null;
-        
 
- 
+
+        public int ServerID
+        { 
+            get
+            {
+                return _serverID;
+            }
+        }
+
+        public int InstanceID
+        {
+            get
+            {
+                return _instanceID;
+            }
+        }
 
         public Instance(string InstanceName, int InstanceID)
         {
@@ -547,7 +561,6 @@ namespace CMS_C
             }
         }
 
-
         public void GatherWaitStats()
         {
             DataSet _waitStats = GatherData();
@@ -584,7 +597,6 @@ namespace CMS_C
                 }
             }
         }
-
 
         private DataSet GatherData([CallerMemberName] string Query = null)
         {
@@ -659,6 +671,12 @@ namespace CMS_C
                     }
                 }
             }
+        }
+
+        public DataSet GatherClusterNodes()
+        {
+            DataSet _nodes = GatherData();
+            return _nodes;
         }
 
         public void CheckDeletedDatabases(List<Database> Databases)
