@@ -23,9 +23,7 @@ namespace CMS_C
             this.CanStop = true;
         }
 
-
- 
-
+        
         /// <summary>
         /// Dispose of objects that need it here.
         /// </summary>
@@ -59,35 +57,35 @@ namespace CMS_C
 
             _fiveMinuteTimer.Enabled = true;
             _fiveMinuteTimer.Start();
-            _fiveMinuteTimer.Elapsed += new ElapsedEventHandler(FiveMinuteEvent);
+            _fiveMinuteTimer.Elapsed += new ElapsedEventHandler((sender, e) => FiveMinuteEvent(sender, e, cache.ServerCache,cache.InstanceCache));
 
             _thirtyMinuteTimer.Enabled = true;
             _thirtyMinuteTimer.Start();
-            _thirtyMinuteTimer.Elapsed += new ElapsedEventHandler(ThirtyMinuteEvent);
+            _thirtyMinuteTimer.Elapsed += new ElapsedEventHandler((sender, e) => ThirtyMinuteEvent(sender, e,cache.DatabaseCache,cache.InstanceCache,cache.AgentJobCache));
 
             _dailyTimer.Enabled = true;
             _dailyTimer.Start();
-            _dailyTimer.Elapsed += new ElapsedEventHandler(DailyEvent);
+            _dailyTimer.Elapsed += new ElapsedEventHandler((sender, e) => DailyEvent(sender, e,cache.ServerCache,cache.InstanceCache,cache.DatabaseCache,cache.AgentJobCache));
         }
 
 
-        private static void FiveMinuteEvent(object source,ElapsedEventArgs e)
+        private static void FiveMinuteEvent(object source,ElapsedEventArgs e,List<Server> ServerList, List<Instance> InstanceList)
         {
             EventLogger.LogEvent("CMS Five Minute Job starting.","Information");
-            //Jobs.FiveMinutes();
+            Jobs.FiveMinutes(ServerList,InstanceList);
             EventLogger.LogEvent("CMS Five Minute Job complete.","Information");
         }
 
-        private static void ThirtyMinuteEvent(object source, ElapsedEventArgs e)
+        private static void ThirtyMinuteEvent(object source, ElapsedEventArgs e,List<Database> DatabaseList, List<Instance> InstanceList, List<AgentJob> AgentList)
         {
             EventLogger.LogEvent("CMS Thirty Minute Job starting.", "Information");
-            //Jobs.ThirtyMinutes();
+            Jobs.ThirtyMinutes(DatabaseList,InstanceList,AgentList);
             EventLogger.LogEvent("CMS Thirty Minute Job complete.", "Information");
         }
-        private static void DailyEvent(object source, ElapsedEventArgs e)
+        private static void DailyEvent(object source, ElapsedEventArgs e,List<Server> ServerList,List<Instance> InstanceList,List<Database> DatabaseList,List<AgentJob> AgentJobList)
         {
             EventLogger.LogEvent("CMS Daily Job starting.", "Information");
-            //Jobs.Daily();
+            Jobs.Daily(ServerList, InstanceList, DatabaseList, AgentJobList);
             EventLogger.LogEvent("CMS Daily Job complete.", "Information");
         }
         
