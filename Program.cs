@@ -19,14 +19,14 @@ namespace CMS_C
             // Uncomment this to start the services
             //ServiceBase.Run(new Service()); 
 
-            //CMSCache cache = new CMSCache();
-            //cache.BuildCache();
+            CMSCache cache = new CMSCache();
+            cache.BuildCache();
 
             //Jobs.ProcessInstances(cache.InstanceCache);
 
             Server server = new Server(14, "EXPSQL", true);
 
-            server.GatherServer();
+            server.GatherServer(cache.InstanceCache);
 
 
 

@@ -62,8 +62,9 @@ namespace CMS_C
         static string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
         SqlConnection repConn = new SqlConnection(repository);
         
-        public void GatherServer()
+        public void GatherServer(List<Instance> InstanceList)
         {
+            int _clusterID;
             try
             {
                 IPAddress[] addresslist = Dns.GetHostAddresses(serverName);
@@ -85,14 +86,43 @@ namespace CMS_C
                         cmd.Parameters.Clear();
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@ClusterName", SqlDbType.VarChar).Value = _clusterName;
-                        var _clusterID = cmd.Parameters.Add("@ClusterID", SqlDbType.Int);
-
-                        repConn.Open();
+                        SqlParameter _returnValue = cmd.Parameters.Add("@ClusterID", SqlDbType.Int);
+                        _returnValue.Direction = ParameterDirection.ReturnValue;
+                        
+                        if(repConn != null && repConn.State ==ConnectionState.Closed)
+                        {
+                            repConn.Open();
+                        }
                         cmd.ExecuteNonQuery();
-                        var result = _clusterID.Value;
-
-
+                        _clusterID = (int) _returnValue.Value;
                     }
+                    Instance _instance = InstanceList.Find(i => i.ServerID == _serverID);
+                    DataSet _nodes = _instance.GatherClusterNodes();
+                    foreach (DataRow pRow in _nodes.Tables[0].Rows)
+                    {
+                        using (SqlCommand _detailCmd = new SqlCommand("dbo.MonitoredClusters_SetDetails",repConn))
+                        {
+                            bool _isOwner = false;
+                            if(object.Equals(pRow["NodeName"],pRow["Owner"]))
+                            {
+                                _isOwner = true;
+                            }
+                            
+                            _detailCmd.Parameters.Clear();
+                            _detailCmd.CommandType = CommandType.StoredProcedure;
+                            _detailCmd.Parameters.Add("@ClusterID", SqlDbType.Int).Value = _clusterID;
+                            _detailCmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instance.InstanceID;
+                            _detailCmd.Parameters.Add("@NodeName", SqlDbType.VarChar).Value = pRow["NodeName"].ToString();
+                            _detailCmd.Parameters.Add("@IsCurrentOwner", SqlDbType.Bit).Value = _isOwner;
+
+                            if (repConn != null && repConn.State == ConnectionState.Closed)
+                            {
+                                repConn.Open();
+                            }
+                            _detailCmd.ExecuteNonQuery();
+                        }
+                    }
+
                 }
                 
 
@@ -151,7 +181,10 @@ namespace CMS_C
                     cmd.Parameters.Add("@NumberOfProcessorCores", SqlDbType.TinyInt).Value = numCores;
                     cmd.Parameters.Add("@ProcessorClockSpeed", SqlDbType.SmallInt).Value = clockSpeed;
 
-                    repConn.Open();
+                    if (repConn != null && repConn.State == ConnectionState.Closed)
+                    {
+                        repConn.Open();
+                    }
                     cmd.ExecuteNonQuery();
                 }
 
@@ -194,6 +227,10 @@ namespace CMS_C
                             driveCmd.Parameters.Add("@FreeSpace", SqlDbType.BigInt).Value = _freeSpace;
                             driveCmd.Parameters.Add("@VolumeName", SqlDbType.VarChar).Value = _volumeName;
 
+                            if (repConn != null && repConn.State == ConnectionState.Closed)
+                            {
+                                repConn.Open();
+                            }
                             driveCmd.ExecuteNonQuery();
                         }
                     }

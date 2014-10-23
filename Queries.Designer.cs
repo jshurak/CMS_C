@@ -143,6 +143,16 @@ namespace CMS_C {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SELECT NodeName,SERVERPROPERTY(&apos;ComputerNamePhysicalNetBIOS&apos;) as Owner
+        ///FROM sys.dm_os_cluster_nodes.
+        /// </summary>
+        internal static string GatherClusterNodes {
+            get {
+                return ResourceManager.GetString("GatherClusterNodes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to if OBJECT_ID(&apos;tempdb..#sizes&apos;) IS NOT NULL
         ///	DROP TABLE #sizes
         ///if OBJECT_ID(&apos;tempdb..#dbs&apos;) IS NOT NULL
