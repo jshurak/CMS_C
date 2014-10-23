@@ -22,13 +22,7 @@ namespace CMS_C
             CMSCache cache = new CMSCache();
             cache.BuildCache();
 
-            //Jobs.ProcessInstances(cache.InstanceCache);
-
-            Server server = new Server(14, "EXPSQL", true);
-
-            server.GatherServer(cache.InstanceCache);
-
-
+            Jobs.ProcessServers(cache.ServerCache, cache.InstanceCache);
 
         }
     }
