@@ -49,8 +49,7 @@ namespace CMS_C
 
 
             CMSCache cache = new CMSCache();
-            cache.BuildDatabaseCache();
-            cache.BuildServerCache();
+            cache.BuildCache();
 
 
             Timer _fiveMinuteTimer = new Timer(300000);
@@ -63,7 +62,7 @@ namespace CMS_C
                 Jobs.Daily(cache.ServerCache, cache.InstanceCache, cache.DatabaseCache, cache.AgentJobCache);
             }
 
-            SetUpTimer(new TimeSpan(10, 06, 00), cache.ServerCache, cache.InstanceCache, cache.DatabaseCache, cache.AgentJobCache);
+            SetUpTimer(new TimeSpan(11, 12, 00), cache.ServerCache, cache.InstanceCache, cache.DatabaseCache, cache.AgentJobCache);
 
             _fiveMinuteTimer.Enabled = true;
             _fiveMinuteTimer.Start();
