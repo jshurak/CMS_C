@@ -58,7 +58,7 @@ namespace CMS_C
             
 
             _lastDailyExecutionDateTime = GatherLastDailyExecution();
-            if(DateTime.Compare(_lastDailyExecutionDateTime, DateTime.Now) > 1)
+            if(DateTime.Compare(_lastDailyExecutionDateTime, DateTime.Now) < 1)
             {
                 Jobs.Daily(cache.ServerCache, cache.InstanceCache, cache.DatabaseCache, cache.AgentJobCache);
             }
