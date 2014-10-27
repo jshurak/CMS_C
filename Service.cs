@@ -63,7 +63,7 @@ namespace CMS_C
                 Jobs.Daily(cache.ServerCache, cache.InstanceCache, cache.DatabaseCache, cache.AgentJobCache);
             }
 
-            SetUpTimer(new TimeSpan(10, 00, 00), cache.ServerCache, cache.InstanceCache, cache.DatabaseCache, cache.AgentJobCache);
+            SetUpTimer(new TimeSpan(06, 00, 00), cache.ServerCache, cache.InstanceCache, cache.DatabaseCache, cache.AgentJobCache);
 
             _fiveMinuteTimer.Enabled = true;
             _fiveMinuteTimer.Start();
@@ -102,22 +102,22 @@ namespace CMS_C
 
         private static void FiveMinuteEvent(object source,ElapsedEventArgs e,List<Server> ServerList, List<Instance> InstanceList)
         {
-            EventLogger.LogEvent("CMS Five Minute Job starting.","Information");
+            //EventLogger.LogEvent("CMS Five Minute Job starting.","Information");
             Jobs.FiveMinutes(ServerList,InstanceList);
-            EventLogger.LogEvent("CMS Five Minute Job complete.","Information");
+            //EventLogger.LogEvent("CMS Five Minute Job complete.","Information");
         }
 
         private static void ThirtyMinuteEvent(object source, ElapsedEventArgs e,List<Database> DatabaseList, List<Instance> InstanceList, List<AgentJob> AgentList)
         {
-            EventLogger.LogEvent("CMS Thirty Minute Job starting.", "Information");
+            //EventLogger.LogEvent("CMS Thirty Minute Job starting.", "Information");
             Jobs.ThirtyMinutes(DatabaseList,InstanceList,AgentList);
-            EventLogger.LogEvent("CMS Thirty Minute Job complete.", "Information");
+            //EventLogger.LogEvent("CMS Thirty Minute Job complete.", "Information");
         }
         private static void DailyEvent(object source, ElapsedEventArgs e,List<Server> ServerList,List<Instance> InstanceList,List<Database> DatabaseList,List<AgentJob> AgentJobList)
         {
-            EventLogger.LogEvent("CMS Daily Job starting.", "Information");
+            //EventLogger.LogEvent("CMS Daily Job starting.", "Information");
             Jobs.Daily(ServerList, InstanceList, DatabaseList, AgentJobList);
-            EventLogger.LogEvent("CMS Daily Job complete.", "Information");
+            //EventLogger.LogEvent("CMS Daily Job complete.", "Information");
         }
         
         private DateTime GatherLastDailyExecution()
