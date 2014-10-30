@@ -19,7 +19,12 @@ namespace CMS_C
             // Uncomment this to start the services
             ServiceBase.Run(new Service()); 
 
-            
+            //CMSCache cache = new CMSCache();
+            //cache.BuildCache();
+            //Jobs.Daily(cache.ServerCache, cache.InstanceCache, cache.DatabaseCache, cache.AgentJobCache);
+            //Jobs.ThirtyMinutes(cache.DatabaseCache, cache.InstanceCache, cache.AgentJobCache);
+            //Jobs.FiveMinutes(cache.ServerCache, cache.InstanceCache);
+
         }
 
     }

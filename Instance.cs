@@ -10,7 +10,7 @@ using System.Resources;
 using System.Reflection;
 using System.Collections;
 using System.Runtime.CompilerServices;
-
+using System.Text;
 
 namespace CMS_C
 {
@@ -156,9 +156,9 @@ namespace CMS_C
                     conn.Close();
                     return true;
                 }
-                catch (Exception e)
+                catch (SqlException ex)
                 {
-                    EventLogger.LogEvent(e.ToString(), "Warning");
+                    Jobs.LogSQLErrors(ex,this._serverName,this.instanceName);
                     return false;
 
                 }
@@ -211,7 +211,7 @@ namespace CMS_C
             SqlConnectionStringBuilder connectionstring = new SqlConnectionStringBuilder();
             connectionstring["Data Source"] = instanceName;
             connectionstring["Integrated Security"] = true;
-            connectionstring["Connect Timeout"] = 15;
+            connectionstring["Connect Timeout"] = 30;
 
             SqlConnection conn = new SqlConnection(connectionstring.ConnectionString);
             return conn;
@@ -619,9 +619,14 @@ namespace CMS_C
                 adapter.Fill(_dbs);
                 return _dbs;
             }
-            catch (Exception ex)
+            //catch (Exception ex)
+            //{   
+            //    EventLogger.LogEvent(ex.ToString(),"Error");
+            //    return _dbs;
+            //}
+            catch (SqlException ex)
             {
-                EventLogger.LogEvent(ex.ToString(),"Error");
+                Jobs.LogSQLErrors(ex, this._serverName, this.instanceName);
                 return _dbs;
             }
             finally
@@ -629,6 +634,7 @@ namespace CMS_C
                 conn.Close();
             }
         }
+
 
         public void CheckDeletedAgentJobs(List<AgentJob> AgentJobs)
         {

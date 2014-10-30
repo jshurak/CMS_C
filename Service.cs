@@ -49,21 +49,21 @@ namespace CMS_C
 
 
             CMSCache cache = new CMSCache();
-            cache.BuildDatabaseCache();
-            cache.BuildServerCache();
+            cache.BuildCache();
 
-
+            
             Timer _fiveMinuteTimer = new Timer(300000);
             Timer _thirtyMinuteTimer = new Timer(1000 * 60 * 30);
             
 
             _lastDailyExecutionDateTime = GatherLastDailyExecution();
-            if(DateTime.Compare(_lastDailyExecutionDateTime, DateTime.Now) < 1)
+            TimeSpan _daysSince = DateTime.Now - _lastDailyExecutionDateTime;
+            if(_daysSince.Hours > 24)
             {
                 Jobs.Daily(cache.ServerCache, cache.InstanceCache, cache.DatabaseCache, cache.AgentJobCache);
             }
 
-            SetUpTimer(new TimeSpan(06, 00, 00), cache.ServerCache, cache.InstanceCache, cache.DatabaseCache, cache.AgentJobCache);
+            SetUpTimer(new TimeSpan(10, 15, 00), cache.ServerCache, cache.InstanceCache, cache.DatabaseCache, cache.AgentJobCache);
 
             _fiveMinuteTimer.Enabled = true;
             _fiveMinuteTimer.Start();
