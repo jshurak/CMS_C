@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data;
+using System.Reflection;
 
 namespace CMS_C
 {
@@ -20,6 +21,48 @@ namespace CMS_C
             BuildServerCache();
             BuildInstanceCache();
             BuildAgentJobCache();
+        }
+
+        public void CheckForCacheRefresh()
+        {
+
+        }
+
+        public void AcknowledgeCacheRefresh(string T)
+        {
+            string _query = "exec dbo.CacheAcknowledgeRefresh @CacheName = " + T;
+            Jobs.ConnectRepository(_query);
+        }
+
+        public void RefreshCache<T>(List<T> Cache)
+        {
+            Cache = null;
+            Type t = typeof(T);
+
+            switch(t.Name)
+            {
+                case "AgentJob":
+                    BuildAgentJobCache();
+                    AcknowledgeCacheRefresh(t.Name);
+                    break;
+                case "Database":
+                    BuildDatabaseCache();
+                    AcknowledgeCacheRefresh(t.Name);
+                    break;
+                case "Server" :
+                    BuildServerCache();
+                    AcknowledgeCacheRefresh(t.Name);
+                    break;
+                case "Instance" :
+                    BuildInstanceCache();
+                    AcknowledgeCacheRefresh(t.Name);
+                    break;
+                default:
+                    BuildCache();
+                    AcknowledgeCacheRefresh(t.Name);
+                    break;
+            }
+
         }
 
         public void BuildAgentJobCache()
