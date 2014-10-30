@@ -238,7 +238,7 @@ namespace CMS_C
 
             foreach (Server _server in ServerList)
             {
-                _server.GatherServer(InstanceList);
+                    _server.GatherServer(InstanceList);               
             }
             
             log.LogModule(_logID);
@@ -273,6 +273,19 @@ namespace CMS_C
             }
 
             log.LogModule(_logID);
+        }
+
+        public static void LogSQLErrors(SqlException ex,string ServerName,string InstanceName)
+        {
+            StringBuilder errorMessages = new StringBuilder();
+            for (int i = 0; i < ex.Errors.Count; i++)
+            {
+                errorMessages.Append("Message: " + ex.Errors[i].Message + "\n" +
+                    "ServerName: " + ServerName + "\n" +
+                    "InstanceName: " + InstanceName + "\n" +
+                    "Source: " + ex.Errors[i].Source + "\n");
+            }
+            EventLogger.LogEvent(errorMessages.ToString(), "Error");
         }
     }
 }

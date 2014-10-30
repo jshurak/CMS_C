@@ -36,8 +36,7 @@ namespace CMS_C
                 isVirtualServerName = IsVirtualServerName;
                 ConnectionOptions _connectionOptions = new ConnectionOptions();
                 _connectionOptions.Authentication = AuthenticationLevel.PacketPrivacy;
-                _clusterScope = new ManagementScope("\\\\" + serverName + "\\root\\mscluster",_connectionOptions);
-                
+                _clusterScope = new ManagementScope("\\\\" + serverName + "\\root\\mscluster",_connectionOptions);   
             }
         }
 
@@ -75,6 +74,7 @@ namespace CMS_C
                 //Process Clusters here
                 if(isVirtualServerName)
                 {
+
                     ManagementObjectCollection _clusterCollection = GatherServerInfo("SELECT * FROM MSCluster_Cluster", _clusterScope);
                     foreach(ManagementObject _cluster in _clusterCollection)
                     {
@@ -204,7 +204,10 @@ namespace CMS_C
             try
             {
                 ManagementObjectCollection _driveCollection = GatherServerInfo("SELECT * FROM win32_Volume", _scope);
-                repConn.Open();
+                if (repConn != null && repConn.State == ConnectionState.Closed)
+                {
+                    repConn.Open();
+                }
                 foreach(ManagementObject _drive in _driveCollection)
                 {
                     if(!(String.IsNullOrEmpty(Convert.ToString(_drive["DriveType"]))) &&
