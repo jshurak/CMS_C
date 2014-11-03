@@ -11,6 +11,9 @@ using System.Reflection;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Text;
+using log4net;
+
+
 
 namespace CMS_C
 {
@@ -38,7 +41,8 @@ namespace CMS_C
         private int _instanceID;
         public Nullable<bool> SSAS = null;
         public Nullable<bool> SSRS = null;
-
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod
+().DeclaringType);
 
         public int ServerID
         { 
@@ -159,6 +163,7 @@ namespace CMS_C
                 catch (SqlException ex)
                 {
                     Jobs.LogSQLErrors(ex,this._serverName,this.instanceName);
+                    log.Error("SQL error");
                     return false;
 
                 }
