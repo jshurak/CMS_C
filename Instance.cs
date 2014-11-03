@@ -179,6 +179,7 @@ namespace CMS_C
                         repConn.Open();
                         foreach (DataRow pRow in _instances.Tables[0].Rows)
                         {
+                            cmd.Parameters.Clear();
                             cmd.CommandType = CommandType.StoredProcedure;
                             cmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
                             cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
@@ -247,6 +248,7 @@ namespace CMS_C
             {
                 using (SqlCommand cmd = new SqlCommand("dbo.MonitoredInstances_SetInstance", repConn))
                 {
+                    cmd.Parameters.Clear();
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
                     cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;

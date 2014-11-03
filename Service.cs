@@ -67,7 +67,7 @@ namespace CMS_C
 
             _fiveMinuteTimer.Enabled = true;
             _fiveMinuteTimer.Start();
-            _fiveMinuteTimer.Elapsed += new ElapsedEventHandler((sender, e) => FiveMinuteEvent(sender, e, cache.ServerCache,cache.InstanceCache));
+            _fiveMinuteTimer.Elapsed += new ElapsedEventHandler((sender, e) => FiveMinuteEvent(sender, e, cache.ServerCache,cache.InstanceCache,cache));
 
             _thirtyMinuteTimer.Enabled = true;
             _thirtyMinuteTimer.Start();
@@ -100,10 +100,12 @@ namespace CMS_C
         }
 
 
-        private static void FiveMinuteEvent(object source,ElapsedEventArgs e,List<Server> ServerList, List<Instance> InstanceList)
+        private static void FiveMinuteEvent(object source,ElapsedEventArgs e,List<Server> ServerList, List<Instance> InstanceList, CMSCache Cache)
         {
             //EventLogger.LogEvent("CMS Five Minute Job starting.","Information");
-            Jobs.FiveMinutes(ServerList,InstanceList);
+            Jobs.FiveMinutes(Cache.ServerCache,Cache.InstanceCache);
+            Cache.CheckForCacheRefresh();
+            
             //EventLogger.LogEvent("CMS Five Minute Job complete.","Information");
         }
 

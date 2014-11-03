@@ -4,6 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data;
+using System.Reflection;
+using System.Data.SqlClient;
+using System.Configuration;
+
 
 namespace CMS_C
 {
@@ -20,6 +24,99 @@ namespace CMS_C
             BuildServerCache();
             BuildInstanceCache();
             BuildAgentJobCache();
+        }
+
+        public void CheckForCacheRefresh()
+        {
+            DataSet _results = Jobs.ConnectRepository("SELECT CacheName FROM CacheController WHERE Refresh = 1");
+            if(Jobs.TestDataSet(_results))
+            {
+                foreach (DataRow pRow in _results.Tables[0].Rows)
+                {
+                    switch(pRow["CacheName"].ToString())
+                    {
+                        case "Server":
+                            RefreshCache(this.ServerCache);
+                            break;
+                        case "Instance":
+                            RefreshCache(this.InstanceCache);
+                            break;
+                        case "Database":
+                            RefreshCache(this.DatabaseCache);
+                            break;
+                        case "AgentJob":
+                            RefreshCache(this.AgentJobCache);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            
+        }
+
+        public void AcknowledgeCacheRefresh(string T)
+        {
+            SqlConnection repConn;
+            try
+            {
+                string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
+                using (repConn = new SqlConnection(repository))
+                using (SqlCommand cmd = new SqlCommand("dbo.CacheAcknowledgeRefresh", repConn))
+                {
+
+                    cmd.Parameters.Clear();
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@CacheName", SqlDbType.VarChar).Value = T;
+
+                    repConn.Open();
+                    cmd.ExecuteNonQuery();
+                    repConn.Close();
+                }
+            }
+            catch (SqlException ex)
+            {
+                Jobs.LogSQLErrors(ex, ex.Server,ex.Server);
+            }
+        }
+
+        public void RefreshCache<T>(List<T> Cache)
+        {
+            Cache = null;
+            Type t = typeof(T);
+            List<string> _allCache = new List<string>();
+            _allCache.Add("Server");
+            _allCache.Add("Instance");
+            _allCache.Add("Database");
+            _allCache.Add("Agent");
+
+            switch(t.Name)
+            {
+                case "AgentJob":
+                    BuildAgentJobCache();
+                    AcknowledgeCacheRefresh(t.Name);
+                    break;
+                case "Database":
+                    BuildDatabaseCache();
+                    AcknowledgeCacheRefresh(t.Name);
+                    break;
+                case "Server" :
+                    BuildServerCache();
+                    AcknowledgeCacheRefresh(t.Name);
+                    break;
+                case "Instance" :
+                    BuildInstanceCache();
+                    AcknowledgeCacheRefresh(t.Name);
+                    break;
+                default:
+                    BuildCache();
+                    foreach(string _s in _allCache)
+                    {
+                        AcknowledgeCacheRefresh(_s);
+                    }
+                    break;
+            }
+
         }
 
         public void BuildAgentJobCache()
@@ -65,14 +162,17 @@ namespace CMS_C
             {
                 foreach(DataRow pRow in _instanceSet.Tables[0].Rows)
                 {
-                    if (pRow.IsNull("SSAS") || pRow.IsNull("SSRS"))
+                    if(Jobs.TestConnection(pRow["ServerName"].ToString(),pRow["InstanceName"].ToString()))
                     {
-                        InstanceCache.Add(new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]));
-                        
-                    }
-                    else
-                    {
-                        InstanceCache.Add(new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"], (bool)pRow["SSAS"], (bool)pRow["SSRS"]));
+                        if (pRow.IsNull("SSAS") || pRow.IsNull("SSRS"))
+                        {
+                            InstanceCache.Add(new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]));
+
+                        }
+                        else
+                        {
+                            InstanceCache.Add(new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"], (bool)pRow["SSAS"], (bool)pRow["SSRS"]));
+                        }
                     }
                 }
             }

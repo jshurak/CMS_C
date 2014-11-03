@@ -287,5 +287,37 @@ namespace CMS_C
             }
             EventLogger.LogEvent(errorMessages.ToString(), "Error");
         }
+
+        public static bool TestConnection(string ServerName, string InstanceName)
+        {
+            SqlConnection conn = BuildConnection(InstanceName);
+            using (SqlCommand instanceCheckCmd = new SqlCommand("SELECT @@SERVERNAME", conn))
+            {
+                try
+                {
+                    conn.Open();
+                    instanceCheckCmd.ExecuteScalar();
+                    conn.Close();
+                    return true;
+                }
+                catch (SqlException ex)
+                {
+                    Jobs.LogSQLErrors(ex, ServerName, InstanceName);
+                    return false;
+
+                }
+            }
+        }
+
+        private static SqlConnection BuildConnection(string InstanceName)
+        {
+            SqlConnectionStringBuilder connectionstring = new SqlConnectionStringBuilder();
+            connectionstring["Data Source"] = InstanceName;
+            connectionstring["Integrated Security"] = true;
+            connectionstring["Connect Timeout"] = 30;
+
+            SqlConnection conn = new SqlConnection(connectionstring.ConnectionString);
+            return conn;
+        }
     }
 }
