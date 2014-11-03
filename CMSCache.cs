@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 using System.Reflection;
+using System.Data.SqlClient;
+using System.Configuration;
+
 
 namespace CMS_C
 {
@@ -23,21 +26,69 @@ namespace CMS_C
             BuildAgentJobCache();
         }
 
-        public void CheckForCacheRefresh()
+        public void CheckForCacheRefresh(List<Server> ServerCache,List<Instance>InstanceCache,List<Database> DatabaseCache,List<AgentJob>AgentCache)
         {
-
+            DataSet _results = Jobs.ConnectRepository("SELECT CacheName FROM CacheController WHERE Refresh = 1");
+            if(Jobs.TestDataSet(_results))
+            {
+                foreach (DataRow pRow in _results.Tables[0].Rows)
+                {
+                    switch(pRow["CacheName"].ToString())
+                    {
+                        case "Server":
+                            RefreshCache(ServerCache);
+                            break;
+                        case "Instance":
+                            RefreshCache(InstanceCache);
+                            break;
+                        case "Database":
+                            RefreshCache(DatabaseCache);
+                            break;
+                        case "AgentJob":
+                            RefreshCache(AgentJobCache);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            
         }
 
         public void AcknowledgeCacheRefresh(string T)
         {
-            string _query = "exec dbo.CacheAcknowledgeRefresh @CacheName = " + T;
-            Jobs.ConnectRepository(_query);
+            SqlConnection repConn;
+            try
+            {
+                string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
+                using (repConn = new SqlConnection(repository))
+                using (SqlCommand cmd = new SqlCommand("dbo.CacheAcknowledgeRefresh", repConn))
+                {
+
+                    cmd.Parameters.Clear();
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@CacheName", SqlDbType.VarChar).Value = T;
+
+                    repConn.Open();
+                    cmd.ExecuteNonQuery();
+                    repConn.Close();
+                }
+            }
+            catch (SqlException ex)
+            {
+                Jobs.LogSQLErrors(ex, ex.Server,ex.Server);
+            }
         }
 
         public void RefreshCache<T>(List<T> Cache)
         {
             Cache = null;
             Type t = typeof(T);
+            List<string> _allCache = new List<string>();
+            _allCache.Add("Server");
+            _allCache.Add("Instance");
+            _allCache.Add("Database");
+            _allCache.Add("Agent");
 
             switch(t.Name)
             {
@@ -59,7 +110,10 @@ namespace CMS_C
                     break;
                 default:
                     BuildCache();
-                    AcknowledgeCacheRefresh(t.Name);
+                    foreach(string _s in _allCache)
+                    {
+                        AcknowledgeCacheRefresh(_s);
+                    }
                     break;
             }
 

@@ -20,9 +20,9 @@ namespace CMS_C
             //ServiceBase.Run(new Service()); 
 
             CMSCache cache = new CMSCache();
-            cache.BuildServerCache();
+            cache.BuildCache();
 
-            cache.RefreshCache(cache.ServerCache);
+            cache.CheckForCacheRefresh(cache.ServerCache, cache.InstanceCache, cache.DatabaseCache, cache.AgentJobCache);
 
         }
 
