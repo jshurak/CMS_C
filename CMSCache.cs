@@ -7,6 +7,7 @@ using System.Data;
 using System.Reflection;
 using System.Data.SqlClient;
 using System.Configuration;
+using log4net;
 
 
 namespace CMS_C
@@ -17,6 +18,8 @@ namespace CMS_C
         public List<Server> ServerCache = new List<Server>();
         public List<Instance> InstanceCache = new List<Instance>();
         public List<AgentJob> AgentJobCache = new List<AgentJob>();
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod
+().DeclaringType);
         
         public void BuildCache()
         {
@@ -76,7 +79,8 @@ namespace CMS_C
             }
             catch (SqlException ex)
             {
-                Jobs.LogSQLErrors(ex, ex.Server,ex.Server);
+                log.Error("Instance: " + ex.Server + ". " + ex.Message);
+                //Jobs.LogSQLErrors(ex, ex.Server,ex.Server);
             }
         }
 

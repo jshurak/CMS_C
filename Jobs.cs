@@ -6,13 +6,17 @@ using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
 using System.Configuration;
+using log4net;
+using System.Reflection;
 
 
 namespace CMS_C
 {
     public static class Jobs
     {
-        
+
+        private static readonly ILog logNet = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod
+().DeclaringType);
         static private long _logID;
         
         public static void ProcessInstances(List<Instance> InstanceList)
@@ -20,6 +24,7 @@ namespace CMS_C
             CollectionLog log = new CollectionLog();
             _logID = log.LogModule();
 
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
             
             foreach (Instance _instance in InstanceList)
             {
@@ -38,6 +43,7 @@ namespace CMS_C
                 }
             }
             log.LogModule(_logID);
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
 
         public static DataSet ConnectRepository(string Query = "exec MonitoredInstances_GetInstances @Module = 'CheckServers'")
@@ -57,8 +63,9 @@ namespace CMS_C
                     return instances;
                 }
             }
-            catch (Exception ex)
+            catch (SqlException ex)
             {
+                logNet.Error(ex.Message);
                 EventLogger.LogEvent(ex.ToString(), "Error");
                 return instances;
             }
@@ -70,7 +77,7 @@ namespace CMS_C
             CollectionLog log = new CollectionLog();
             
             _logID = log.LogModule();
-
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
             foreach (Instance _instance in InstanceList)
             {
@@ -82,13 +89,14 @@ namespace CMS_C
          
 
             log.LogModule(_logID);
-
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
         public static void ProcessDatabases(List<Database> DatabaseList,List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
 
             _logID = log.LogModule();
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
             foreach (Instance _instance in InstanceList)
             {
@@ -99,7 +107,7 @@ namespace CMS_C
                 }
             }            
             log.LogModule(_logID);
-
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
 
         public static void ProcessAgentJobs(List<Instance> InstanceList,List<AgentJob> AgentList)
@@ -131,7 +139,7 @@ namespace CMS_C
             CollectionLog log = new CollectionLog();
 
             _logID = log.LogModule();
-
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
             foreach (Instance _instance in InstanceList)
             {
                 if (_instance.TestConnection())
@@ -141,7 +149,7 @@ namespace CMS_C
             }
 
             log.LogModule(_logID);
-
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
 
 
@@ -150,7 +158,7 @@ namespace CMS_C
             CollectionLog log = new CollectionLog();
 
             _logID = log.LogModule();
-
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
             foreach (Instance _instance in InstanceList)
             {
@@ -163,6 +171,7 @@ namespace CMS_C
 
 
             log.LogModule(_logID);
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
 
         public static void ProcessBackups(List<Instance> InstanceList)
@@ -170,7 +179,7 @@ namespace CMS_C
             CollectionLog log = new CollectionLog();
 
             _logID = log.LogModule();
-
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
                 foreach (Instance _instance in InstanceList)
                 {
@@ -182,12 +191,13 @@ namespace CMS_C
                 }
 
             log.LogModule(_logID);
-
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
         public static void Daily(List<Server> ServerList,List<Instance> InstanceList,List<Database> DatabaseList,List<AgentJob> AgentJobList)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
             ProcessServers(ServerList,InstanceList);
             ProcessDrives(ServerList);
@@ -197,11 +207,13 @@ namespace CMS_C
             ProcessAgentJobs(InstanceList, AgentJobList);
 
             log.LogModule(_DlogID);
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
         public static void ThirtyMinutes(List<Database> DatabaseList, List<Instance> InstanceList, List<AgentJob> AgentJobList)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
             ProcessDatabases(DatabaseList,InstanceList);
             ProcessDatabaseFiles(InstanceList);
@@ -209,11 +221,13 @@ namespace CMS_C
             ProcessWaitStats(InstanceList);
 
             log.LogModule(_DlogID);
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
         public static void FiveMinutes(List<Server> ServerList,List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
             CheckServices(InstanceList);
             ProcessDrives(ServerList);
@@ -222,6 +236,7 @@ namespace CMS_C
             ProcessBackups(InstanceList);
 
             log.LogModule(_DlogID);
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
 
         
@@ -235,6 +250,7 @@ namespace CMS_C
         {
             CollectionLog log = new CollectionLog();
             _logID = log.LogModule();
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
             foreach (Server _server in ServerList)
             {
@@ -242,11 +258,14 @@ namespace CMS_C
             }
             
             log.LogModule(_logID);
+
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
         public static void ProcessDrives(List<Server> ServerList)
         {
             CollectionLog log = new CollectionLog();
             _logID = log.LogModule();
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
             foreach (Server _server in ServerList)
             {
@@ -254,6 +273,7 @@ namespace CMS_C
             }
 
             log.LogModule(_logID);
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
 
         public static void ProcessWaitStats(List<Instance> InstanceList)
@@ -261,7 +281,7 @@ namespace CMS_C
             CollectionLog log = new CollectionLog();
 
             _logID = log.LogModule();
-
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
             foreach (Instance _instance in InstanceList)
             {
@@ -273,6 +293,7 @@ namespace CMS_C
             }
 
             log.LogModule(_logID);
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
 
         public static void LogSQLErrors(SqlException ex,string ServerName,string InstanceName)
@@ -302,6 +323,7 @@ namespace CMS_C
                 }
                 catch (SqlException ex)
                 {
+                    logNet.Error("Instance: " + InstanceName + ". " + ex.Message);
                     Jobs.LogSQLErrors(ex, ServerName, InstanceName);
                     return false;
 
