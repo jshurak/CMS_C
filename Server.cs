@@ -9,11 +9,14 @@ using System.Net;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Data;
+using log4net;
 
 namespace CMS_C
 {
     public class Server
     {
+
+
         public Server(string Name)
         {
             serverName = Name;       
@@ -60,6 +63,8 @@ namespace CMS_C
         private ManagementScope _clusterScope;
         static string repository = ConfigurationManager.ConnectionStrings["Repository"].ConnectionString;
         SqlConnection repConn = new SqlConnection(repository);
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod
+().DeclaringType);
         
         public void GatherServer(List<Instance> InstanceList)
         {
@@ -189,9 +194,10 @@ namespace CMS_C
                 }
 
             }
-            catch (Exception e)
+            catch (SqlException ex)
             {
-                EventLogger.LogEvent(e.ToString(), "Error");
+                log.Error("Instance: " + ex.Server + ". " + ex.Message);
+                //EventLogger.LogEvent(e.ToString(), "Error");
             }
             finally
             {
@@ -240,13 +246,15 @@ namespace CMS_C
                 }
 
             }
-            catch(NullReferenceException e)
+            catch(NullReferenceException ex)
             {
-                EventLogger.LogEvent(serverName + e.ToString(), "Warning");
+                log.Error(ex.Message);
+                //EventLogger.LogEvent(serverName + e.ToString(), "Warning");
             }
-            catch (Exception e)
+            catch (SqlException ex)
             {
-                EventLogger.LogEvent(serverName + e.ToString(), "Error");
+                log.Error("Instance: " + ex.Server + ". " + ex.Message);
+                //EventLogger.LogEvent(serverName + e.ToString(), "Error");
             }
             finally
             {
