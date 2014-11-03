@@ -162,14 +162,17 @@ namespace CMS_C
             {
                 foreach(DataRow pRow in _instanceSet.Tables[0].Rows)
                 {
-                    if (pRow.IsNull("SSAS") || pRow.IsNull("SSRS"))
+                    if(Jobs.TestConnection(pRow["ServerName"].ToString(),pRow["InstanceName"].ToString()))
                     {
-                        InstanceCache.Add(new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]));
-                        
-                    }
-                    else
-                    {
-                        InstanceCache.Add(new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"], (bool)pRow["SSAS"], (bool)pRow["SSRS"]));
+                        if (pRow.IsNull("SSAS") || pRow.IsNull("SSRS"))
+                        {
+                            InstanceCache.Add(new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]));
+
+                        }
+                        else
+                        {
+                            InstanceCache.Add(new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"], (bool)pRow["SSAS"], (bool)pRow["SSRS"]));
+                        }
                     }
                 }
             }
