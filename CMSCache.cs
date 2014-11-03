@@ -26,7 +26,7 @@ namespace CMS_C
             BuildAgentJobCache();
         }
 
-        public void CheckForCacheRefresh(List<Server> ServerCache,List<Instance>InstanceCache,List<Database> DatabaseCache,List<AgentJob>AgentCache)
+        public void CheckForCacheRefresh()
         {
             DataSet _results = Jobs.ConnectRepository("SELECT CacheName FROM CacheController WHERE Refresh = 1");
             if(Jobs.TestDataSet(_results))
@@ -36,16 +36,16 @@ namespace CMS_C
                     switch(pRow["CacheName"].ToString())
                     {
                         case "Server":
-                            RefreshCache(ServerCache);
+                            RefreshCache(this.ServerCache);
                             break;
                         case "Instance":
-                            RefreshCache(InstanceCache);
+                            RefreshCache(this.InstanceCache);
                             break;
                         case "Database":
-                            RefreshCache(DatabaseCache);
+                            RefreshCache(this.DatabaseCache);
                             break;
                         case "AgentJob":
-                            RefreshCache(AgentJobCache);
+                            RefreshCache(this.AgentJobCache);
                             break;
                         default:
                             break;

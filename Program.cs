@@ -22,7 +22,7 @@ namespace CMS_C
             CMSCache cache = new CMSCache();
             cache.BuildCache();
 
-            cache.CheckForCacheRefresh(cache.ServerCache, cache.InstanceCache, cache.DatabaseCache, cache.AgentJobCache);
+            cache.CheckForCacheRefresh();
 
         }
 
