@@ -19,14 +19,14 @@ namespace CMS_C
 ().DeclaringType);
         static private long _logID;
         
-        public static void ProcessInstances(CMSCache Cache)
+        public static void ProcessInstances(List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
             _logID = log.LogModule();
 
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
             
-            foreach (Instance _instance in Cache.InstanceCache)
+            foreach (Instance _instance in InstanceList)
             {
                 
                 if ((_instance.SSAS.HasValue == false) || (_instance.SSRS.HasValue == false))
@@ -72,15 +72,14 @@ namespace CMS_C
             
                 
         }
-        
-        public static void CheckServices(CMSCache Cache)
+        public static void CheckServices(List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
             
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            foreach (Instance _instance in Cache.InstanceCache)
+            foreach (Instance _instance in InstanceList)
             {
                 if (_instance.TestConnection())
                 {
@@ -92,38 +91,38 @@ namespace CMS_C
             log.LogModule(_logID);
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
-        public static void ProcessDatabases(CMSCache Cache)
+        public static void ProcessDatabases(List<Database> DatabaseList,List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
 
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            foreach (Instance _instance in Cache.InstanceCache)
+            foreach (Instance _instance in InstanceList)
             {
 
                 if (_instance.TestConnection())
                 {
-                    _instance.GatherDatabases(Cache.DatabaseCache);
+                    _instance.GatherDatabases(DatabaseList);
                 }
             }            
             log.LogModule(_logID);
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
 
-        public static void ProcessAgentJobs(CMSCache Cache)
+        public static void ProcessAgentJobs(List<Instance> InstanceList,List<AgentJob> AgentList)
         {
             CollectionLog log = new CollectionLog();
 
             _logID = log.LogModule();
 
 
-            foreach (Instance _instance in Cache.InstanceCache)
+            foreach (Instance _instance in InstanceList)
             {
 
                 if (_instance.TestConnection())
                 {
-                    _instance.GatherAgentJobs(Cache);
+                    _instance.GatherAgentJobs(AgentList);
                     
                 }
             }
@@ -135,13 +134,13 @@ namespace CMS_C
 
 
 
-        public static void ProcessBlocking(CMSCache Cache)
+        public static void ProcessBlocking(List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
 
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
-            foreach (Instance _instance in Cache.InstanceCache)
+            foreach (Instance _instance in InstanceList)
             {
                 if (_instance.TestConnection())
                 {
@@ -154,14 +153,14 @@ namespace CMS_C
         }
 
 
-        public static void ProcessDatabaseFiles(CMSCache Cache)
+        public static void ProcessDatabaseFiles(List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
 
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            foreach (Instance _instance in Cache.InstanceCache)
+            foreach (Instance _instance in InstanceList)
             {
 
                 if (_instance.TestConnection())
@@ -175,14 +174,14 @@ namespace CMS_C
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
 
-        public static void ProcessBackups(CMSCache Cache)
+        public static void ProcessBackups(List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
 
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-                foreach (Instance _instance in Cache.InstanceCache)
+                foreach (Instance _instance in InstanceList)
                 {
 
                     if (_instance.TestConnection())
@@ -194,47 +193,47 @@ namespace CMS_C
             log.LogModule(_logID);
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
-        public static void Daily(CMSCache Cache)
+        public static void Daily(List<Server> ServerList,List<Instance> InstanceList,List<Database> DatabaseList,List<AgentJob> AgentJobList)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            ProcessServers(Cache);
-            ProcessDrives(Cache);
-            ProcessInstances(Cache);
-            ProcessDatabases(Cache);
-            ProcessDatabaseFiles(Cache);
-            ProcessAgentJobs(Cache);
+            ProcessServers(ServerList,InstanceList);
+            ProcessDrives(ServerList);
+            ProcessInstances(InstanceList);
+            ProcessDatabases(DatabaseList,InstanceList);
+            ProcessDatabaseFiles(InstanceList);
+            ProcessAgentJobs(InstanceList, AgentJobList);
 
             log.LogModule(_DlogID);
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
-        public static void ThirtyMinutes(CMSCache Cache)
+        public static void ThirtyMinutes(List<Database> DatabaseList, List<Instance> InstanceList, List<AgentJob> AgentJobList)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            ProcessDatabases(Cache);
-            ProcessDatabaseFiles(Cache);
-            ProcessAgentJobs(Cache);
-            ProcessWaitStats(Cache);
+            ProcessDatabases(DatabaseList,InstanceList);
+            ProcessDatabaseFiles(InstanceList);
+            ProcessAgentJobs(InstanceList,AgentJobList);
+            ProcessWaitStats(InstanceList);
 
             log.LogModule(_DlogID);
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
-        public static void FiveMinutes(CMSCache Cache)
+        public static void FiveMinutes(List<Server> ServerList,List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            CheckServices(Cache);
-            ProcessDrives(Cache);
-            ProcessDatabaseFiles(Cache);
-            ProcessBlocking(Cache);
-            ProcessBackups(Cache);
+            CheckServices(InstanceList);
+            ProcessDrives(ServerList);
+            ProcessDatabaseFiles(InstanceList);
+            ProcessBlocking(InstanceList);
+            ProcessBackups(InstanceList);
 
             log.LogModule(_DlogID);
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
@@ -247,28 +246,28 @@ namespace CMS_C
             return _dbs.Tables.Count > 0;
         }
 
-        public static void ProcessServers(CMSCache Cache)
+        public static void ProcessServers(List<Server> ServerList,List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            foreach (Server _server in Cache.ServerCache)
+            foreach (Server _server in ServerList)
             {
-                    _server.GatherServer(Cache.InstanceCache);               
+                    _server.GatherServer(InstanceList);               
             }
             
             log.LogModule(_logID);
 
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
-        public static void ProcessDrives(CMSCache Cache)
+        public static void ProcessDrives(List<Server> ServerList)
         {
             CollectionLog log = new CollectionLog();
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            foreach (Server _server in Cache.ServerCache)
+            foreach (Server _server in ServerList)
             {
                 _server.GatherDrives();
             }
@@ -277,14 +276,14 @@ namespace CMS_C
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
 
-        public static void ProcessWaitStats(CMSCache Cache)
+        public static void ProcessWaitStats(List<Instance> InstanceList)
         {
             CollectionLog log = new CollectionLog();
 
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            foreach (Instance _instance in Cache.InstanceCache)
+            foreach (Instance _instance in InstanceList)
             {
 
                 if (_instance.TestConnection())
