@@ -23,6 +23,11 @@ namespace CMS_C
         
         public void BuildCache()
         {
+            this.AgentJobCache.Clear();
+            this.DatabaseCache.Clear();
+            this.ServerCache.Clear();
+            this.InstanceCache.Clear();
+
             BuildDatabaseCache();
             BuildServerCache();
             BuildInstanceCache();
@@ -31,28 +36,14 @@ namespace CMS_C
 
         public void CheckForCacheRefresh()
         {
+            log.Info("Checking for cache refresh flags");
             DataSet _results = Jobs.ConnectRepository("SELECT CacheName FROM CacheController WHERE Refresh = 1");
             if(Jobs.TestDataSet(_results))
             {
                 foreach (DataRow pRow in _results.Tables[0].Rows)
                 {
-                    switch(pRow["CacheName"].ToString())
-                    {
-                        case "Server":
-                            RefreshCache(this.ServerCache);
-                            break;
-                        case "Instance":
-                            RefreshCache(this.InstanceCache);
-                            break;
-                        case "Database":
-                            RefreshCache(this.DatabaseCache);
-                            break;
-                        case "AgentJob":
-                            RefreshCache(this.AgentJobCache);
-                            break;
-                        default:
-                            break;
-                    }
+                    RefreshCache(pRow["CacheName"].ToString());
+                    
                 }
             }
             
@@ -76,6 +67,7 @@ namespace CMS_C
                     cmd.ExecuteNonQuery();
                     repConn.Close();
                 }
+                log.Info(T + " cache built.");
             }
             catch (SqlException ex)
             {
@@ -84,40 +76,28 @@ namespace CMS_C
             }
         }
 
-        public void RefreshCache<T>(List<T> Cache)
-        {
-            Cache = null;
-            Type t = typeof(T);
-            List<string> _allCache = new List<string>();
-            _allCache.Add("Server");
-            _allCache.Add("Instance");
-            _allCache.Add("Database");
-            _allCache.Add("Agent");
-
-            switch(t.Name)
+        public void RefreshCache(string Type)
+        {            
+            switch(Type)
             {
                 case "AgentJob":
+                    this.AgentJobCache.Clear();
                     BuildAgentJobCache();
-                    AcknowledgeCacheRefresh(t.Name);
                     break;
                 case "Database":
+                    this.DatabaseCache.Clear();
                     BuildDatabaseCache();
-                    AcknowledgeCacheRefresh(t.Name);
                     break;
                 case "Server" :
+                    this.ServerCache.Clear();
                     BuildServerCache();
-                    AcknowledgeCacheRefresh(t.Name);
                     break;
                 case "Instance" :
+                    this.InstanceCache.Clear();
                     BuildInstanceCache();
-                    AcknowledgeCacheRefresh(t.Name);
                     break;
                 default:
-                    BuildCache();
-                    foreach(string _s in _allCache)
-                    {
-                        AcknowledgeCacheRefresh(_s);
-                    }
+                    this.BuildCache();
                     break;
             }
 
@@ -125,6 +105,7 @@ namespace CMS_C
 
         public void BuildAgentJobCache()
         {
+            log.Info("Building agent cache.");
             DataSet _agentJobSet = Jobs.ConnectRepository("SELECT InstanceID,JobGUID FROM monitoredinstancejobs WHERE MonitorJob = 1 and Deleted = 0");
             if (Jobs.TestDataSet(_agentJobSet))
             {
@@ -138,6 +119,7 @@ namespace CMS_C
 
         public void BuildDatabaseCache()
         {
+            log.Info("Building database cache.");
             DataSet _databaseSet = Jobs.ConnectRepository("SELECT mi.InstanceID,databaseName,DatabaseGUID FROM MonitoredDatabases md INNER JOIN MonitoredInstances mi ON md.InstanceID = mi.InstanceID where md.deleted = 0 AND mi.MonitorInstance = 1");
             if(Jobs.TestDataSet(_databaseSet))
             {
@@ -151,6 +133,7 @@ namespace CMS_C
 
         public void BuildServerCache()
         {
+            log.Info("Building server cache.");
             DataSet _serverSet = Jobs.ConnectRepository("SELECT ServerID,ServerName,IsVirtualServerName FROM MonitoredServers Where MonitorServer = 1 and Deleted = 0");
             if (Jobs.TestDataSet(_serverSet))
             {
@@ -164,6 +147,7 @@ namespace CMS_C
 
         public void BuildInstanceCache()
         {
+            log.Info("Building instance cache.");
             DataSet _instanceSet = Jobs.ConnectRepository("exec MonitoredInstances_GetInstances @Module = 'CheckServers'");
             if(Jobs.TestDataSet(_instanceSet))
             {
