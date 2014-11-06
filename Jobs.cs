@@ -115,7 +115,7 @@ namespace CMS_C
             CollectionLog log = new CollectionLog();
 
             _logID = log.LogModule();
-
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
             foreach (Instance _instance in InstanceList)
             {
@@ -126,7 +126,7 @@ namespace CMS_C
                     
                 }
             }
-
+            logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
             log.LogModule(_logID);
 
         }

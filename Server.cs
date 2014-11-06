@@ -135,38 +135,59 @@ namespace CMS_C
                 {
                     ipAddress = ip.ToString();
                 }
-                foreach (ManagementObject _os in _osCollection)
+                if(_osCollection != null)
                 {
-                    operatingSystem = _os["Caption"].ToString();
-                    dateInstalled = ManagementDateTimeConverter.ToDateTime(_os["InstallDate"].ToString());
-                    dateLastBoot = ManagementDateTimeConverter.ToDateTime(_os["LastBootUpTime"].ToString());
-                    if (!operatingSystem.Contains("2003"))
+                    foreach (ManagementObject _os in _osCollection)
                     {
-                        bitLevel = _os["OSArchitecture"].ToString().Substring(0, 2);
+                        operatingSystem = _os["Caption"].ToString();
+                        dateInstalled = ManagementDateTimeConverter.ToDateTime(_os["InstallDate"].ToString());
+                        dateLastBoot = ManagementDateTimeConverter.ToDateTime(_os["LastBootUpTime"].ToString());
+                        if (!operatingSystem.Contains("2003"))
+                        {
+                            bitLevel = _os["OSArchitecture"].ToString().Substring(0, 2);
+                        }
                     }
                 }
-                foreach (ManagementObject _cs in _csCollection)
+                else
                 {
-                    manufacturer = _cs["Manufacturer"].ToString();
-                    model = _cs["Model"].ToString();
-                    totalMemory = (ulong)_cs["TotalPhysicalMemory"];
+                    log.Warn("Server: " + this.serverName + " Message: Error collecting operating system info.");
                 }
+                if(_csCollection != null)
+                {
+                    foreach (ManagementObject _cs in _csCollection)
+                    {
+                        manufacturer = _cs["Manufacturer"].ToString();
+                        model = _cs["Model"].ToString();
+                        totalMemory = (ulong)_cs["TotalPhysicalMemory"];
+                    }
+                }
+                else
+                {
+                    log.Warn("Server: " + this.serverName + " Message: Error collecting computer system info.");
+                }
+                if(_cpuCollection != null)
+                {
+                    numProcessors = _cpuCollection.Count;
+                    foreach (ManagementObject _cpu in _cpuCollection)
+                    {
 
-                numProcessors = _cpuCollection.Count;
-                foreach (ManagementObject _cpu in _cpuCollection)
-                {
-                    
-                    clockSpeed = (UInt32)_cpu["CurrentClockSpeed"];
-                    if (operatingSystem.Contains("2003"))
-                    {
-                        numCores = (uint)numProcessors;
-                        bitLevel = _cpu["AddressWidth"].ToString().Substring(0, 2);
-                    }
-                    else
-                    {
-                        numCores = (UInt32)_cpu["NumberOfCores"];
+                        clockSpeed = (UInt32)_cpu["CurrentClockSpeed"];
+                        if (operatingSystem.Contains("2003"))
+                        {
+                            numCores = (uint)numProcessors;
+                            bitLevel = _cpu["AddressWidth"].ToString().Substring(0, 2);
+                        }
+                        else
+                        {
+                            numCores = (UInt32)_cpu["NumberOfCores"];
+                        }
                     }
                 }
+                else
+                {
+                    log.Warn("Server: " + this.serverName + " Message: Error collecting cpu info.");
+                }
+                
 
                 using (SqlCommand cmd = new SqlCommand("dbo.MonitoredServers_SetServer", repConn))
                 {
@@ -214,37 +235,43 @@ namespace CMS_C
                 {
                     repConn.Open();
                 }
-                foreach(ManagementObject _drive in _driveCollection)
+                if(_driveCollection != null)
                 {
-                    if(!(String.IsNullOrEmpty(Convert.ToString(_drive["DriveType"]))) &&
-                            (UInt32)_drive["DriveType"] >= 2 && (UInt32)_drive["DriveType"] <=4)
+                    foreach (ManagementObject _drive in _driveCollection)
                     {
-                        string _mountPoint = _drive["Name"].ToString();
-                        UInt64 _totalCapacity = (UInt64)_drive["Capacity"];
-                        UInt64 _freeSpace = (UInt64)_drive["FreeSpace"];
-                        string _volumeName = String.IsNullOrEmpty(Convert.ToString(_drive["Label"])) ? "" : _drive["Label"].ToString();
-                        string _deviceID = _drive["DeviceID"].ToString().Substring(_drive["DeviceID"].ToString().IndexOf("{") + 1, _drive["DeviceID"].ToString().IndexOf("}") - _drive["DeviceID"].ToString().IndexOf("{") - 1);
-
-                        using (SqlCommand driveCmd = new SqlCommand("dbo.MonitoredDrives_SetDrives", repConn))
+                        if (!(String.IsNullOrEmpty(Convert.ToString(_drive["DriveType"]))) &&
+                                (UInt32)_drive["DriveType"] >= 2 && (UInt32)_drive["DriveType"] <= 4)
                         {
-                            driveCmd.Parameters.Clear();
-                            driveCmd.CommandType = CommandType.StoredProcedure;
-                            driveCmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
-                            driveCmd.Parameters.Add("@DeviceID", SqlDbType.VarChar).Value = _deviceID;
-                            driveCmd.Parameters.Add("@MountPoint", SqlDbType.VarChar).Value = _mountPoint;
-                            driveCmd.Parameters.Add("@TotalCapacity", SqlDbType.BigInt).Value = _totalCapacity;
-                            driveCmd.Parameters.Add("@FreeSpace", SqlDbType.BigInt).Value = _freeSpace;
-                            driveCmd.Parameters.Add("@VolumeName", SqlDbType.VarChar).Value = _volumeName;
+                            string _mountPoint = _drive["Name"].ToString();
+                            UInt64 _totalCapacity = (UInt64)_drive["Capacity"];
+                            UInt64 _freeSpace = (UInt64)_drive["FreeSpace"];
+                            string _volumeName = String.IsNullOrEmpty(Convert.ToString(_drive["Label"])) ? "" : _drive["Label"].ToString();
+                            string _deviceID = _drive["DeviceID"].ToString().Substring(_drive["DeviceID"].ToString().IndexOf("{") + 1, _drive["DeviceID"].ToString().IndexOf("}") - _drive["DeviceID"].ToString().IndexOf("{") - 1);
 
-                            if (repConn != null && repConn.State == ConnectionState.Closed)
+                            using (SqlCommand driveCmd = new SqlCommand("dbo.MonitoredDrives_SetDrives", repConn))
                             {
-                                repConn.Open();
+                                driveCmd.Parameters.Clear();
+                                driveCmd.CommandType = CommandType.StoredProcedure;
+                                driveCmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
+                                driveCmd.Parameters.Add("@DeviceID", SqlDbType.VarChar).Value = _deviceID;
+                                driveCmd.Parameters.Add("@MountPoint", SqlDbType.VarChar).Value = _mountPoint;
+                                driveCmd.Parameters.Add("@TotalCapacity", SqlDbType.BigInt).Value = _totalCapacity;
+                                driveCmd.Parameters.Add("@FreeSpace", SqlDbType.BigInt).Value = _freeSpace;
+                                driveCmd.Parameters.Add("@VolumeName", SqlDbType.VarChar).Value = _volumeName;
+
+                                if (repConn != null && repConn.State == ConnectionState.Closed)
+                                {
+                                    repConn.Open();
+                                }
+                                driveCmd.ExecuteNonQuery();
                             }
-                            driveCmd.ExecuteNonQuery();
                         }
                     }
                 }
-
+                else
+                {
+                    log.Warn("Server: " + this.serverName + " Message: Error collecting drive info." );
+                }
             }
             catch(NullReferenceException ex)
             {
@@ -263,14 +290,24 @@ namespace CMS_C
         }
         private ManagementObjectCollection GatherServerInfo(string Query, ManagementScope Scope)
         {
-            ManagementScope _scope = Scope;
-            ObjectQuery _query = new ObjectQuery(Query);
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher(_scope, _query);
 
-            _scope.Connect();
-            ManagementObjectCollection queryCollection = searcher.Get();
-
+            ManagementObjectCollection queryCollection = null;
+            try
+            {
+                ManagementScope _scope = Scope;
+                ObjectQuery _query = new ObjectQuery(Query);
+                ManagementObjectSearcher searcher = new ManagementObjectSearcher(_scope, _query);
+                _scope.Connect();
+                queryCollection = searcher.Get();
+                
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.Message);    
+            }
             return queryCollection;
+
+            
 
         }
         

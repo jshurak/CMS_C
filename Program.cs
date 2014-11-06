@@ -21,18 +21,7 @@ namespace CMS_C
         static void Main()
         {
             // Uncomment this to start the services
-            //ServiceBase.Run(new Service()); 
-
-            log.Info("Application Starting");
-            CMSCache cache = new CMSCache();
-            cache.BuildCache();
-
-
-            Jobs.ProcessAgentJobs(cache.InstanceCache, cache.AgentJobCache);
-
-            cache.CheckForCacheRefresh();
-            
-
+            ServiceBase.Run(new Service()); 
         }
 
     }
