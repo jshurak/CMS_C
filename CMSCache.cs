@@ -133,6 +133,7 @@ namespace CMS_C
                     AgentJobCache.Add(new AgentJob((int)pRow["InstanceID"], (string)pRow["JobGUID"]));
                 }
             }
+            AcknowledgeCacheRefresh("AgentJob");
         }
 
         public void BuildDatabaseCache()
@@ -145,6 +146,7 @@ namespace CMS_C
                     DatabaseCache.Add(new Database((int)pRow["InstanceID"],(string)pRow["DatabaseName"],(string)pRow["DatabaseGUID"]));
                 }
             }
+            AcknowledgeCacheRefresh("Database");
         }
 
         public void BuildServerCache()
@@ -157,6 +159,7 @@ namespace CMS_C
                     ServerCache.Add(new Server((int)pRow["ServerID"], (string)pRow["ServerName"],(bool)pRow["IsVirtualServerName"]));
                 }
             }
+            AcknowledgeCacheRefresh("Server");
         }
 
         public void BuildInstanceCache()
@@ -180,6 +183,7 @@ namespace CMS_C
                     }
                 }
             }
+            AcknowledgeCacheRefresh("Instance");
         }
         
     }

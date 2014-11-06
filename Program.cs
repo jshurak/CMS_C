@@ -25,7 +25,7 @@ namespace CMS_C
 
             log.Debug("Application Starting");
             CMSCache cache = new CMSCache();
-            cache.BuildInstanceCache();
+            
 
             Jobs.ProcessInstances(cache.InstanceCache);
 
