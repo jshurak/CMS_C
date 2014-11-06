@@ -193,47 +193,47 @@ namespace CMS_C
             log.LogModule(_logID);
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
-        public static void Daily(List<Server> ServerList,List<Instance> InstanceList,List<Database> DatabaseList,List<AgentJob> AgentJobList)
+        public static void Daily(CMSCache Cache)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            ProcessServers(ServerList,InstanceList);
-            ProcessDrives(ServerList);
-            ProcessInstances(InstanceList);
-            ProcessDatabases(DatabaseList,InstanceList);
-            ProcessDatabaseFiles(InstanceList);
-            ProcessAgentJobs(InstanceList, AgentJobList);
+            ProcessServers(Cache.ServerCache,Cache.InstanceCache);
+            ProcessDrives(Cache.ServerCache);
+            ProcessInstances(Cache.InstanceCache);
+            ProcessDatabases(Cache.DatabaseCache,Cache.InstanceCache);
+            ProcessDatabaseFiles(Cache.InstanceCache);
+            ProcessAgentJobs(Cache.InstanceCache,Cache.AgentJobCache);
 
             log.LogModule(_DlogID);
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
-        public static void ThirtyMinutes(List<Database> DatabaseList, List<Instance> InstanceList, List<AgentJob> AgentJobList)
+        public static void ThirtyMinutes(CMSCache Cache)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            ProcessDatabases(DatabaseList,InstanceList);
-            ProcessDatabaseFiles(InstanceList);
-            ProcessAgentJobs(InstanceList,AgentJobList);
-            ProcessWaitStats(InstanceList);
+            ProcessDatabases(Cache.DatabaseCache,Cache.InstanceCache);
+            ProcessDatabaseFiles(Cache.InstanceCache);
+            ProcessAgentJobs(Cache.InstanceCache,Cache.AgentJobCache);
+            ProcessWaitStats(Cache.InstanceCache);
 
             log.LogModule(_DlogID);
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
-        public static void FiveMinutes(List<Server> ServerList,List<Instance> InstanceList)
+        public static void FiveMinutes(CMSCache Cache)
         {
             CollectionLog log = new CollectionLog();
             long _DlogID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            CheckServices(InstanceList);
-            ProcessDrives(ServerList);
-            ProcessDatabaseFiles(InstanceList);
-            ProcessBlocking(InstanceList);
-            ProcessBackups(InstanceList);
+            CheckServices(Cache.InstanceCache);
+            ProcessDrives(Cache.ServerCache);
+            ProcessDatabaseFiles(Cache.InstanceCache);
+            ProcessBlocking(Cache.InstanceCache);
+            ProcessBackups(Cache.InstanceCache);
 
             log.LogModule(_DlogID);
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
