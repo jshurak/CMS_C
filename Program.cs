@@ -30,7 +30,7 @@ namespace CMS_C
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            Jobs.ProcessServers(cache.ServerCache, cache.InstanceCache);
+            Jobs.Daily(cache);
             
             stopWatch.Stop();
             TimeSpan ts = stopWatch.Elapsed;
