@@ -252,10 +252,14 @@ namespace CMS_C
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            foreach (Server _server in ServerList)
-            {
-                    _server.GatherServer(InstanceList);               
-            }
+            Parallel.ForEach(ServerList, _server => {
+                _server.GatherServer(InstanceList);
+            });
+
+            //foreach (Server _server in ServerList)
+            //{
+            //        _server.GatherServer(InstanceList);               
+            //}
             
             log.LogModule(_logID);
 

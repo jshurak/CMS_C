@@ -81,51 +81,58 @@ namespace CMS_C
                 {
 
                     ManagementObjectCollection _clusterCollection = GatherServerInfo("SELECT * FROM MSCluster_Cluster", _clusterScope);
-                    foreach(ManagementObject _cluster in _clusterCollection)
+                    if(_clusterCollection != null)
                     {
-                        _clusterName = _cluster["Name"].ToString();
-                    }
-                    using (SqlCommand cmd = new SqlCommand("dbo.MonitoredClusters_SetCluster", repConn))
-                    {
-
-                        cmd.Parameters.Clear();
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("@ClusterName", SqlDbType.VarChar).Value = _clusterName;
-                        SqlParameter _returnValue = cmd.Parameters.Add("@ClusterID", SqlDbType.Int);
-                        _returnValue.Direction = ParameterDirection.ReturnValue;
-                        
-                        if(repConn != null && repConn.State ==ConnectionState.Closed)
+                        foreach (ManagementObject _cluster in _clusterCollection)
                         {
-                            repConn.Open();
+                            _clusterName = _cluster["Name"].ToString();
                         }
-                        cmd.ExecuteNonQuery();
-                        _clusterID = (int) _returnValue.Value;
-                    }
-                    Instance _instance = InstanceList.Find(i => i.ServerID == _serverID);
-                    DataSet _nodes = _instance.GatherClusterNodes();
-                    foreach (DataRow pRow in _nodes.Tables[0].Rows)
-                    {
-                        using (SqlCommand _detailCmd = new SqlCommand("dbo.MonitoredClusters_SetDetails",repConn))
+                        using (SqlCommand cmd = new SqlCommand("dbo.MonitoredClusters_SetCluster", repConn))
                         {
-                            bool _isOwner = false;
-                            if(object.Equals(pRow["NodeName"],pRow["Owner"]))
-                            {
-                                _isOwner = true;
-                            }
-                            
-                            _detailCmd.Parameters.Clear();
-                            _detailCmd.CommandType = CommandType.StoredProcedure;
-                            _detailCmd.Parameters.Add("@ClusterID", SqlDbType.Int).Value = _clusterID;
-                            _detailCmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instance.InstanceID;
-                            _detailCmd.Parameters.Add("@NodeName", SqlDbType.VarChar).Value = pRow["NodeName"].ToString();
-                            _detailCmd.Parameters.Add("@IsCurrentOwner", SqlDbType.Bit).Value = _isOwner;
+
+                            cmd.Parameters.Clear();
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Add("@ClusterName", SqlDbType.VarChar).Value = _clusterName;
+                            SqlParameter _returnValue = cmd.Parameters.Add("@ClusterID", SqlDbType.Int);
+                            _returnValue.Direction = ParameterDirection.ReturnValue;
 
                             if (repConn != null && repConn.State == ConnectionState.Closed)
                             {
                                 repConn.Open();
                             }
-                            _detailCmd.ExecuteNonQuery();
+                            cmd.ExecuteNonQuery();
+                            _clusterID = (int)_returnValue.Value;
                         }
+                        Instance _instance = InstanceList.Find(i => i.ServerID == _serverID);
+                        DataSet _nodes = _instance.GatherClusterNodes();
+                        foreach (DataRow pRow in _nodes.Tables[0].Rows)
+                        {
+                            using (SqlCommand _detailCmd = new SqlCommand("dbo.MonitoredClusters_SetDetails", repConn))
+                            {
+                                bool _isOwner = false;
+                                if (object.Equals(pRow["NodeName"], pRow["Owner"]))
+                                {
+                                    _isOwner = true;
+                                }
+
+                                _detailCmd.Parameters.Clear();
+                                _detailCmd.CommandType = CommandType.StoredProcedure;
+                                _detailCmd.Parameters.Add("@ClusterID", SqlDbType.Int).Value = _clusterID;
+                                _detailCmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instance.InstanceID;
+                                _detailCmd.Parameters.Add("@NodeName", SqlDbType.VarChar).Value = pRow["NodeName"].ToString();
+                                _detailCmd.Parameters.Add("@IsCurrentOwner", SqlDbType.Bit).Value = _isOwner;
+
+                                if (repConn != null && repConn.State == ConnectionState.Closed)
+                                {
+                                    repConn.Open();
+                                }
+                                _detailCmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        log.Warn("Server: " + this.serverName + " Message: Error collecting cluster info.");
                     }
 
                 }
