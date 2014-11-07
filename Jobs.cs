@@ -25,13 +25,10 @@ namespace CMS_C
             _logID = log.LogModule();
 
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
-            
-            foreach (Instance _instance in InstanceList)
+            Parallel.ForEach(InstanceList, _instance =>
             {
-                
                 if ((_instance.SSAS.HasValue == false) || (_instance.SSRS.HasValue == false))
-                    
-                {                    
+                {
                     _instance.GatherServices();
                     _instance.GatherInstance();
                 }
@@ -41,7 +38,24 @@ namespace CMS_C
                 {
                     _instance.GatherInstance();
                 }
-            }
+            });
+
+            //foreach (Instance _instance in InstanceList)
+            //{
+                
+            //    if ((_instance.SSAS.HasValue == false) || (_instance.SSRS.HasValue == false))
+                    
+            //    {                    
+            //        _instance.GatherServices();
+            //        _instance.GatherInstance();
+            //    }
+
+
+            //    if (_instance.TestConnection())
+            //    {
+            //        _instance.GatherInstance();
+            //    }
+            //}
             log.LogModule(_logID);
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
@@ -79,13 +93,21 @@ namespace CMS_C
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            foreach (Instance _instance in InstanceList)
+            Parallel.ForEach(InstanceList, _instance =>
             {
                 if (_instance.TestConnection())
                 {
                     _instance.CheckServices();
                 }
-            }
+            });
+
+            //foreach (Instance _instance in InstanceList)
+            //{
+            //    if (_instance.TestConnection())
+            //    {
+            //        _instance.CheckServices();
+            //    }
+            //}
          
 
             log.LogModule(_logID);
@@ -98,14 +120,22 @@ namespace CMS_C
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            foreach (Instance _instance in InstanceList)
+            Parallel.ForEach(InstanceList, _instance =>
             {
-
                 if (_instance.TestConnection())
                 {
                     _instance.GatherDatabases(DatabaseList);
                 }
-            }            
+            });
+
+            //foreach (Instance _instance in InstanceList)
+            //{
+
+            //    if (_instance.TestConnection())
+            //    {
+            //        _instance.GatherDatabases(DatabaseList);
+            //    }
+            //}            
             log.LogModule(_logID);
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
         }
@@ -117,15 +147,24 @@ namespace CMS_C
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            foreach (Instance _instance in InstanceList)
+            Parallel.ForEach(InstanceList, _instance =>
             {
-
                 if (_instance.TestConnection())
                 {
                     _instance.GatherAgentJobs(AgentList);
-                    
+
                 }
-            }
+            });
+
+            //foreach (Instance _instance in InstanceList)
+            //{
+
+            //    if (_instance.TestConnection())
+            //    {
+            //        _instance.GatherAgentJobs(AgentList);
+                    
+            //    }
+            //}
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
             log.LogModule(_logID);
 
@@ -140,13 +179,22 @@ namespace CMS_C
 
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
-            foreach (Instance _instance in InstanceList)
+
+            Parallel.ForEach(InstanceList, _instance =>
             {
                 if (_instance.TestConnection())
                 {
                     _instance.GatherBlocking();
                 }
-            }
+            });
+
+            //foreach (Instance _instance in InstanceList)
+            //{
+            //    if (_instance.TestConnection())
+            //    {
+            //        _instance.GatherBlocking();
+            //    }
+            //}
 
             log.LogModule(_logID);
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
@@ -160,14 +208,22 @@ namespace CMS_C
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            foreach (Instance _instance in InstanceList)
+            Parallel.ForEach(InstanceList, _instance =>
             {
-
                 if (_instance.TestConnection())
                 {
                     _instance.GatherDatabaseFiles();
                 }
-            }
+            });
+
+            //foreach (Instance _instance in InstanceList)
+            //{
+
+            //    if (_instance.TestConnection())
+            //    {
+            //        _instance.GatherDatabaseFiles();
+            //    }
+            //}
 
 
             log.LogModule(_logID);
@@ -181,14 +237,22 @@ namespace CMS_C
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-                foreach (Instance _instance in InstanceList)
+            Parallel.ForEach(InstanceList, _instance =>
+            {
+                if (_instance.TestConnection())
                 {
-
-                    if (_instance.TestConnection())
-                    {
-                        _instance.GatherBackups();
-                    }
+                    _instance.GatherBackups();
                 }
+            });
+
+                //foreach (Instance _instance in InstanceList)
+                //{
+
+                //    if (_instance.TestConnection())
+                //    {
+                //        _instance.GatherBackups();
+                //    }
+                //}
 
             log.LogModule(_logID);
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
@@ -252,10 +316,14 @@ namespace CMS_C
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            foreach (Server _server in ServerList)
-            {
-                    _server.GatherServer(InstanceList);               
-            }
+            Parallel.ForEach(ServerList, _server => {
+                _server.GatherServer(InstanceList);
+            });
+
+            //foreach (Server _server in ServerList)
+            //{
+            //        _server.GatherServer(InstanceList);               
+            //}
             
             log.LogModule(_logID);
 
@@ -267,10 +335,15 @@ namespace CMS_C
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            foreach (Server _server in ServerList)
+            Parallel.ForEach(ServerList, _server =>
             {
                 _server.GatherDrives();
-            }
+            });
+
+            //foreach (Server _server in ServerList)
+            //{
+            //    _server.GatherDrives();
+            //}
 
             log.LogModule(_logID);
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");
@@ -283,14 +356,22 @@ namespace CMS_C
             _logID = log.LogModule();
             logNet.Info(MethodBase.GetCurrentMethod().Name + " starting.");
 
-            foreach (Instance _instance in InstanceList)
+            Parallel.ForEach(InstanceList, _instance =>
             {
-
                 if (_instance.TestConnection())
                 {
                     _instance.GatherWaitStats();
                 }
-            }
+            });
+            
+            //foreach (Instance _instance in InstanceList)
+            //{
+
+            //    if (_instance.TestConnection())
+            //    {
+            //        _instance.GatherWaitStats();
+            //    }
+            //}
 
             log.LogModule(_logID);
             logNet.Info(MethodBase.GetCurrentMethod().Name + " complete.");

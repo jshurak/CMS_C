@@ -22,6 +22,7 @@ namespace CMS_C
         static void Main()
         {
             // Uncomment this to start the services
+<<<<<<< HEAD
             //ServiceBase.Run(new Service()); 
 
             CMSCache cache = new CMSCache();
@@ -39,6 +40,10 @@ namespace CMS_C
 
             Console.WriteLine("Duration " + elaspedTime);
             Console.ReadLine();
+=======
+            ServiceBase.Run(new Service()); 
+ 
+>>>>>>> Parallelism
         }
 
     }

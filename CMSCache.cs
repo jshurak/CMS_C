@@ -109,6 +109,13 @@ namespace CMS_C
             DataSet _agentJobSet = Jobs.ConnectRepository("SELECT InstanceID,JobGUID FROM monitoredinstancejobs WHERE MonitorJob = 1 and Deleted = 0");
             if (Jobs.TestDataSet(_agentJobSet))
             {
+
+                //Parallel.ForEach<DataRow>(_agentJobSet.Tables[0].Rows.OfType<DataRow>(), pRow => 
+                //{
+                //    AgentJobCache.Add(new AgentJob((int)pRow["InstanceID"], (string)pRow["JobGUID"]));
+                //});
+
+
                 foreach (DataRow pRow in _agentJobSet.Tables[0].Rows)
                 {
                     AgentJobCache.Add(new AgentJob((int)pRow["InstanceID"], (string)pRow["JobGUID"]));
@@ -123,9 +130,14 @@ namespace CMS_C
             DataSet _databaseSet = Jobs.ConnectRepository("SELECT mi.InstanceID,databaseName,DatabaseGUID FROM MonitoredDatabases md INNER JOIN MonitoredInstances mi ON md.InstanceID = mi.InstanceID where md.deleted = 0 AND mi.MonitorInstance = 1");
             if(Jobs.TestDataSet(_databaseSet))
             {
-                foreach(DataRow pRow in _databaseSet.Tables[0].Rows)
+                //Parallel.ForEach<DataRow>(_databaseSet.Tables[0].Rows.OfType<DataRow>(), pRow =>
+                //{
+                //    DatabaseCache.Add(new Database((int)pRow["InstanceID"], (string)pRow["DatabaseName"], (string)pRow["DatabaseGUID"]));
+                //});
+
+                foreach (DataRow pRow in _databaseSet.Tables[0].Rows)
                 {
-                    DatabaseCache.Add(new Database((int)pRow["InstanceID"],(string)pRow["DatabaseName"],(string)pRow["DatabaseGUID"]));
+                    DatabaseCache.Add(new Database((int)pRow["InstanceID"], (string)pRow["DatabaseName"], (string)pRow["DatabaseGUID"]));
                 }
             }
             AcknowledgeCacheRefresh("Database");
@@ -137,9 +149,15 @@ namespace CMS_C
             DataSet _serverSet = Jobs.ConnectRepository("SELECT ServerID,ServerName,IsVirtualServerName FROM MonitoredServers Where MonitorServer = 1 and Deleted = 0");
             if (Jobs.TestDataSet(_serverSet))
             {
-                foreach(DataRow pRow in _serverSet.Tables[0].Rows)
+
+                //Parallel.ForEach<DataRow>(_serverSet.Tables[0].Rows.OfType<DataRow>(), pRow =>
+                //{
+                //    ServerCache.Add(new Server((int)pRow["ServerID"], (string)pRow["ServerName"], (bool)pRow["IsVirtualServerName"]));
+                //});
+
+                foreach (DataRow pRow in _serverSet.Tables[0].Rows)
                 {
-                    ServerCache.Add(new Server((int)pRow["ServerID"], (string)pRow["ServerName"],(bool)pRow["IsVirtualServerName"]));
+                    ServerCache.Add(new Server((int)pRow["ServerID"], (string)pRow["ServerName"], (bool)pRow["IsVirtualServerName"]));
                 }
             }
             AcknowledgeCacheRefresh("Server");
@@ -151,9 +169,25 @@ namespace CMS_C
             DataSet _instanceSet = Jobs.ConnectRepository("exec MonitoredInstances_GetInstances @Module = 'CheckServers'");
             if(Jobs.TestDataSet(_instanceSet))
             {
-                foreach(DataRow pRow in _instanceSet.Tables[0].Rows)
+                //Parallel.ForEach<DataRow>(_instanceSet.Tables[0].Rows.OfType<DataRow>(), pRow =>
+                //{
+                //    if (Jobs.TestConnection(pRow["ServerName"].ToString(), pRow["InstanceName"].ToString()))
+                //    {
+                //        if (pRow.IsNull("SSAS") || pRow.IsNull("SSRS"))
+                //        {
+                //            InstanceCache.Add(new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"]));
+
+                //        }
+                //        else
+                //        {
+                //            InstanceCache.Add(new Instance((string)pRow["InstanceName"], (int)pRow["ServerID"], (int)pRow["InstanceID"], (bool)pRow["SSAS"], (bool)pRow["SSRS"]));
+                //        }
+                //    }
+                //});
+
+                foreach (DataRow pRow in _instanceSet.Tables[0].Rows)
                 {
-                    if(Jobs.TestConnection(pRow["ServerName"].ToString(),pRow["InstanceName"].ToString()))
+                    if (Jobs.TestConnection(pRow["ServerName"].ToString(), pRow["InstanceName"].ToString()))
                     {
                         if (pRow.IsNull("SSAS") || pRow.IsNull("SSRS"))
                         {
