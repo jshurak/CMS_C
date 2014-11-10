@@ -134,11 +134,6 @@ namespace CMS_C
                     {
                         log.Warn("Server: " + this.serverName + " Message: Error collecting cluster info.");
                     }
-<<<<<<< HEAD
-                    
-=======
->>>>>>> Parallelism
-
                 }
                 
 

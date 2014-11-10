@@ -22,28 +22,8 @@ namespace CMS_C
         static void Main()
         {
             // Uncomment this to start the services
-<<<<<<< HEAD
-            //ServiceBase.Run(new Service()); 
-
-            CMSCache cache = new CMSCache();
-            cache.BuildCache();
-
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
-
-            Jobs.Daily(cache);
-
-            stopWatch.Stop();
-            TimeSpan ts = stopWatch.Elapsed;
-            string elaspedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}", ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-
-
-            Console.WriteLine("Duration " + elaspedTime);
-            Console.ReadLine();
-=======
             ServiceBase.Run(new Service()); 
- 
->>>>>>> Parallelism
+
         }
 
     }
