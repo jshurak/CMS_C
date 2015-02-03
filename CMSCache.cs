@@ -28,9 +28,9 @@ namespace CMS_C
             this.ServerCache.Clear();
             this.InstanceCache.Clear();
 
-            BuildDatabaseCache();
             BuildServerCache();
             BuildInstanceCache();
+            BuildDatabaseCache();
             BuildAgentJobCache();
         }
 
