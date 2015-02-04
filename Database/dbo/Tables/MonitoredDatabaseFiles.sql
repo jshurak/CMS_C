@@ -1,0 +1,25 @@
+﻿CREATE TABLE [dbo].[MonitoredDatabaseFiles] (
+    [DatabaseFileID]             INT            IDENTITY (1, 1) NOT NULL,
+    [InstanceID]                 INT            NULL,
+    [DatabaseID]                 INT            NULL,
+    [LogicalName]                VARCHAR (60)   NULL,
+    [PhysicalName]               VARCHAR (60)   NULL,
+    [FileSize]                   FLOAT (53)     NULL,
+    [UsedSpace]                  FLOAT (53)     NULL,
+    [MaxSize]                    FLOAT (53)     NULL,
+    [AvailableSpace]             FLOAT (53)     NULL,
+    [PercentageFree]             DECIMAL (4, 3) NULL,
+    [Growth]                     FLOAT (53)     NULL,
+    [GrowthType]                 VARCHAR (60)   NULL,
+    [DateCreated]                DATETIME       CONSTRAINT [c_default_Dates] DEFAULT (getdate()) NULL,
+    [DateUpdated]                DATETIME       CONSTRAINT [c_default_DateUpdated] DEFAULT (getdate()) NULL,
+    [MonitorDatabaseFileSpace]   BIT            CONSTRAINT [c_default_MonitorSpace] DEFAULT ((1)) NULL,
+    [DatabaseFileSpaceThreshold] DECIMAL (4, 3) CONSTRAINT [c_default_threshold] DEFAULT ((0.10)) NULL,
+    [FileType]                   VARCHAR (10)   NULL,
+    [Directory]                  VARCHAR (250)  NULL,
+    [DriveID]                    INT            NULL,
+    [Deleted]                    BIT            NULL,
+    [DateDeleted]                DATETIME       NULL,
+    CONSTRAINT [pk_monitoreddatabasefiles] PRIMARY KEY CLUSTERED ([DatabaseFileID] ASC)
+);
+
