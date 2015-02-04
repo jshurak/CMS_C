@@ -1,0 +1,2 @@
+﻿ALTER ROLE [db_owner] ADD MEMBER [PA01WJSHURAK01\sa_sql];
+
