@@ -103,21 +103,23 @@ namespace CMS_C
         private static void FiveMinuteEvent(object source,ElapsedEventArgs e, CMSCache Cache)
         {
             //EventLogger.LogEvent("CMS Five Minute Job starting.","Information");
-            Jobs.FiveMinutes(Cache);
             Cache.CheckForCacheRefresh();
-            
+            Jobs.FiveMinutes(Cache);
+                        
             //EventLogger.LogEvent("CMS Five Minute Job complete.","Information");
         }
 
         private static void ThirtyMinuteEvent(object source, ElapsedEventArgs e,CMSCache Cache)
         {
             //EventLogger.LogEvent("CMS Thirty Minute Job starting.", "Information");
+            Cache.CheckForCacheRefresh();
             Jobs.ThirtyMinutes(Cache);
             //EventLogger.LogEvent("CMS Thirty Minute Job complete.", "Information");
         }
         private static void DailyEvent(object source, ElapsedEventArgs e,CMSCache Cache)
         {
             //EventLogger.LogEvent("CMS Daily Job starting.", "Information");
+            Cache.CheckForCacheRefresh();
             Jobs.Daily(Cache);
             //EventLogger.LogEvent("CMS Daily Job complete.", "Information");
         }
