@@ -14,7 +14,7 @@
     </RootPath>
     <RootNamespace>Database</RootNamespace>
     <AssemblyName>Database</AssemblyName>
-    <ModelCollation>1033, CI</ModelCollation>
+    <ModelCollation>1033,CI</ModelCollation>
     <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
     <DeployToDatabase>True</DeployToDatabase>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -23,6 +23,8 @@
     <SqlServerVerification>False</SqlServerVerification>
     <IncludeCompositeObjects>True</IncludeCompositeObjects>
     <TargetDatabaseSet>True</TargetDatabaseSet>
+    <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
+    <DefaultFilegroup>PRIMARY</DefaultFilegroup>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -57,5 +59,133 @@
   <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
   <ItemGroup>
     <Folder Include="Properties" />
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\Tables\" />
+    <Folder Include="History\" />
+    <Folder Include="History\Tables\" />
+    <Folder Include="Baseline\" />
+    <Folder Include="Baseline\Tables\" />
+    <Folder Include="Reporting\" />
+    <Folder Include="Reporting\Tables\" />
+    <Folder Include="dbo\Views\" />
+    <Folder Include="History\Views\" />
+    <Folder Include="Security\" />
+    <Folder Include="dbo\Functions\" />
+    <Folder Include="dbo\Stored Procedures\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="dbo\Tables\Alert_PageRecords.sql" />
+    <Build Include="dbo\Tables\MonitoredAvailabilityGroups.sql" />
+    <Build Include="dbo\Tables\MonitoredAvailabilityGroupReplicas.sql" />
+    <Build Include="dbo\Tables\MonitoredAvailabilityGroupListeners.sql" />
+    <Build Include="dbo\Tables\MonitoredAvailabilityGroupDBDetails.sql" />
+    <Build Include="dbo\Tables\CurrentOfflineServices.sql" />
+    <Build Include="dbo\Tables\CurrentOfflineServers.sql" />
+    <Build Include="dbo\Tables\CurrentOfflineInstances.sql" />
+    <Build Include="dbo\Tables\CurrentDriveSpaceLow.sql" />
+    <Build Include="dbo\Tables\CurrentDatabaseFileIssues.sql" />
+    <Build Include="dbo\Tables\CurrentBlocking.sql" />
+    <Build Include="dbo\Tables\CurrentBackupsOutstanding.sql" />
+    <Build Include="dbo\Tables\CriticalityMatrix.sql" />
+    <Build Include="dbo\Tables\Config.sql" />
+    <Build Include="dbo\Tables\CollectionLog.sql" />
+    <Build Include="dbo\Tables\CMS_Version.sql" />
+    <Build Include="History\Tables\MonitoredDrives.sql" />
+    <Build Include="dbo\Tables\MonitoredDrives.sql" />
+    <Build Include="dbo\Tables\Alerts_Operators.sql" />
+    <Build Include="dbo\Tables\MonitoredClusters.sql" />
+    <Build Include="dbo\Tables\MonitoredClusterDetails.sql" />
+    <Build Include="History\Tables\MonitoredDatabases.sql" />
+    <Build Include="dbo\Tables\MonitoredDatabases.sql" />
+    <Build Include="History\Tables\MonitoredDatabaseFiles.sql" />
+    <Build Include="dbo\Tables\MonitoredDatabaseFiles.sql" />
+    <Build Include="dbo\Tables\MonitoredDatabaseBackups.sql" />
+    <Build Include="dbo\Tables\CacheController.sql" />
+    <Build Include="dbo\Tables\MonitoredBlocking.sql" />
+    <Build Include="History\Tables\MonitoredInstances.sql" />
+    <Build Include="dbo\Tables\MonitoredInstances.sql" />
+    <Build Include="dbo\Tables\MonitoredInstancePerfCounters.sql" />
+    <Build Include="Baseline\Tables\MonitoredInstancePerfCounters.sql" />
+    <Build Include="History\Tables\MonitoredServers.sql" />
+    <Build Include="dbo\Tables\MonitoredServers.sql" />
+    <Build Include="dbo\Tables\MonitoredServerPerfCounters.sql" />
+    <Build Include="Baseline\Tables\MonitoredServerPerfCounters.sql" />
+    <Build Include="dbo\Tables\PerfCounters_C.sql" />
+    <Build Include="dbo\Tables\PerfCounters.sql" />
+    <Build Include="dbo\Tables\MonitoredInstanceServerWaits.sql" />
+    <Build Include="Baseline\Tables\MonitoredInstanceServerWaits.sql" />
+    <Build Include="History\Tables\MonitoredInstanceJobs.sql" />
+    <Build Include="dbo\Tables\MonitoredInstanceJobs.sql" />
+    <Build Include="Reporting\Tables\Subscriptions.sql" />
+    <Build Include="dbo\Tables\ServiceAccounts.sql" />
+    <Build Include="dbo\Tables\ServerWaits.sql" />
+    <Build Include="Reporting\Tables\Reports.sql" />
+    <Build Include="dbo\Views\SQL_Server_Instance_Inventory.sql" />
+    <Build Include="History\Views\vw_MonitoredInstances.sql" />
+    <Build Include="dbo\Views\vw_MonitoredInstances.sql" />
+    <Build Include="History\Views\vw_MonitoredDrives.sql" />
+    <Build Include="dbo\Views\vw_MonitoredDrives.sql" />
+    <Build Include="History\Views\vw_MonitoredDatabases.sql" />
+    <Build Include="dbo\Views\vw_MonitoredDatabases.sql" />
+    <Build Include="History\Views\vw_MonitoredDatabaseFiles.sql" />
+    <Build Include="dbo\Views\vw_MonitoredDatabaseFiles.sql" />
+    <Build Include="dbo\Views\Database_Inventory.sql" />
+    <Build Include="Security\PA01WJSHURAK01_sa_sql.sql" />
+    <Build Include="Security\PA01WJSHURAK01_sa_sql_1.sql" />
+    <Build Include="Security\RoleMemberships.sql" />
+    <Build Include="dbo\Functions\CharCounter.sql" />
+    <Build Include="dbo\Functions\get_css.sql" />
+    <Build Include="dbo\Functions\ufn_JobIntToSeconds.sql" />
+    <Build Include="dbo\Stored Procedures\Alert_AgentJobs.sql" />
+    <Build Include="dbo\Stored Procedures\AddCMSServer.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredDatabases_SetDatabases.sql" />
+    <Build Include="dbo\Stored Procedures\Alert_ServerStatus.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredDatabaseFiles_SetDatabaseFiles.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredInstanceJobs_SetJobs.sql" />
+    <Build Include="dbo\Stored Procedures\UntrackCMSServer.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredServers_SetServer.sql" />
+    <Build Include="dbo\Stored Procedures\RetireCMSInstance.sql" />
+    <Build Include="dbo\Stored Procedures\RetireCMSServer.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredClusters_SetDetails.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredAvailabilityGroups_GetGroups.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredAvailabilityGroups_GetCounts.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredDatabases_GetDatabases.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredInstances_GetInstances.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredServers_GetServers.sql" />
+    <Build Include="dbo\Stored Procedures\Purge_CMS.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredInstanceJobs_GetJobs.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredDatabases_SetBackups.sql" />
+    <Build Include="dbo\Stored Procedures\TrackHistory.sql" />
+    <Build Include="dbo\Stored Procedures\TrackBaseline.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredDrives_SetDrives.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredDrives_GetDrives.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredInstances_SetInstance.sql" />
+    <Build Include="dbo\Stored Procedures\ReportServerWaits.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredPerfCounters_SetCounters.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredInstanceServerWaits_SetWaits.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredAvailabilityGroups_SetReplicas.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredAvailabilityGroups_SetListeners.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredAvailabilityGroups_SetGroups.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredAvailabilityGroups_SetDatabases.sql" />
+    <Build Include="dbo\Stored Procedures\CacheAcknowledgeRefresh.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredDatabaseFiles_SetDriveID.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredBlocking_SetBlocking.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredBlocking_GetBlocking.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredDatabaseFiles_GetDatabaseFiles.sql" />
+    <Build Include="dbo\Stored Procedures\MonitoredClusters_SetCluster.sql" />
+    <Build Include="dbo\Stored Procedures\CMS_SendPage.sql" />
+    <Build Include="dbo\Stored Procedures\LogModule.sql" />
+    <Build Include="dbo\Stored Procedures\CacheUpdateController.sql" />
+    <Build Include="dbo\Stored Procedures\Alert_OfflineServices.sql" />
+    <Build Include="dbo\Stored Procedures\Alert_OfflineServers.sql" />
+    <Build Include="dbo\Stored Procedures\Alert_OfflineInstances.sql" />
+    <Build Include="dbo\Stored Procedures\Alert_DriveSpace.sql" />
+    <Build Include="dbo\Stored Procedures\Alert_Databases.sql" />
+    <Build Include="dbo\Stored Procedures\Alert_DatabaseFiles.sql" />
+    <Build Include="dbo\Stored Procedures\Alert_Blocking.sql" />
+    <Build Include="dbo\Stored Procedures\Alert_Backups.sql" />
+    <Build Include="Security\Baseline.sql" />
+    <Build Include="Security\History.sql" />
+    <Build Include="Security\Reporting.sql" />
   </ItemGroup>
 </Project>
