@@ -29,7 +29,6 @@ namespace CMS_C
 
             
             Jobs.Daily(cache);
-            
 
         }
 
