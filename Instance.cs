@@ -10,6 +10,9 @@ using System.Resources;
 using System.Reflection;
 using System.Collections;
 using System.Runtime.CompilerServices;
+using System.Text;
+using log4net;
+
 
 
 namespace CMS_C
@@ -38,9 +41,24 @@ namespace CMS_C
         private int _instanceID;
         public Nullable<bool> SSAS = null;
         public Nullable<bool> SSRS = null;
-        
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod
+().DeclaringType);
 
- 
+        public int ServerID
+        { 
+            get
+            {
+                return _serverID;
+            }
+        }
+
+        public int InstanceID
+        {
+            get
+            {
+                return _instanceID;
+            }
+        }
 
         public Instance(string InstanceName, int InstanceID)
         {
@@ -142,9 +160,10 @@ namespace CMS_C
                     conn.Close();
                     return true;
                 }
-                catch (Exception e)
+                catch (SqlException ex)
                 {
-                    EventLogger.LogEvent(e.ToString(), "Warning");
+                    Jobs.LogSQLErrors(ex,this._serverName,this.instanceName);
+                    log.Error("InstanceName: " + instanceName + ". " + ex.Message);
                     return false;
 
                 }
@@ -165,6 +184,7 @@ namespace CMS_C
                         repConn.Open();
                         foreach (DataRow pRow in _instances.Tables[0].Rows)
                         {
+                            cmd.Parameters.Clear();
                             cmd.CommandType = CommandType.StoredProcedure;
                             cmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
                             cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
@@ -183,9 +203,9 @@ namespace CMS_C
                         repConn.Close();
                     }
                 }
-                catch (Exception e)
+                catch (SqlException ex)
                 {
-                    Console.WriteLine(e.ToString());
+                    log.Error("InstanceName: " + instanceName + ". " + ex.Message);
                     //EventLogger.LogEvent(e.ToString(), "Error");
                 }
             }
@@ -197,7 +217,7 @@ namespace CMS_C
             SqlConnectionStringBuilder connectionstring = new SqlConnectionStringBuilder();
             connectionstring["Data Source"] = instanceName;
             connectionstring["Integrated Security"] = true;
-            connectionstring["Connect Timeout"] = 15;
+            connectionstring["Connect Timeout"] = 30;
 
             SqlConnection conn = new SqlConnection(connectionstring.ConnectionString);
             return conn;
@@ -220,9 +240,9 @@ namespace CMS_C
                             service.Value.status = sc.Status.ToString();
                         }
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        Console.WriteLine(e.ToString());
+                        log.Error("InstanceName: " + instanceName + ". " + ex.Message);
                         //EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
@@ -233,6 +253,7 @@ namespace CMS_C
             {
                 using (SqlCommand cmd = new SqlCommand("dbo.MonitoredInstances_SetInstance", repConn))
                 {
+                    cmd.Parameters.Clear();
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add("@ServerID", SqlDbType.Int).Value = _serverID;
                     cmd.Parameters.Add("@InstanceID", SqlDbType.Int).Value = _instanceID;
@@ -264,9 +285,9 @@ namespace CMS_C
                             service.Value.Exists = 1;
                         }
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        Console.WriteLine(e.ToString());
+                        log.Error("InstanceName: " + instanceName + ". " + ex.Message);
                     }
                 }
             }
@@ -287,9 +308,10 @@ namespace CMS_C
                 string query = rm.GetString(Query);
                 return query;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                
+
+                log.Error("InstanceName: " + instanceName + ". " + ex.Message);
                 throw;
             }
         }
@@ -321,9 +343,9 @@ namespace CMS_C
                         }
                         repConn.Close();
                     }
-                    catch (Exception e)
+                    catch (SqlException ex)
                     {
-                        Console.WriteLine(e.ToString());
+                        log.Error("InstanceName: " + instanceName + ". " + ex.Message);
                         //EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
@@ -363,9 +385,9 @@ namespace CMS_C
                         }
                         repConn.Close();
                     }
-                    catch (Exception e)
+                    catch (SqlException ex)
                     {
-                        Console.WriteLine(e.ToString());
+                        log.Error("InstanceName: " + instanceName + ". " + ex.Message);
                         //EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
@@ -437,9 +459,9 @@ namespace CMS_C
                         }
                         repConn.Close();
                     }
-                    catch (Exception e)
+                    catch (SqlException ex)
                     {
-                        Console.WriteLine(e.ToString());
+                        log.Error("InstanceName: " + instanceName + ". " + ex.Message);
                         //EventLogger.LogEvent(e.ToString(),"Warning");
                     }
                 }
@@ -486,9 +508,9 @@ namespace CMS_C
                         repConn.Close();
                         CheckDeletedDatabases(DatabaseList);
                     }
-                    catch (Exception e)
+                    catch (SqlException ex)
                     {
-                        Console.WriteLine(e.ToString());
+                        log.Error("InstanceName: " + instanceName + ". " + ex.Message);
                         //EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
@@ -538,15 +560,14 @@ namespace CMS_C
                         repConn.Close();
                         CheckDeletedAgentJobs(AgentJobs);
                     }
-                    catch (Exception e)
+                    catch (SqlException ex)
                     {
-                        Console.WriteLine(e.ToString());
+                        log.Error("InstanceName: " + instanceName + ". " + ex.Message);
                         //EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
             }
         }
-
 
         public void GatherWaitStats()
         {
@@ -576,15 +597,14 @@ namespace CMS_C
                         }
                         repConn.Close();
                     }
-                    catch (Exception e)
+                    catch (SqlException ex)
                     {
-                        Console.WriteLine(e.ToString());
+                        log.Error("InstanceName: " + instanceName + ". " + ex.Message);
                         //EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
             }
         }
-
 
         private DataSet GatherData([CallerMemberName] string Query = null)
         {
@@ -607,9 +627,15 @@ namespace CMS_C
                 adapter.Fill(_dbs);
                 return _dbs;
             }
-            catch (Exception ex)
+            //catch (Exception ex)
+            //{   
+            //    EventLogger.LogEvent(ex.ToString(),"Error");
+            //    return _dbs;
+            //}
+            catch (SqlException ex)
             {
-                EventLogger.LogEvent(ex.ToString(),"Error");
+                //Jobs.LogSQLErrors(ex, this._serverName, this.instanceName);
+                log.Error("InstanceName: " + instanceName + ". " + ex.Message);
                 return _dbs;
             }
             finally
@@ -617,6 +643,7 @@ namespace CMS_C
                 conn.Close();
             }
         }
+
 
         public void CheckDeletedAgentJobs(List<AgentJob> AgentJobs)
         {
@@ -652,13 +679,19 @@ namespace CMS_C
                         }
                         repConn.Close();
                     }
-                    catch (Exception e)
+                    catch (SqlException ex)
                     {
-                        Console.WriteLine(e.ToString());
+                        log.Error("InstanceName: " + instanceName + ". " + ex.Message);
                         //EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }
             }
+        }
+
+        public DataSet GatherClusterNodes()
+        {
+            DataSet _nodes = GatherData();
+            return _nodes;
         }
 
         public void CheckDeletedDatabases(List<Database> Databases)
@@ -699,9 +732,9 @@ namespace CMS_C
                         }
                         repConn.Close();
                     }
-                    catch (Exception e)
+                    catch (SqlException ex)
                     {
-                        Console.WriteLine(e.ToString());
+                        log.Error("InstanceName: " + instanceName + ". " + ex.Message);
                         //EventLogger.LogEvent(e.ToString(), "Warning");
                     }
                 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.ServiceProcess;
 using System.Diagnostics;
 using System.Timers;
+using System.Data;
 
 namespace CMS_C
 {
@@ -23,9 +24,9 @@ namespace CMS_C
             this.CanStop = true;
         }
 
-
- 
-
+        DateTime _lastDailyExecutionDateTime;
+        Timer _dailyTimer = new Timer(1000 * 60 * 60 * 24);
+        
         /// <summary>
         /// Dispose of objects that need it here.
         /// </summary>
@@ -48,49 +49,98 @@ namespace CMS_C
 
 
             CMSCache cache = new CMSCache();
-            cache.BuildDatabaseCache();
-            cache.BuildServerCache();
+            cache.BuildCache();
 
-
+            
             Timer _fiveMinuteTimer = new Timer(300000);
             Timer _thirtyMinuteTimer = new Timer(1000 * 60 * 30);
-            Timer _dailyTimer = new Timer(1000 * 60 * 60 * 24);
             
+
+            _lastDailyExecutionDateTime = GatherLastDailyExecution();
+            TimeSpan _daysSince = DateTime.Now - _lastDailyExecutionDateTime;
+            if(_daysSince.Hours > 24)
+            {
+                Jobs.Daily(cache);
+            }
+
+            SetUpTimer(new TimeSpan(10, 15, 00), cache);
 
             _fiveMinuteTimer.Enabled = true;
             _fiveMinuteTimer.Start();
-            _fiveMinuteTimer.Elapsed += new ElapsedEventHandler(FiveMinuteEvent);
+            _fiveMinuteTimer.Elapsed += new ElapsedEventHandler((sender, e) => FiveMinuteEvent(sender, e, cache));
 
             _thirtyMinuteTimer.Enabled = true;
             _thirtyMinuteTimer.Start();
-            _thirtyMinuteTimer.Elapsed += new ElapsedEventHandler(ThirtyMinuteEvent);
+            _thirtyMinuteTimer.Elapsed += new ElapsedEventHandler((sender, e) => ThirtyMinuteEvent(sender, e,cache));
 
+            
+        }
+
+
+        private void SetUpTimer(TimeSpan alertTime, CMSCache Cache)
+        {
+            DateTime current = DateTime.Now;
+            TimeSpan timeToGo = alertTime - current.TimeOfDay;
+            if (timeToGo < TimeSpan.Zero)
+            {
+                return;//time already passed
+            }
+            System.Threading.Timer timer = new System.Threading.Timer(x =>
+            {
+                this.SetUpDaily(Cache);
+            }, null, timeToGo, System.Threading.Timeout.InfiniteTimeSpan);
+        }
+
+        private void SetUpDaily(CMSCache Cache)
+        {
+            Jobs.Daily(Cache);
             _dailyTimer.Enabled = true;
             _dailyTimer.Start();
-            _dailyTimer.Elapsed += new ElapsedEventHandler(DailyEvent);
+            _dailyTimer.Elapsed += new ElapsedEventHandler((sender, e) => DailyEvent(sender, e, Cache));
         }
 
 
-        private static void FiveMinuteEvent(object source,ElapsedEventArgs e)
+        private static void FiveMinuteEvent(object source,ElapsedEventArgs e, CMSCache Cache)
         {
-            EventLogger.LogEvent("CMS Five Minute Job starting.","Information");
-            //Jobs.FiveMinutes();
-            EventLogger.LogEvent("CMS Five Minute Job complete.","Information");
+            //EventLogger.LogEvent("CMS Five Minute Job starting.","Information");
+            Jobs.FiveMinutes(Cache);
+            Cache.CheckForCacheRefresh();
+            
+            //EventLogger.LogEvent("CMS Five Minute Job complete.","Information");
         }
 
-        private static void ThirtyMinuteEvent(object source, ElapsedEventArgs e)
+        private static void ThirtyMinuteEvent(object source, ElapsedEventArgs e,CMSCache Cache)
         {
-            EventLogger.LogEvent("CMS Thirty Minute Job starting.", "Information");
-            //Jobs.ThirtyMinutes();
-            EventLogger.LogEvent("CMS Thirty Minute Job complete.", "Information");
+            //EventLogger.LogEvent("CMS Thirty Minute Job starting.", "Information");
+            Jobs.ThirtyMinutes(Cache);
+            //EventLogger.LogEvent("CMS Thirty Minute Job complete.", "Information");
         }
-        private static void DailyEvent(object source, ElapsedEventArgs e)
+        private static void DailyEvent(object source, ElapsedEventArgs e,CMSCache Cache)
         {
-            EventLogger.LogEvent("CMS Daily Job starting.", "Information");
-            //Jobs.Daily();
-            EventLogger.LogEvent("CMS Daily Job complete.", "Information");
+            //EventLogger.LogEvent("CMS Daily Job starting.", "Information");
+            Jobs.Daily(Cache);
+            //EventLogger.LogEvent("CMS Daily Job complete.", "Information");
         }
         
+        private DateTime GatherLastDailyExecution()
+        {
+            DateTime _lastDateTime = new DateTime();
+
+            DataSet _lastDailyExecution = Jobs.ConnectRepository("select top 1 StartTime from CollectionLog where ModuleName = 'Daily' order by LogID desc");
+            if (Jobs.TestDataSet(_lastDailyExecution))
+            {
+                foreach (DataRow pRow in _lastDailyExecution.Tables[0].Rows)
+                {
+                    _lastDateTime = (DateTime)pRow["StartTime"];
+                }
+            }
+            else 
+            {
+                _lastDateTime = Convert.ToDateTime("01/01/1900");
+            }
+
+            return _lastDateTime;
+        }
 
         /// <summary>
         /// OnStop(): Put your stop code here
