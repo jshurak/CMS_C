@@ -22,14 +22,7 @@ namespace CMS_C
         static void Main()
         {
             // Uncomment this to start the services
-            //ServiceBase.Run(new Service()); 
-
-            CMSCache cache = new CMSCache();
-            cache.BuildCache();
-
-            Jobs.Daily(cache);
-            Jobs.FiveMinutes(cache);
-            Jobs.ThirtyMinutes(cache);
+            ServiceBase.Run(new Service()); 
 
         }
 
